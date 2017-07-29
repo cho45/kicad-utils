@@ -3,6 +3,34 @@
 // typings install ds~node
 ///<reference path="./typings/index.d.ts"/>
 Object.defineProperty(exports, "__esModule", { value: true });
+/*
+ * This program source code file is part of kicad-js.
+ * Copyright (C) 2017 cho45 <cho45@lowreal.net>.
+ *
+ * And this program source code file is imported from KiCad, a free EDA CAD application.
+ *
+ * Original Author Copyright:
+ *
+ * Copyright (C) 2015 Jean-Pierre Charras, jaen-pierre.charras@gipsa-lab.inpg.com
+ * Copyright (C) 1992-2017 KiCad Developers, see KiCAD AUTHORS.txt for contributors.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, you may find one here:
+ * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * or you may search the http://www.gnu.org website for the version 2 license,
+ * or you may write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+ */
 const kicad_common_1 = require("./kicad_common");
 const kicad_lib_1 = require("./kicad_lib");
 /**
@@ -42,7 +70,7 @@ class Plotter {
     /**
      * kicad-js implements plot methods to plotter instead of each library items.
      */
-    plotComponent(component, offset, transform) {
+    plotComponent(component, unit, convert, offset, transform) {
         if (component.field) {
             const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: component.field.posx, y: component.field.posy }), offset);
             this.text(pos, "black", component.field.reference, component.field.textOrientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
@@ -52,6 +80,14 @@ class Plotter {
             this.text(pos, "black", component.fields[0].name, component.field.textOrientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
         }
         for (let draw of component.draw.objects) {
+            if (unit !== 0 && unit !== draw.unit) {
+                console.log('skip unit ' + draw.unit);
+            }
+            ;
+            if (convert !== 0 && convert !== draw.convert) {
+                console.log('skip convert ' + draw.convert);
+                continue;
+            }
             if (draw instanceof kicad_lib_1.DrawArc) {
                 const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
                 const [startAngle, endAngle] = transform.mapAngles(draw.startAngle, draw.endAngle);

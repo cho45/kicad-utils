@@ -786,7 +786,7 @@ const app = new Vue({
 			ctx.fillStyle  = '#000';
 
 			const plotter = new CanvasPlotter(ctx);
-			plotter.plotComponent(component, { x: 0, y: 0 }, new Transform());
+			plotter.plotComponent(component, 1, 1, { x: 0, y: 0 }, new Transform());
 
 			return canvas.toDataURL();
 		}
@@ -886,7 +886,7 @@ var Plotter = (function () {
     /**
      * kicad-js implements plot methods to plotter instead of each library items.
      */
-    Plotter.prototype.plotComponent = function (component, offset, transform) {
+    Plotter.prototype.plotComponent = function (component, unit, convert, offset, transform) {
         if (component.field) {
             var pos = __WEBPACK_IMPORTED_MODULE_0__kicad_common__["Point"].add(transform.transformCoordinate({ x: component.field.posx, y: component.field.posy }), offset);
             this.text(pos, "black", component.field.reference, component.field.textOrientation, component.field.textSize, __WEBPACK_IMPORTED_MODULE_0__kicad_common__["TextHjustify"].CENTER, __WEBPACK_IMPORTED_MODULE_0__kicad_common__["TextVjustify"].CENTER, 0, false, false);
@@ -897,6 +897,13 @@ var Plotter = (function () {
         }
         for (var _i = 0, _a = component.draw.objects; _i < _a.length; _i++) {
             var draw = _a[_i];
+            if (draw.unit !== 0 && unit !== draw.unit) {
+                continue;
+            }
+            ;
+            if (draw.convert !== 0 && convert !== draw.convert) {
+                continue;
+            }
             if (draw instanceof __WEBPACK_IMPORTED_MODULE_1__kicad_lib__["DrawArc"]) {
                 var pos = __WEBPACK_IMPORTED_MODULE_0__kicad_common__["Point"].add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
                 var _b = transform.mapAngles(draw.startAngle, draw.endAngle), startAngle = _b[0], endAngle = _b[1];

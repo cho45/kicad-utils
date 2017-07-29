@@ -122,7 +122,7 @@ export abstract class Plotter {
 	/**
 	 * kicad-js implements plot methods to plotter instead of each library items.
 	 */
-	plotComponent(component: Component, offset: Point, transform: Transform): void {
+	plotComponent(component: Component, unit: number, convert: number, offset: Point, transform: Transform): void {
 		if (component.field) {
 			const pos = Point.add(transform.transformCoordinate({ x: component.field.posx, y: component.field.posy}), offset);
 			this.text(
@@ -156,6 +156,12 @@ export abstract class Plotter {
 		}
 
 		for (let draw of component.draw.objects) {
+			if (draw.unit !== 0 && unit !== draw.unit) {
+				continue;
+			};
+			if (draw.convert !== 0 && convert !== draw.convert) {
+				continue;
+			}
 			if (draw instanceof DrawArc) {
 				const pos = Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy}), offset);
 				const [startAngle, endAngle] = transform.mapAngles(draw.startAngle, draw.endAngle);
