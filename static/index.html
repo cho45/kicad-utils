@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+		<title>KiCAD library</title>
+
+		<script src="https://unpkg.com/vue"></script>
+		<style>
+			img {
+				max-width: 20vw;
+				max-height: 20vh;
+			}
+
+			#app {
+				display: flex;
+				flex-wrap: wrap;
+			}
+
+			.component {
+				width: 20vw;
+				height: 20vh;
+				flex: 1;
+				background: #efefef;
+				border: 1px solid #999;
+				padding: 10px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app">
+			<div class="component" v-for="component in components">
+				{{ component.name }}
+				<img :src="plot(component)"/>
+			</div>
+		</div>
+		<script src="/js/bundle.js"></script>
+	</body>
+</html>

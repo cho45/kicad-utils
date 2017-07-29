@@ -87,11 +87,62 @@ export class Point {
 	x: number;
 	y: number;
 
+	constructor(x: number, y: number) {
+		this.x = x;
+		this.y = y;
+	}
+
 	static add(p1: Point, p2: Point): Point {
 		return {
 			x: p1.x + p2.x,
 			y: p1.y + p2.y,
 		};
+	}
+
+	static sub(p1: Point, p2: Point): Point {
+		return {
+			x: p1.x - p2.x,
+			y: p1.y - p2.y,
+		};
+	}
+
+	static isZero(p: Point): boolean {
+		return p.x === 0 && p.y === 0;
+	}
+}
+
+export class Rect {
+	pos1: Point;
+	pos2: Point;
+
+	constructor(pos1x: number, pos1y: number, pos2x: number, pos2y: number) {
+		this.pos1 = new Point(pos1x, pos1y);
+		this.pos2 = new Point(pos2x, pos2y);
+	}
+
+	getWidth(): number {
+		return this.pos2.x - this.pos1.x;
+	}
+
+	getHeight(): number {
+		return this.pos2.y - this.pos1.y;
+	}
+
+	merge(o: Rect): Rect {
+		return new Rect(
+			Math.min(this.pos1.x, o.pos1.x),
+			Math.min(this.pos1.y, o.pos1.y),
+			Math.max(this.pos2.x, o.pos2.x),
+			Math.max(this.pos2.y, o.pos2.y)
+		);
+	}
+
+	inflate(n: number): this {
+		this.pos1.x -= n;
+		this.pos1.y -= n;
+		this.pos2.x += n;
+		this.pos2.y += n;
+		return this;
 	}
 }
 

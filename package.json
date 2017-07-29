@@ -4,9 +4,13 @@
   "description": "",
   "main": "kicad.js",
   "dependencies": {
-    "canvas": "^1.6.5"
+    "canvas": "^1.6.5",
+    "express": "^4.15.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "ts-loader": "^2.3.2",
+    "webpack": "^3.4.1"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

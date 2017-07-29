@@ -1,11 +1,9 @@
-//#!tsc --target ES6 --module commonjs kicad.ts && node kicad.js
+//#!tsc --target ES6 --noUnusedLocals --module commonjs kicad.ts && node kicad.js
 // typings install ds~node
 ///<reference path="./typings/index.d.ts"/>
 
 import {
 	DECIDEG2RAD,
-	RAD2DECIDEG,
-	NORMALIZE_ANGLE_POS,
 	DEFAULT_LINE_WIDTH,
 
 	Fill,
@@ -13,30 +11,29 @@ import {
 	TextVjustify,
 	PinOrientation,
 	TextAngle,
-	PinType,
-	PinAttribute,
 
 	Transform,
 	Point,
-} from "./kicad_common.js";
+} from "./kicad_common";
 
 import {
-	Library,
 	Component,
-	Field0,
-	FieldN,
-	Draw,
 	DrawPin,
 	DrawArc,
 	DrawCircle,
 	DrawPolyline,
 	DrawSquare,
 	DrawText,
-} from "./kicad_lib.js";
+} from "./kicad_lib";
 
 
-// similar to KiCAD Plotter
+/**
+ * similar to KiCAD Plotter
+ *
+ */
 export abstract class Plotter {
+	fill: Fill;
+
 	abstract rect(p1: Point, p2: Point, fill: Fill, width: number): void;
 	abstract circle(p: Point, dia: number, fill: Fill, width: number): void;
 	abstract arc(p: Point, startAngle: number, endAngle: number, radius: number, fill: Fill, width: number): void;
@@ -93,6 +90,9 @@ export abstract class Plotter {
 		this.penTo({x: 0, y: 0}, "Z");
 	}
 
+	/**
+	 * kicad-js implements plot methods to plotter instead of each library items.
+	 */
 	plotComponent(component: Component, offset: Point, transform: Transform): void {
 		if (component.field) {
 			const pos = Point.add(transform.transformCoordinate({ x: component.field.posx, y: component.field.posy}), offset);
@@ -177,7 +177,7 @@ export abstract class Plotter {
 					pos,
 					"black",
 					draw.text,
-					0, // component.field.textOrientation,
+					component.field.textOrientation,
 					draw.textSize,
 					TextHjustify.CENTER,
 					TextVjustify.CENTER,
@@ -188,6 +188,8 @@ export abstract class Plotter {
 			} else
 			if (draw instanceof DrawPin) {
 				this.plotPin(draw, component, offset, transform);
+			} else {
+				throw 'unknown draw object type: ' + draw.constructor.name;
 			}
 		}
 	}
@@ -416,6 +418,7 @@ export abstract class Plotter {
 		}
 
 		// TODO shape
+		this.fill = Fill.NO_FILL;
 		this.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
 		this.moveTo({ x: x1, y: y1 });
 		this.finishTo({ x: pos.x, y: pos.y});
@@ -458,7 +461,6 @@ export abstract class Plotter {
 export class CanvasPlotter extends Plotter {
 	ctx : any;
 	penState: "U"|"D"|"Z";
-	fill: Fill;
 
 	constructor(ctx: any) {
 		super();
@@ -565,8 +567,10 @@ export class CanvasPlotter extends Plotter {
 	penTo(p: Point, s: "U"|"D"|"Z"): void {
 		if (s === "Z") {
 			if (this.fill === Fill.FILLED_SHAPE) {
+				// console.log('ctx.fill', p);
 				this.ctx.fill();
 			} else {
+				// console.log('ctx.stroke', p);
 				this.ctx.stroke();
 			}
 			this.penState = "Z";
@@ -577,11 +581,15 @@ export class CanvasPlotter extends Plotter {
 
 		if (this.penState === "Z") {
 			this.ctx.beginPath();
+			// console.log('ctx.beginPath');
+			// console.log('ctx.moveTo', p);
 			this.ctx.moveTo(p.x, p.y);
 		} else {
 			if (s === "U") {
+				// console.log('ctx.moveTo', p);
 				this.ctx.moveTo(p.x, p.y);
 			} else {
+				// console.log('ctx.lineTo', p);
 				this.ctx.lineTo(p.x, p.y);
 			}
 		}

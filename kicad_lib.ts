@@ -1,13 +1,19 @@
-//#!tsc --target ES6 --module commonjs kicad.ts && node kicad.js
+//#!tsc --target ES6 --noUnusedLocals --module commonjs kicad.ts && node kicad.js
 // typings install ds~node
 ///<reference path="./typings/index.d.ts"/>
 
+/**
+ * imported from:
+ * eeschema/lib_text.cpp
+ * eeschema/lib_rectangle.cpp
+ * eeschema/lib_polyline.cpp
+ * eeschema/lib_pin.cpp
+ * eeschema/lib_field.cpp
+ * eeschema/lib_draw_item.cpp
+ * eeschema/lib_circle.cpp
+ * eeschema/lib_arc.cpp
+ */
 import {
-	DECIDEG2RAD,
-	RAD2DECIDEG,
-	NORMALIZE_ANGLE_POS,
-	DEFAULT_LINE_WIDTH,
-
 	Fill,
 	TextHjustify,
 	TextVjustify,
@@ -15,10 +21,10 @@ import {
 	TextAngle,
 	PinType,
 	PinAttribute,
-
-	Transform,
+	Rect,
 	Point,
-} from "./kicad_common.js";
+	Transform,
+} from "./kicad_common";
 
 export class Library {
 	components: Array<Component>;
@@ -38,7 +44,7 @@ export class Library {
 		let line;
 
 		const version = lines.shift();
-		if (version.indexOf('EESchema-LIBRARY Version 2.3') !== 0) {
+		if (!version || version.indexOf('EESchema-LIBRARY Version 2.3') !== 0) {
 			throw "unknwon library format";
 		}
 
@@ -54,7 +60,11 @@ export class Library {
 	}
 
 	findByName(name: string) : Component {
-		return this.components.find( (i) => i.name === name);
+		const ret = this.components.find( (i) => i.name === name);
+		if (!ret) {
+			throw "Component notfound";
+		}
+		return ret;
 	}
 }
 
@@ -197,6 +207,21 @@ export class Draw {
 		}
 		return this;
 	}
+
+	getBoundingRect(): Rect | undefined {
+		let rect;
+		for (let o of this.objects) {
+			const box = o.getBoundingBox();
+			if (box.getWidth() === 0 || box.getHeight() === 0) continue;
+			if (!rect) {
+				rect = box;
+			} else {
+				rect = rect.merge(box);
+			}
+		}
+
+		return rect;
+	}
 }
 
 abstract class DrawObject {
@@ -214,6 +239,8 @@ abstract class DrawObject {
 	convert: number;
 
 	fill: Fill;
+
+	abstract getBoundingBox(): Rect;
 }
 
 export class DrawArc extends DrawObject {
@@ -244,6 +271,63 @@ export class DrawArc extends DrawObject {
 		this.endx = Number(params[11]);
 		this.endy = Number(params[12]);
 	}
+
+	getBoundingBox(): Rect {
+		const ret = new Rect(0, 0, 0, 0);
+		const arcStart = { x: this.startx, y: this.starty };
+		const arcEnd   = { x: this.endx, y: this.endy };
+		const pos      = { x: this.posx, y: this.posy };
+		const normStart = Point.sub(arcStart, pos);
+		const normEnd = Point.sub(arcEnd, pos);
+
+		if (Point.isZero(normStart) || Point.isZero(normEnd) || this.radius === 0) {
+			return ret;
+		}
+
+		const transform = new Transform();
+
+		const startPos = transform.transformCoordinate(arcStart);
+		const endPos = transform.transformCoordinate(arcEnd);
+		const centerPos = transform.transformCoordinate(pos);
+
+		let [startAngle, endAngle, swap] = transform.mapAngles(this.startAngle, this.endAngle);
+		if (swap) {
+			[endPos.x, startPos.x] = [startPos.x, endPos.x];
+			[endPos.y, startPos.y] = [startPos.y, endPos.y];
+		}
+
+		let minX = Math.min(startPos.x, endPos.x);
+		let minY = Math.min(startPos.y, endPos.y);
+		let maxX = Math.max(startPos.x, endPos.x);
+		let maxY = Math.max(startPos.y, endPos.y);
+
+		/* Zero degrees is a special case. */
+		if ( this.startAngle === 0 )
+			maxX = centerPos.x + this.radius;
+
+		/* Arc end angle wrapped passed 360. */
+		if( startAngle > endAngle )
+			endAngle += 3600;
+
+		if( startAngle <= 900 && endAngle >= 900 )          /* 90 deg */
+			maxY = centerPos.y + this.radius;
+
+		if( startAngle <= 1800 && endAngle >= 1800 )        /* 180 deg */
+			minX = centerPos.x - this.radius;
+
+		if( startAngle <= 2700 && endAngle >= 2700 )        /* 270 deg */
+			minY = centerPos.y - this.radius;
+
+		if( startAngle <= 3600 && endAngle >= 3600 )        /* 0 deg   */
+			maxX = centerPos.x + this.radius;
+
+		ret.pos1.x = minX;
+		ret.pos1.y = minY;
+		ret.pos2.x = maxX;
+		ret.pos2.y = maxY;
+
+		return ret;
+	}
 }
 
 export class DrawCircle extends DrawObject {
@@ -261,6 +345,20 @@ export class DrawCircle extends DrawObject {
 		this.lineWidth = Number(params[5]);
 		this.fill = params[6] as Fill || Fill.NO_FILL;
 	}
+
+	getBoundingBox(): Rect {
+		const transform = new Transform();
+
+		const pos1 = transform.transformCoordinate({ x: this.posx - this.radius, y: this.posy - this.radius });
+		const pos2 = transform.transformCoordinate({ x: this.posx + this.radius, y: this.posy + this.radius });
+
+		return new Rect(
+			Math.min(pos1.x, pos2.x),
+			Math.min(pos1.y, pos2.y),
+			Math.max(pos1.x, pos2.x),
+			Math.max(pos1.y, pos2.y)
+		);
+	}
 }
 
 export class DrawPolyline extends DrawObject {
@@ -275,6 +373,34 @@ export class DrawPolyline extends DrawObject {
 		this.lineWidth = Number(params[3]);
 		this.points = params.slice(4, 4 + (this.pointCount * 2)).map( (i) => Number(i) );
 		this.fill = params[4 + (this.pointCount * 2)] as Fill || Fill.NO_FILL;
+	}
+
+	getBoundingBox(): Rect {
+		let minx, maxx;
+		let miny, maxy;
+
+		minx = maxx = this.points[0];
+		miny = maxy = this.points[1];
+
+		for (var i = 2, len = this.points.length; i < len; i += 2) {
+			const x = this.points[i];
+			const y = this.points[i+1];
+			minx = Math.min(minx, x);
+			maxx = Math.max(maxx, x);
+			miny = Math.min(miny, y);
+			maxy = Math.max(maxy, y);
+		}
+
+		const transform = new Transform();
+		const pos1 = transform.transformCoordinate({x: minx, y: miny });
+		const pos2 = transform.transformCoordinate({x: maxx, y: maxy });
+
+		return new Rect(
+			Math.min(pos1.x, pos2.x),
+			Math.min(pos1.y, pos2.y),
+			Math.max(pos1.x, pos2.x),
+			Math.max(pos1.y, pos2.y)
+		);
 	}
 }
 
@@ -294,6 +420,19 @@ export class DrawSquare extends DrawObject {
 		this.convert = Number(params[5]);
 		this.lineWidth = Number(params[6]);
 		this.fill = params[7] as Fill || Fill.NO_FILL;
+	}
+
+	getBoundingBox(): Rect {
+		const transform = new Transform();
+		const pos1 = transform.transformCoordinate({x: this.startx, y: this.starty });
+		const pos2 = transform.transformCoordinate({x: this.endx, y: this.endy });
+
+		return new Rect(
+			Math.min(pos1.x, pos2.x),
+			Math.min(pos1.y, pos2.y),
+			Math.max(pos1.x, pos2.x),
+			Math.max(pos1.y, pos2.y)
+		);
 	}
 }
 
@@ -323,6 +462,16 @@ export class DrawText extends DrawObject {
 		this.hjustify = params[10] as TextHjustify;
 		this.vjustify = params[11] as TextVjustify;
 	}
+
+	getBoundingBox(): Rect {
+		// TODO
+		return new Rect(
+			this.posx - (this.angle === 0 ? this.text.length * this.textSize : 0),
+			this.posy - (this.angle !== 0 ? this.text.length * this.textSize : 0),
+			this.posx + (this.angle === 0 ? this.text.length * this.textSize : 0),
+			this.posy + (this.angle !== 0 ? this.text.length * this.textSize : 0)
+		);
+	}
 }
 
 export class DrawPin extends DrawObject {
@@ -351,6 +500,16 @@ export class DrawPin extends DrawObject {
 		this.convert = Number(params[9]);
 		this.pinType = params[10] as PinType;
 		this.attributes = (params[11] || '').split('') as Array<PinAttribute>;
+	}
+
+	getBoundingBox(): Rect {
+		// TODO
+		return new Rect(
+			this.posx - this.length,
+			this.posy - this.length,
+			this.posx + this.length,
+			this.posy + this.length,
+		);
 	}
 }
 
