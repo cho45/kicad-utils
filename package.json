@@ -1,0 +1,15 @@
+{
+  "name": "kicad-js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "kicad.js",
+  "dependencies": {
+    "canvas": "^1.6.5"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "cho45 <cho45@lowreal.net> (http://www.lowreal.net/)",
+  "license": "ISC"
+}
