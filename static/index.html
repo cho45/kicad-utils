@@ -8,12 +8,12 @@
 
 		<script src="https://unpkg.com/vue"></script>
 		<style>
-			img {
+			canvas {
 				max-width: 20vw;
 				max-height: 20vh;
 			}
 
-			#app {
+			.list-component {
 				display: flex;
 				flex-wrap: wrap;
 			}
@@ -30,9 +30,12 @@
 	</head>
 	<body>
 		<div id="app">
-			<div class="component" v-for="component in components">
-				{{ component.name }}
-				<img :src="plot(component)"/>
+			<input type="file" v-on:change="fileSelected" ref="fileInput"> {{ status }}
+			<div class="list-component">
+				<div class="component" v-for="component in components">
+					{{ component.name }}
+					<canvas ref="canvas" :data-name="component.name"></canvas>
+				</div>
 			</div>
 		</div>
 		<script src="/js/bundle.js"></script>
