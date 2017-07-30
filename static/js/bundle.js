@@ -2546,19 +2546,6 @@ exports[DATA_VIEW] = $DataView;
 
 "use strict";
 
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-exports.DECIDEG2RAD = DECIDEG2RAD;
-exports.RAD2DECIDEG = RAD2DECIDEG;
-exports.NORMALIZE_ANGLE_POS = NORMALIZE_ANGLE_POS;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
 //#!tsc --target ES6 --module commonjs kicad.ts && node kicad.js
 // typings install ds~node
 ///<reference path="../typings/index.d.ts"/>
@@ -2591,13 +2578,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * or you may write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
-var DEFAULT_LINE_WIDTH = exports.DEFAULT_LINE_WIDTH = 6;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DEFAULT_LINE_WIDTH = 6;
 function DECIDEG2RAD(deg) {
     return deg * Math.PI / 1800;
 }
+exports.DECIDEG2RAD = DECIDEG2RAD;
 function RAD2DECIDEG(rad) {
     return rad * 1800 / Math.PI;
 }
+exports.RAD2DECIDEG = RAD2DECIDEG;
 function NORMALIZE_ANGLE_POS(angle) {
     while (angle < 0) {
         angle += 3600;
@@ -2605,8 +2600,9 @@ function NORMALIZE_ANGLE_POS(angle) {
         angle -= 3600;
     }return angle;
 }
+exports.NORMALIZE_ANGLE_POS = NORMALIZE_ANGLE_POS;
 
-var Transform = exports.Transform = function () {
+var Transform = function () {
     function Transform() {
         var x1 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
         var y1 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
@@ -2678,7 +2674,9 @@ var Transform = exports.Transform = function () {
     return Transform;
 }();
 
-var Point = exports.Point = function () {
+exports.Transform = Transform;
+
+var Point = function () {
     function Point(x, y) {
         _classCallCheck(this, Point);
 
@@ -2712,7 +2710,9 @@ var Point = exports.Point = function () {
     return Point;
 }();
 
-var Rect = exports.Rect = function () {
+exports.Point = Point;
+
+var Rect = function () {
     function Rect(pos1x, pos1y, pos2x, pos2y) {
         _classCallCheck(this, Rect);
 
@@ -2749,37 +2749,38 @@ var Rect = exports.Rect = function () {
     return Rect;
 }();
 
-var Fill = exports.Fill = undefined;
+exports.Rect = Rect;
+var Fill;
 (function (Fill) {
     Fill["NO_FILL"] = "N";
     Fill["FILLED_SHAPE"] = "F";
     Fill["FILLED_WITH_BG_BODYCOLOR"] = "f";
-})(Fill || (exports.Fill = Fill = {}));
-var TextHjustify = exports.TextHjustify = undefined;
+})(Fill = exports.Fill || (exports.Fill = {}));
+var TextHjustify;
 (function (TextHjustify) {
     TextHjustify["LEFT"] = "L";
     TextHjustify["CENTER"] = "C";
     TextHjustify["RIGHT"] = " R";
-})(TextHjustify || (exports.TextHjustify = TextHjustify = {}));
-var TextVjustify = exports.TextVjustify = undefined;
+})(TextHjustify = exports.TextHjustify || (exports.TextHjustify = {}));
+var TextVjustify;
 (function (TextVjustify) {
     TextVjustify["TOP"] = "T";
     TextVjustify["CENTER"] = "C";
     TextVjustify["BOTTOM"] = "B";
-})(TextVjustify || (exports.TextVjustify = TextVjustify = {}));
-var PinOrientation = exports.PinOrientation = undefined;
+})(TextVjustify = exports.TextVjustify || (exports.TextVjustify = {}));
+var PinOrientation;
 (function (PinOrientation) {
     PinOrientation["RIGHT"] = "R";
     PinOrientation["LEFT"] = "L";
     PinOrientation["UP"] = "U";
     PinOrientation["DOWN"] = "D";
-})(PinOrientation || (exports.PinOrientation = PinOrientation = {}));
-var TextAngle = exports.TextAngle = undefined;
+})(PinOrientation = exports.PinOrientation || (exports.PinOrientation = {}));
+var TextAngle;
 (function (TextAngle) {
     TextAngle[TextAngle["HORIZ"] = 0] = "HORIZ";
     TextAngle[TextAngle["VERT"] = 900] = "VERT";
-})(TextAngle || (exports.TextAngle = TextAngle = {}));
-var PinType = exports.PinType = undefined;
+})(TextAngle = exports.TextAngle || (exports.TextAngle = {}));
+var PinType;
 (function (PinType) {
     PinType["PIN_INPUT"] = "I";
     PinType["PIN_OUTPUT"] = "O";
@@ -2792,9 +2793,9 @@ var PinType = exports.PinType = undefined;
     PinType["PIN_OPENCOLLECTOR"] = "C";
     PinType["PIN_OPENEMITTER"] = "E";
     PinType["PIN_NC"] = "N";
-})(PinType || (exports.PinType = PinType = {}));
+})(PinType = exports.PinType || (exports.PinType = {}));
 ;
-var PinAttribute = exports.PinAttribute = undefined;
+var PinAttribute;
 (function (PinAttribute) {
     PinAttribute["NONE"] = "~";
     PinAttribute["INVERTED"] = "I";
@@ -2804,7 +2805,7 @@ var PinAttribute = exports.PinAttribute = undefined;
     PinAttribute["FALLING_EDGE"] = "F";
     PinAttribute["NONLOGIC"] = "X";
     PinAttribute["INVISIBLE"] = "N";
-})(PinAttribute || (exports.PinAttribute = PinAttribute = {}));
+})(PinAttribute = exports.PinAttribute || (exports.PinAttribute = {}));
 
 /***/ }),
 /* 86 */
@@ -3578,17 +3579,21 @@ module.exports = function(iter, ITERATOR){
 
 "use strict";
 
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.DrawPin = exports.DrawText = exports.DrawSquare = exports.DrawPolyline = exports.DrawCircle = exports.DrawArc = exports.Draw = exports.FieldN = exports.Field0 = exports.Component = exports.Library = undefined;
+//#!tsc --target ES6 --noUnusedLocals --module commonjs kicad.ts && node kicad.js
+// typings install ds~node
+///<reference path="../typings/index.d.ts"/>
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); //#!tsc --target ES6 --noUnusedLocals --module commonjs kicad.ts && node kicad.js
-// typings install ds~node
-///<reference path="../typings/index.d.ts"/>
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * This program source code file is part of kicad-js.
  * Copyright (C) 2017 cho45 <cho45@lowreal.net>.
@@ -3628,17 +3633,9 @@ var _createClass = function () { function defineProperties(target, props) { for 
  * eeschema/lib_circle.cpp
  * eeschema/lib_arc.cpp
  */
+var kicad_common_1 = __webpack_require__(85);
 
-
-var _kicad_common = __webpack_require__(85);
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Library = exports.Library = function () {
+var Library = function () {
     _createClass(Library, null, [{
         key: "load",
         value: function load(content) {
@@ -3658,13 +3655,14 @@ var Library = exports.Library = function () {
     _createClass(Library, [{
         key: "parse",
         value: function parse(lines) {
-            var line = void 0;
             var version = lines.shift();
             if (!version || version.indexOf('EESchema-LIBRARY Version 2.3') !== 0) {
                 throw "unknwon library format";
             }
-            while (line = lines.shift()) {
+            var line = void 0;
+            while ((line = lines.shift()) !== undefined) {
                 if (line[0] === '#') continue;
+                if (line === "") continue;
                 var tokens = line.split(/ +/);
                 if (tokens[0] === 'DEF') {
                     this.components.push(new Component(tokens.slice(1)).parse(lines));
@@ -3689,7 +3687,9 @@ var Library = exports.Library = function () {
     return Library;
 }();
 
-var Component = exports.Component = function () {
+exports.Library = Library;
+
+var Component = function () {
     function Component(params) {
         _classCallCheck(this, Component);
 
@@ -3708,7 +3708,7 @@ var Component = exports.Component = function () {
         key: "parse",
         value: function parse(lines) {
             var line = void 0;
-            while (line = lines.shift()) {
+            while ((line = lines.shift()) !== undefined) {
                 if (line === 'ENDDEF') break;
                 var tokens = line.split(/ +/);
                 if (tokens[0] === 'DRAW') {
@@ -3721,7 +3721,7 @@ var Component = exports.Component = function () {
                     this.fields.push(new FieldN(tokens.slice(1)));
                 } else if (tokens[0] === '$FPLIST') {
                     this.fplist = [];
-                    while (line = lines.shift()) {
+                    while ((line = lines.shift()) !== undefined) {
                         if (line === '$ENDFPLIST') break;
                         this.fplist.push(tokens[0]);
                     }
@@ -3736,34 +3736,40 @@ var Component = exports.Component = function () {
     return Component;
 }();
 
-var Field0 = exports.Field0 = function Field0(params) {
+exports.Component = Component;
+
+var Field0 = function Field0(params) {
     _classCallCheck(this, Field0);
 
     this.reference = params[0].replace(/^"|"$/g, '');
     this.posx = Number(params[1]);
     this.posy = Number(params[2]);
     this.textSize = Number(params[3]);
-    this.textOrientation = params[4] === 'H' ? _kicad_common.TextAngle.HORIZ : _kicad_common.TextAngle.VERT;
+    this.textOrientation = params[4] === 'H' ? kicad_common_1.TextAngle.HORIZ : kicad_common_1.TextAngle.VERT;
     this.visibility = params[5];
     this.htextJustify = params[6];
     this.vtextJustify = params[7];
 };
 
-var FieldN = exports.FieldN = function FieldN(params) {
+exports.Field0 = Field0;
+
+var FieldN = function FieldN(params) {
     _classCallCheck(this, FieldN);
 
     this.name = params[0].replace(/''/g, '"').replace(/~/g, ' ').replace(/^"|"$/g, '');
     this.posx = Number(params[1]);
     this.posy = Number(params[2]);
     this.textSize = Number(params[3]);
-    this.textOrientation = params[4] === 'H' ? _kicad_common.TextAngle.HORIZ : _kicad_common.TextAngle.VERT;
+    this.textOrientation = params[4] === 'H' ? kicad_common_1.TextAngle.HORIZ : kicad_common_1.TextAngle.VERT;
     this.visibility = params[5];
     this.htextJustify = params[6];
     this.vtextJustify = params[7];
     this.fieldname = params[8];
 };
 
-var Draw = exports.Draw = function () {
+exports.FieldN = FieldN;
+
+var Draw = function () {
     function Draw() {
         _classCallCheck(this, Draw);
 
@@ -3774,7 +3780,7 @@ var Draw = exports.Draw = function () {
         key: "parse",
         value: function parse(lines) {
             var line = void 0;
-            while (line = lines.shift()) {
+            while ((line = lines.shift()) !== undefined) {
                 if (line === 'ENDDRAW') break;
                 var tokens = line.split(/ +/);
                 if (tokens[0] === 'A') {
@@ -3836,11 +3842,13 @@ var Draw = exports.Draw = function () {
     return Draw;
 }();
 
+exports.Draw = Draw;
+
 var DrawObject = function DrawObject() {
     _classCallCheck(this, DrawObject);
 };
 
-var DrawArc = exports.DrawArc = function (_DrawObject) {
+var DrawArc = function (_DrawObject) {
     _inherits(DrawArc, _DrawObject);
 
     function DrawArc(params) {
@@ -3856,7 +3864,7 @@ var DrawArc = exports.DrawArc = function (_DrawObject) {
         _this.unit = Number(params[5]);
         _this.convert = Number(params[6]);
         _this.lineWidth = Number(params[7]);
-        _this.fill = params[8] || _kicad_common.Fill.NO_FILL;
+        _this.fill = params[8] || kicad_common_1.Fill.NO_FILL;
         _this.startx = Number(params[9]);
         _this.starty = Number(params[10]);
         _this.endx = Number(params[11]);
@@ -3867,16 +3875,16 @@ var DrawArc = exports.DrawArc = function (_DrawObject) {
     _createClass(DrawArc, [{
         key: "getBoundingBox",
         value: function getBoundingBox() {
-            var ret = new _kicad_common.Rect(0, 0, 0, 0);
+            var ret = new kicad_common_1.Rect(0, 0, 0, 0);
             var arcStart = { x: this.startx, y: this.starty };
             var arcEnd = { x: this.endx, y: this.endy };
             var pos = { x: this.posx, y: this.posy };
-            var normStart = _kicad_common.Point.sub(arcStart, pos);
-            var normEnd = _kicad_common.Point.sub(arcEnd, pos);
-            if (_kicad_common.Point.isZero(normStart) || _kicad_common.Point.isZero(normEnd) || this.radius === 0) {
+            var normStart = kicad_common_1.Point.sub(arcStart, pos);
+            var normEnd = kicad_common_1.Point.sub(arcEnd, pos);
+            if (kicad_common_1.Point.isZero(normStart) || kicad_common_1.Point.isZero(normEnd) || this.radius === 0) {
                 return ret;
             }
-            var transform = new _kicad_common.Transform();
+            var transform = new kicad_common_1.Transform();
             var startPos = transform.transformCoordinate(arcStart);
             var endPos = transform.transformCoordinate(arcEnd);
             var centerPos = transform.transformCoordinate(pos);
@@ -3918,7 +3926,9 @@ var DrawArc = exports.DrawArc = function (_DrawObject) {
     return DrawArc;
 }(DrawObject);
 
-var DrawCircle = exports.DrawCircle = function (_DrawObject2) {
+exports.DrawArc = DrawArc;
+
+var DrawCircle = function (_DrawObject2) {
     _inherits(DrawCircle, _DrawObject2);
 
     function DrawCircle(params) {
@@ -3932,24 +3942,26 @@ var DrawCircle = exports.DrawCircle = function (_DrawObject2) {
         _this2.unit = Number(params[3]);
         _this2.convert = Number(params[4]);
         _this2.lineWidth = Number(params[5]);
-        _this2.fill = params[6] || _kicad_common.Fill.NO_FILL;
+        _this2.fill = params[6] || kicad_common_1.Fill.NO_FILL;
         return _this2;
     }
 
     _createClass(DrawCircle, [{
         key: "getBoundingBox",
         value: function getBoundingBox() {
-            var transform = new _kicad_common.Transform();
+            var transform = new kicad_common_1.Transform();
             var pos1 = transform.transformCoordinate({ x: this.posx - this.radius, y: this.posy - this.radius });
             var pos2 = transform.transformCoordinate({ x: this.posx + this.radius, y: this.posy + this.radius });
-            return new _kicad_common.Rect(Math.min(pos1.x, pos2.x), Math.min(pos1.y, pos2.y), Math.max(pos1.x, pos2.x), Math.max(pos1.y, pos2.y));
+            return new kicad_common_1.Rect(Math.min(pos1.x, pos2.x), Math.min(pos1.y, pos2.y), Math.max(pos1.x, pos2.x), Math.max(pos1.y, pos2.y));
         }
     }]);
 
     return DrawCircle;
 }(DrawObject);
 
-var DrawPolyline = exports.DrawPolyline = function (_DrawObject3) {
+exports.DrawCircle = DrawCircle;
+
+var DrawPolyline = function (_DrawObject3) {
     _inherits(DrawPolyline, _DrawObject3);
 
     function DrawPolyline(params) {
@@ -3964,7 +3976,7 @@ var DrawPolyline = exports.DrawPolyline = function (_DrawObject3) {
         _this3.points = params.slice(4, 4 + _this3.pointCount * 2).map(function (i) {
             return Number(i);
         });
-        _this3.fill = params[4 + _this3.pointCount * 2] || _kicad_common.Fill.NO_FILL;
+        _this3.fill = params[4 + _this3.pointCount * 2] || kicad_common_1.Fill.NO_FILL;
         return _this3;
     }
 
@@ -3985,17 +3997,19 @@ var DrawPolyline = exports.DrawPolyline = function (_DrawObject3) {
                 miny = Math.min(miny, y);
                 maxy = Math.max(maxy, y);
             }
-            var transform = new _kicad_common.Transform();
+            var transform = new kicad_common_1.Transform();
             var pos1 = transform.transformCoordinate({ x: minx, y: miny });
             var pos2 = transform.transformCoordinate({ x: maxx, y: maxy });
-            return new _kicad_common.Rect(Math.min(pos1.x, pos2.x), Math.min(pos1.y, pos2.y), Math.max(pos1.x, pos2.x), Math.max(pos1.y, pos2.y));
+            return new kicad_common_1.Rect(Math.min(pos1.x, pos2.x), Math.min(pos1.y, pos2.y), Math.max(pos1.x, pos2.x), Math.max(pos1.y, pos2.y));
         }
     }]);
 
     return DrawPolyline;
 }(DrawObject);
 
-var DrawSquare = exports.DrawSquare = function (_DrawObject4) {
+exports.DrawPolyline = DrawPolyline;
+
+var DrawSquare = function (_DrawObject4) {
     _inherits(DrawSquare, _DrawObject4);
 
     function DrawSquare(params) {
@@ -4010,24 +4024,26 @@ var DrawSquare = exports.DrawSquare = function (_DrawObject4) {
         _this4.unit = Number(params[4]);
         _this4.convert = Number(params[5]);
         _this4.lineWidth = Number(params[6]);
-        _this4.fill = params[7] || _kicad_common.Fill.NO_FILL;
+        _this4.fill = params[7] || kicad_common_1.Fill.NO_FILL;
         return _this4;
     }
 
     _createClass(DrawSquare, [{
         key: "getBoundingBox",
         value: function getBoundingBox() {
-            var transform = new _kicad_common.Transform();
+            var transform = new kicad_common_1.Transform();
             var pos1 = transform.transformCoordinate({ x: this.startx, y: this.starty });
             var pos2 = transform.transformCoordinate({ x: this.endx, y: this.endy });
-            return new _kicad_common.Rect(Math.min(pos1.x, pos2.x), Math.min(pos1.y, pos2.y), Math.max(pos1.x, pos2.x), Math.max(pos1.y, pos2.y));
+            return new kicad_common_1.Rect(Math.min(pos1.x, pos2.x), Math.min(pos1.y, pos2.y), Math.max(pos1.x, pos2.x), Math.max(pos1.y, pos2.y));
         }
     }]);
 
     return DrawSquare;
 }(DrawObject);
 
-var DrawText = exports.DrawText = function (_DrawObject5) {
+exports.DrawSquare = DrawSquare;
+
+var DrawText = function (_DrawObject5) {
     _inherits(DrawText, _DrawObject5);
 
     function DrawText(params) {
@@ -4054,14 +4070,16 @@ var DrawText = exports.DrawText = function (_DrawObject5) {
         key: "getBoundingBox",
         value: function getBoundingBox() {
             // TODO
-            return new _kicad_common.Rect(this.posx - (this.angle === 0 ? this.text.length * this.textSize : 0), this.posy - (this.angle !== 0 ? this.text.length * this.textSize : 0), this.posx + (this.angle === 0 ? this.text.length * this.textSize : 0), this.posy + (this.angle !== 0 ? this.text.length * this.textSize : 0));
+            return new kicad_common_1.Rect(this.posx - (this.angle === 0 ? this.text.length * this.textSize : 0), this.posy - (this.angle !== 0 ? this.text.length * this.textSize : 0), this.posx + (this.angle === 0 ? this.text.length * this.textSize : 0), this.posy + (this.angle !== 0 ? this.text.length * this.textSize : 0));
         }
     }]);
 
     return DrawText;
 }(DrawObject);
 
-var DrawPin = exports.DrawPin = function (_DrawObject6) {
+exports.DrawText = DrawText;
+
+var DrawPin = function (_DrawObject6) {
     _inherits(DrawPin, _DrawObject6);
 
     function DrawPin(params) {
@@ -4088,12 +4106,14 @@ var DrawPin = exports.DrawPin = function (_DrawObject6) {
         key: "getBoundingBox",
         value: function getBoundingBox() {
             // TODO
-            return new _kicad_common.Rect(this.posx - this.length, this.posy - this.length, this.posx + this.length, this.posy + this.length);
+            return new kicad_common_1.Rect(this.posx - this.length, this.posy - this.length, this.posx + this.length, this.posy + this.length);
         }
     }]);
 
     return DrawPin;
 }(DrawObject);
+
+exports.DrawPin = DrawPin;
 
 /***/ }),
 /* 116 */
@@ -9643,17 +9663,21 @@ var app = new Vue({
 
 "use strict";
 
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.CanvasPlotter = exports.Plotter = undefined;
+//#!tsc --target ES6 --noUnusedLocals --module commonjs kicad.ts && node kicad.js
+// typings install ds~node
+///<reference path="../typings/index.d.ts"/>
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); //#!tsc --target ES6 --noUnusedLocals --module commonjs kicad.ts && node kicad.js
-// typings install ds~node
-///<reference path="../typings/index.d.ts"/>
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * This program source code file is part of kicad-js.
  * Copyright (C) 2017 cho45 <cho45@lowreal.net>.
@@ -9682,23 +9706,14 @@ var _createClass = function () { function defineProperties(target, props) { for 
  * or you may write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
-
-
-var _kicad_common = __webpack_require__(85);
-
-var _kicad_lib = __webpack_require__(115);
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
+var kicad_common_1 = __webpack_require__(85);
+var kicad_lib_1 = __webpack_require__(115);
 /**
  * similar to KiCAD Plotter
  *
  */
-var Plotter = exports.Plotter = function () {
+
+var Plotter = function () {
     function Plotter() {
         _classCallCheck(this, Plotter);
     }
@@ -9745,12 +9760,12 @@ var Plotter = exports.Plotter = function () {
         key: "plotComponent",
         value: function plotComponent(component, unit, convert, offset, transform) {
             if (component.field) {
-                var pos = _kicad_common.Point.add(transform.transformCoordinate({ x: component.field.posx, y: component.field.posy }), offset);
-                this.text(pos, "black", component.field.reference, component.field.textOrientation, component.field.textSize, _kicad_common.TextHjustify.CENTER, _kicad_common.TextVjustify.CENTER, 0, false, false);
+                var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: component.field.posx, y: component.field.posy }), offset);
+                this.text(pos, "black", component.field.reference, component.field.textOrientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
             }
             if (component.fields[0]) {
-                var _pos = _kicad_common.Point.add(transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy }), offset);
-                this.text(_pos, "black", component.fields[0].name, component.field.textOrientation, component.fields[0].textSize, _kicad_common.TextHjustify.CENTER, _kicad_common.TextVjustify.CENTER, 0, false, false);
+                var _pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy }), offset);
+                this.text(_pos, "black", component.fields[0].name, component.field.textOrientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
             }
             var _iteratorNormalCompletion = true;
             var _didIteratorError = false;
@@ -9767,33 +9782,33 @@ var Plotter = exports.Plotter = function () {
                     if (draw.convert !== 0 && convert !== draw.convert) {
                         continue;
                     }
-                    if (draw instanceof _kicad_lib.DrawArc) {
-                        var _pos2 = _kicad_common.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+                    if (draw instanceof kicad_lib_1.DrawArc) {
+                        var _pos2 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
 
                         var _transform$mapAngles = transform.mapAngles(draw.startAngle, draw.endAngle),
                             _transform$mapAngles2 = _slicedToArray(_transform$mapAngles, 2),
                             startAngle = _transform$mapAngles2[0],
                             endAngle = _transform$mapAngles2[1];
 
-                        this.arc(_pos2, startAngle, endAngle, draw.radius, draw.fill, _kicad_common.DEFAULT_LINE_WIDTH);
-                    } else if (draw instanceof _kicad_lib.DrawCircle) {
-                        var _pos3 = _kicad_common.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
-                        this.circle(_pos3, draw.radius * 2, draw.fill, _kicad_common.DEFAULT_LINE_WIDTH);
-                    } else if (draw instanceof _kicad_lib.DrawPolyline) {
+                        this.arc(_pos2, startAngle, endAngle, draw.radius, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+                    } else if (draw instanceof kicad_lib_1.DrawCircle) {
+                        var _pos3 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+                        this.circle(_pos3, draw.radius * 2, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+                    } else if (draw instanceof kicad_lib_1.DrawPolyline) {
                         var points = [];
                         for (var i = 0, len = draw.points.length; i < len; i += 2) {
-                            var _pos4 = _kicad_common.Point.add(transform.transformCoordinate({ x: draw.points[i], y: draw.points[i + 1] }), offset);
+                            var _pos4 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.points[i], y: draw.points[i + 1] }), offset);
                             points.push(_pos4);
                         }
-                        this.polyline(points, draw.fill, _kicad_common.DEFAULT_LINE_WIDTH);
-                    } else if (draw instanceof _kicad_lib.DrawSquare) {
-                        var pos1 = _kicad_common.Point.add(transform.transformCoordinate({ x: draw.startx, y: draw.starty }), offset);
-                        var pos2 = _kicad_common.Point.add(transform.transformCoordinate({ x: draw.endx, y: draw.endy }), offset);
-                        this.rect(pos1, pos2, draw.fill, _kicad_common.DEFAULT_LINE_WIDTH);
-                    } else if (draw instanceof _kicad_lib.DrawText) {
-                        var _pos5 = _kicad_common.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
-                        this.text(_pos5, "black", draw.text, component.field.textOrientation, draw.textSize, _kicad_common.TextHjustify.CENTER, _kicad_common.TextVjustify.CENTER, 0, false, false);
-                    } else if (draw instanceof _kicad_lib.DrawPin) {
+                        this.polyline(points, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+                    } else if (draw instanceof kicad_lib_1.DrawSquare) {
+                        var pos1 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.startx, y: draw.starty }), offset);
+                        var pos2 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.endx, y: draw.endy }), offset);
+                        this.rect(pos1, pos2, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+                    } else if (draw instanceof kicad_lib_1.DrawText) {
+                        var _pos5 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+                        this.text(_pos5, "black", draw.text, component.field.textOrientation, draw.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
+                    } else if (draw instanceof kicad_lib_1.DrawPin) {
                         this.plotPin(draw, component, offset, transform);
                     } else {
                         throw 'unknown draw object type: ' + draw.constructor.name;
@@ -9823,65 +9838,65 @@ var Plotter = exports.Plotter = function () {
     }, {
         key: "plotPinTexts",
         value: function plotPinTexts(draw, component, offset, transform) {
-            var pos = _kicad_common.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+            var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
             var x1 = pos.x,
                 y1 = pos.y;
-            if (draw.orientation === _kicad_common.PinOrientation.UP) {
+            if (draw.orientation === kicad_common_1.PinOrientation.UP) {
                 y1 -= draw.length;
-            } else if (draw.orientation === _kicad_common.PinOrientation.DOWN) {
+            } else if (draw.orientation === kicad_common_1.PinOrientation.DOWN) {
                 y1 += draw.length;
-            } else if (draw.orientation === _kicad_common.PinOrientation.LEFT) {
+            } else if (draw.orientation === kicad_common_1.PinOrientation.LEFT) {
                 x1 -= draw.length;
-            } else if (draw.orientation === _kicad_common.PinOrientation.RIGHT) {
+            } else if (draw.orientation === kicad_common_1.PinOrientation.RIGHT) {
                 x1 += draw.length;
             }
             var nameOffset = 4;
             var numOffset = 4;
             var textInside = component.textOffset;
-            var isHorizontal = draw.orientation === _kicad_common.PinOrientation.LEFT || draw.orientation === _kicad_common.PinOrientation.RIGHT;
+            var isHorizontal = draw.orientation === kicad_common_1.PinOrientation.LEFT || draw.orientation === kicad_common_1.PinOrientation.RIGHT;
             if (textInside) {
                 if (isHorizontal) {
                     if (component.drawPinname) {
-                        if (draw.orientation === _kicad_common.PinOrientation.RIGHT) {
-                            this.text({ x: x1 + textInside, y: y1 }, "black", draw.name, _kicad_common.TextAngle.HORIZ, draw.nameTextSize, _kicad_common.TextHjustify.LEFT, _kicad_common.TextVjustify.CENTER, 0, false, false);
+                        if (draw.orientation === kicad_common_1.PinOrientation.RIGHT) {
+                            this.text({ x: x1 + textInside, y: y1 }, "black", draw.name, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
                         } else {
-                            this.text({ x: x1 - textInside, y: y1 }, "black", draw.name, _kicad_common.TextAngle.HORIZ, draw.nameTextSize, _kicad_common.TextHjustify.RIGHT, _kicad_common.TextVjustify.CENTER, 0, false, false);
+                            this.text({ x: x1 - textInside, y: y1 }, "black", draw.name, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.RIGHT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
                         }
                     }
                     if (component.drawPinnumber) {
-                        this.text({ x: (x1 + pos.x) / 2, y: y1 + numOffset }, "black", draw.name, _kicad_common.TextAngle.HORIZ, draw.nameTextSize, _kicad_common.TextHjustify.CENTER, _kicad_common.TextVjustify.BOTTOM, 0, false, false);
+                        this.text({ x: (x1 + pos.x) / 2, y: y1 + numOffset }, "black", draw.name, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
                     }
                 } else {
-                    if (draw.orientation === _kicad_common.PinOrientation.DOWN) {
+                    if (draw.orientation === kicad_common_1.PinOrientation.DOWN) {
                         if (component.drawPinname) {
-                            this.text({ x: x1, y: y1 + textInside }, "black", draw.name, _kicad_common.TextAngle.VERT, draw.nameTextSize, _kicad_common.TextHjustify.RIGHT, _kicad_common.TextVjustify.CENTER, 0, false, false);
+                            this.text({ x: x1, y: y1 + textInside }, "black", draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.RIGHT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
                         }
                         if (component.drawPinnumber) {
-                            this.text({ x: x1 - numOffset, y: (y1 + pos.y) / 2 }, "black", draw.name, _kicad_common.TextAngle.VERT, draw.nameTextSize, _kicad_common.TextHjustify.RIGHT, _kicad_common.TextVjustify.CENTER, 0, false, false);
+                            this.text({ x: x1 - numOffset, y: (y1 + pos.y) / 2 }, "black", draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.RIGHT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
                         }
                     } else {
                         if (component.drawPinname) {
-                            this.text({ x: x1, y: y1 - textInside }, "black", draw.name, _kicad_common.TextAngle.VERT, draw.nameTextSize, _kicad_common.TextHjustify.LEFT, _kicad_common.TextVjustify.CENTER, 0, false, false);
+                            this.text({ x: x1, y: y1 - textInside }, "black", draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
                         }
                         if (component.drawPinnumber) {
-                            this.text({ x: x1 - numOffset, y: (y1 + pos.y) / 2 }, "black", draw.name, _kicad_common.TextAngle.VERT, draw.nameTextSize, _kicad_common.TextHjustify.CENTER, _kicad_common.TextVjustify.BOTTOM, 0, false, false);
+                            this.text({ x: x1 - numOffset, y: (y1 + pos.y) / 2 }, "black", draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
                         }
                     }
                 }
             } else {
                 if (isHorizontal) {
                     if (component.drawPinname) {
-                        this.text({ x: (x1 + pos.x) / 2, y: y1 - nameOffset }, "black", draw.name, _kicad_common.TextAngle.HORIZ, draw.nameTextSize, _kicad_common.TextHjustify.CENTER, _kicad_common.TextVjustify.BOTTOM, 0, false, false);
+                        this.text({ x: (x1 + pos.x) / 2, y: y1 - nameOffset }, "black", draw.name, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
                     }
                     if (component.drawPinnumber) {
-                        this.text({ x: (x1 + pos.x) / 2, y: y1 + numOffset }, "black", draw.num, _kicad_common.TextAngle.HORIZ, draw.numTextSize, _kicad_common.TextHjustify.CENTER, _kicad_common.TextVjustify.TOP, 0, false, false);
+                        this.text({ x: (x1 + pos.x) / 2, y: y1 + numOffset }, "black", draw.num, kicad_common_1.TextAngle.HORIZ, draw.numTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.TOP, 0, false, false);
                     }
                 } else {
                     if (component.drawPinname) {
-                        this.text({ x: x1 - nameOffset, y: (y1 + pos.y) / 2 }, "black", draw.name, _kicad_common.TextAngle.VERT, draw.nameTextSize, _kicad_common.TextHjustify.CENTER, _kicad_common.TextVjustify.BOTTOM, 0, false, false);
+                        this.text({ x: x1 - nameOffset, y: (y1 + pos.y) / 2 }, "black", draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
                     }
                     if (component.drawPinnumber) {
-                        this.text({ x: x1 + numOffset, y: (y1 + pos.y) / 2 }, "black", draw.num, _kicad_common.TextAngle.VERT, draw.numTextSize, _kicad_common.TextHjustify.CENTER, _kicad_common.TextVjustify.TOP, 0, false, false);
+                        this.text({ x: x1 + numOffset, y: (y1 + pos.y) / 2 }, "black", draw.num, kicad_common_1.TextAngle.VERT, draw.numTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.TOP, 0, false, false);
                     }
                 }
             }
@@ -9889,57 +9904,57 @@ var Plotter = exports.Plotter = function () {
     }, {
         key: "plotPinSymbol",
         value: function plotPinSymbol(draw, component, offset, transform) {
-            var pos = _kicad_common.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+            var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
             var orientation = this.pinDrawOrientation(draw, transform);
             var x1 = pos.x,
                 y1 = pos.y;
             var mapX1 = 0,
                 mapY1 = 0;
-            if (orientation === _kicad_common.PinOrientation.UP) {
+            if (orientation === kicad_common_1.PinOrientation.UP) {
                 y1 -= draw.length;
                 mapY1 = 1;
-            } else if (orientation === _kicad_common.PinOrientation.DOWN) {
+            } else if (orientation === kicad_common_1.PinOrientation.DOWN) {
                 y1 += draw.length;
                 mapY1 = -1;
-            } else if (orientation === _kicad_common.PinOrientation.LEFT) {
+            } else if (orientation === kicad_common_1.PinOrientation.LEFT) {
                 x1 -= draw.length;
                 mapX1 = 1;
-            } else if (orientation === _kicad_common.PinOrientation.RIGHT) {
+            } else if (orientation === kicad_common_1.PinOrientation.RIGHT) {
                 x1 += draw.length;
                 mapX1 = -1;
             }
             // TODO shape
-            this.fill = _kicad_common.Fill.NO_FILL;
-            this.setCurrentLineWidth(_kicad_common.DEFAULT_LINE_WIDTH);
+            this.fill = kicad_common_1.Fill.NO_FILL;
+            this.setCurrentLineWidth(kicad_common_1.DEFAULT_LINE_WIDTH);
             this.moveTo({ x: x1, y: y1 });
             this.finishTo({ x: pos.x, y: pos.y });
-            this.circle({ x: pos.x, y: pos.y }, 20, _kicad_common.Fill.NO_FILL, 2);
+            this.circle({ x: pos.x, y: pos.y }, 20, kicad_common_1.Fill.NO_FILL, 2);
         }
     }, {
         key: "pinDrawOrientation",
         value: function pinDrawOrientation(draw, transform) {
             var end = { x: 0, y: 0 };
-            if (draw.orientation === _kicad_common.PinOrientation.UP) {
+            if (draw.orientation === kicad_common_1.PinOrientation.UP) {
                 end.y = 1;
-            } else if (draw.orientation === _kicad_common.PinOrientation.DOWN) {
+            } else if (draw.orientation === kicad_common_1.PinOrientation.DOWN) {
                 end.y = -1;
-            } else if (draw.orientation === _kicad_common.PinOrientation.LEFT) {
+            } else if (draw.orientation === kicad_common_1.PinOrientation.LEFT) {
                 end.x = -1;
-            } else if (draw.orientation === _kicad_common.PinOrientation.RIGHT) {
+            } else if (draw.orientation === kicad_common_1.PinOrientation.RIGHT) {
                 end.x = 1;
             }
             end = transform.transformCoordinate(end);
             if (end.x === 0) {
                 if (end.y > 0) {
-                    return _kicad_common.PinOrientation.DOWN;
+                    return kicad_common_1.PinOrientation.DOWN;
                 } else {
-                    return _kicad_common.PinOrientation.UP;
+                    return kicad_common_1.PinOrientation.UP;
                 }
             } else {
                 if (end.x < 0) {
-                    return _kicad_common.PinOrientation.LEFT;
+                    return kicad_common_1.PinOrientation.LEFT;
                 } else {
-                    return _kicad_common.PinOrientation.RIGHT;
+                    return kicad_common_1.PinOrientation.RIGHT;
                 }
             }
         }
@@ -9947,6 +9962,8 @@ var Plotter = exports.Plotter = function () {
 
     return Plotter;
 }();
+
+exports.Plotter = Plotter;
 
 var CanvasPlotter = function (_Plotter) {
     _inherits(CanvasPlotter, _Plotter);
@@ -9958,7 +9975,7 @@ var CanvasPlotter = function (_Plotter) {
 
         _this.ctx = ctx;
         _this.penState = "Z";
-        _this.fill = _kicad_common.Fill.NO_FILL;
+        _this.fill = kicad_common_1.Fill.NO_FILL;
         _this.ctx.lineCap = "round";
         _this.ctx.strokeStyle = "#000";
         return _this;
@@ -9982,7 +9999,7 @@ var CanvasPlotter = function (_Plotter) {
             this.fill = fill;
             this.ctx.beginPath();
             this.ctx.arc(p.x, p.y, dia / 2, 0, Math.PI * 2, false);
-            if (fill === _kicad_common.Fill.FILLED_SHAPE) {
+            if (fill === kicad_common_1.Fill.FILLED_SHAPE) {
                 this.ctx.fill();
             } else {
                 this.ctx.stroke();
@@ -9998,7 +10015,7 @@ var CanvasPlotter = function (_Plotter) {
             //		this.ctx.save();
             //		this.ctx.scale(1, -1);
             this.ctx.arc(p.x, p.y, radius, startAngle / 10 * Math.PI / 180, endAngle / 10 * Math.PI / 180, anticlockwise);
-            if (fill === _kicad_common.Fill.FILLED_SHAPE) {
+            if (fill === kicad_common_1.Fill.FILLED_SHAPE) {
                 this.ctx.fill();
             } else {
                 this.ctx.stroke();
@@ -10019,23 +10036,23 @@ var CanvasPlotter = function (_Plotter) {
     }, {
         key: "text",
         value: function text(p, color, _text, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
-            if (hjustfy === _kicad_common.TextHjustify.LEFT) {
+            if (hjustfy === kicad_common_1.TextHjustify.LEFT) {
                 this.ctx.textAlign = "left";
-            } else if (hjustfy === _kicad_common.TextHjustify.CENTER) {
+            } else if (hjustfy === kicad_common_1.TextHjustify.CENTER) {
                 this.ctx.textAlign = "center";
-            } else if (hjustfy === _kicad_common.TextHjustify.RIGHT) {
+            } else if (hjustfy === kicad_common_1.TextHjustify.RIGHT) {
                 this.ctx.textAlign = "right";
             }
-            if (vjustify === _kicad_common.TextVjustify.TOP) {
+            if (vjustify === kicad_common_1.TextVjustify.TOP) {
                 this.ctx.textBaseline = "top";
-            } else if (vjustify === _kicad_common.TextVjustify.CENTER) {
+            } else if (vjustify === kicad_common_1.TextVjustify.CENTER) {
                 this.ctx.textBaseline = "middle";
-            } else if (vjustify === _kicad_common.TextVjustify.BOTTOM) {
+            } else if (vjustify === kicad_common_1.TextVjustify.BOTTOM) {
                 this.ctx.textBaseline = "bottom";
             }
             this.ctx.save();
             this.ctx.translate(p.x, p.y);
-            this.ctx.rotate(-(0, _kicad_common.DECIDEG2RAD)(orientation));
+            this.ctx.rotate(-kicad_common_1.DECIDEG2RAD(orientation));
             this.ctx.font = size + "px monospace";
             this.ctx.fillText(_text, 0, 0);
             this.ctx.restore();
@@ -10050,7 +10067,7 @@ var CanvasPlotter = function (_Plotter) {
         key: "penTo",
         value: function penTo(p, s) {
             if (s === "Z") {
-                if (this.fill === _kicad_common.Fill.FILLED_SHAPE) {
+                if (this.fill === kicad_common_1.Fill.FILLED_SHAPE) {
                     // console.log('ctx.fill', p);
                     this.ctx.fill();
                 } else {

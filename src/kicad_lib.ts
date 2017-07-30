@@ -70,15 +70,15 @@ export class Library {
 	}
 
 	parse(lines: Array<string>): void {
-		let line;
-
 		const version = lines.shift();
 		if (!version || version.indexOf('EESchema-LIBRARY Version 2.3') !== 0) {
 			throw "unknwon library format";
 		}
 
-		while (line = lines.shift()) {
+		let line;
+		while ( (line = lines.shift()) !== undefined ) {
 			if (line[0] === '#') continue;
+			if (line === "") continue;
 			const tokens = line.split(/ +/);
 			if (tokens[0] === 'DEF') {
 				this.components.push(new Component(tokens.slice(1)).parse(lines));
@@ -127,7 +127,7 @@ export class Component {
 
 	parse(lines: Array<string>): this {
 		let line;
-		while (line = lines.shift()) {
+		while ( (line = lines.shift()) !== undefined ) {
 			if (line === 'ENDDEF') break;
 			const tokens = line.split(/ +/);
 			if (tokens[0] === 'DRAW') {
@@ -144,7 +144,7 @@ export class Component {
 			} else
 			if (tokens[0] === '$FPLIST') {
 				this.fplist = [];
-				while (line = lines.shift()) {
+				while ( (line = lines.shift()) !== undefined ) {
 					if (line === '$ENDFPLIST') break;
 					this.fplist.push(tokens[0]);
 				}
@@ -210,7 +210,7 @@ export class Draw {
 
 	parse(lines: Array<string>): this {
 		let line;
-		while (line = lines.shift()) {
+		while ( (line = lines.shift()) !== undefined ) {
 			if (line === 'ENDDRAW') break;
 			const tokens = line.split(/ +/);
 			if (tokens[0] === 'A') { // ARC

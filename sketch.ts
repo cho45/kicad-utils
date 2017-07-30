@@ -1,12 +1,21 @@
-//#!tsc --target ES6 --module commonjs kicad.ts && node kicad.js
+//#!tsc && NODE_PATH=dist/src node dist/sketch.js #
 // typings install ds~node
 ///<reference path="./typings/index.d.ts"/>
 
-import { Transform } from "src/kicad_common";
-import { CanvasPlotter } from "src/kicad_plotter";
-import { Library } from "src/kicad_lib";
+import { Transform } from "kicad_common";
+import { CanvasPlotter } from "kicad_plotter";
+import { Library } from "kicad_lib";
+import { Schematic } from "kicad_sch";
 
 const fs = require('fs');
+
+{
+	
+	const content = fs.readFileSync('/Users/cho45/Dropbox/project/keyboard-schematic/Root.sch', 'utf-8');
+	const sch = Schematic.load(content);
+
+	console.log(sch);
+}
 
 // const content = fs.readFileSync('../project/keyboard-schematic/Root-cache.lib', 'utf-8')
 {
@@ -16,6 +25,7 @@ const fs = require('fs');
 	console.log(component);
 	console.log(component.draw);
 }
+
 //{
 //	const content = fs.readFileSync('/Library/Application Support/kicad/library/74xx.lib', 'utf-8')
 //	const lib = Library.load(content);
