@@ -4,7 +4,7 @@
 		<meta charset="utf-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 
-		<title>KiCAD library</title>
+		<title>KiCAD library Viewer</title>
 
 		<script src="https://unpkg.com/vue"></script>
 		<style>
@@ -30,6 +30,8 @@
 	</head>
 	<body>
 		<div id="app">
+			<h1>KiCAD library Viewer</h1>
+			<p>select .lib file</p>
 			<input type="file" v-on:change="fileSelected" ref="fileInput"> {{ status }}
 			<div class="list-component">
 				<div class="component" v-for="component in components">
@@ -38,6 +40,6 @@
 				</div>
 			</div>
 		</div>
-		<script src="/js/bundle.js"></script>
+		<script src="./js/bundle.js"></script>
 	</body>
 </html>
