@@ -67,7 +67,7 @@ class Plotter {
     /**
      * kicad-js implements plot methods to plotter instead of each library items.
      */
-    plotComponent(component, unit, convert, offset, transform) {
+    plotLibComponent(component, unit, convert, offset, transform) {
         if (component.field) {
             const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: component.field.posx, y: component.field.posy }), offset);
             this.text(pos, "black", component.field.reference, component.field.textOrientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
@@ -111,18 +111,18 @@ class Plotter {
                 this.text(pos, "black", draw.text, component.field.textOrientation, draw.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
             }
             else if (draw instanceof kicad_lib_1.DrawPin) {
-                this.plotPin(draw, component, offset, transform);
+                this.plotDrawPin(draw, component, offset, transform);
             }
             else {
                 throw 'unknown draw object type: ' + draw.constructor.name;
             }
         }
     }
-    plotPin(draw, component, offset, transform) {
-        this.plotPinTexts(draw, component, offset, transform);
-        this.plotPinSymbol(draw, component, offset, transform);
+    plotDrawPin(draw, component, offset, transform) {
+        this.plotDrawPinTexts(draw, component, offset, transform);
+        this.plotDrawPinSymbol(draw, component, offset, transform);
     }
-    plotPinTexts(draw, component, offset, transform) {
+    plotDrawPinTexts(draw, component, offset, transform) {
         const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
         let x1 = pos.x, y1 = pos.y;
         if (draw.orientation === kicad_common_1.PinOrientation.UP) {
@@ -193,7 +193,7 @@ class Plotter {
             }
         }
     }
-    plotPinSymbol(draw, component, offset, transform) {
+    plotDrawPinSymbol(draw, component, offset, transform) {
         const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
         const orientation = this.pinDrawOrientation(draw, transform);
         let x1 = pos.x, y1 = pos.y;

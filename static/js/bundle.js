@@ -9589,7 +9589,7 @@ var app = new Vue({
 
 								plotter = new CanvasPlotter(ctx);
 
-								plotter.plotComponent(component, 1, 1, { x: 0, y: 0 }, new Transform());
+								plotter.plotLibComponent(component, 1, 1, { x: 0, y: 0 }, new Transform());
 
 							case 43:
 								_iteratorNormalCompletion = true;
@@ -9747,8 +9747,8 @@ var Plotter = function () {
          */
 
     }, {
-        key: "plotComponent",
-        value: function plotComponent(component, unit, convert, offset, transform) {
+        key: "plotLibComponent",
+        value: function plotLibComponent(component, unit, convert, offset, transform) {
             if (component.field) {
                 var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: component.field.posx, y: component.field.posy }), offset);
                 this.text(pos, "black", component.field.reference, component.field.textOrientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
@@ -9773,33 +9773,17 @@ var Plotter = function () {
                         continue;
                     }
                     if (draw instanceof kicad_lib_1.DrawArc) {
-                        var _pos2 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
-
-                        var _transform$mapAngles = transform.mapAngles(draw.startAngle, draw.endAngle),
-                            _transform$mapAngles2 = _slicedToArray(_transform$mapAngles, 2),
-                            startAngle = _transform$mapAngles2[0],
-                            endAngle = _transform$mapAngles2[1];
-
-                        this.arc(_pos2, startAngle, endAngle, draw.radius, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+                        this.plotDrawArc(draw, component, offset, transform);
                     } else if (draw instanceof kicad_lib_1.DrawCircle) {
-                        var _pos3 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
-                        this.circle(_pos3, draw.radius * 2, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+                        this.plotDrawCircle(draw, component, offset, transform);
                     } else if (draw instanceof kicad_lib_1.DrawPolyline) {
-                        var points = [];
-                        for (var i = 0, len = draw.points.length; i < len; i += 2) {
-                            var _pos4 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.points[i], y: draw.points[i + 1] }), offset);
-                            points.push(_pos4);
-                        }
-                        this.polyline(points, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+                        this.plotDrawPolyline(draw, component, offset, transform);
                     } else if (draw instanceof kicad_lib_1.DrawSquare) {
-                        var pos1 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.startx, y: draw.starty }), offset);
-                        var pos2 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.endx, y: draw.endy }), offset);
-                        this.rect(pos1, pos2, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+                        this.plotDrawSquare(draw, component, offset, transform);
                     } else if (draw instanceof kicad_lib_1.DrawText) {
-                        var _pos5 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
-                        this.text(_pos5, "black", draw.text, component.field.textOrientation, draw.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
+                        this.plotDrawText(draw, component, offset, transform);
                     } else if (draw instanceof kicad_lib_1.DrawPin) {
-                        this.plotPin(draw, component, offset, transform);
+                        this.plotDrawPin(draw, component, offset, transform);
                     } else {
                         throw 'unknown draw object type: ' + draw.constructor.name;
                     }
@@ -9820,14 +9804,55 @@ var Plotter = function () {
             }
         }
     }, {
-        key: "plotPin",
-        value: function plotPin(draw, component, offset, transform) {
-            this.plotPinTexts(draw, component, offset, transform);
-            this.plotPinSymbol(draw, component, offset, transform);
+        key: "plotDrawArc",
+        value: function plotDrawArc(draw, component, offset, transform) {
+            var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+
+            var _transform$mapAngles = transform.mapAngles(draw.startAngle, draw.endAngle),
+                _transform$mapAngles2 = _slicedToArray(_transform$mapAngles, 2),
+                startAngle = _transform$mapAngles2[0],
+                endAngle = _transform$mapAngles2[1];
+
+            this.arc(pos, startAngle, endAngle, draw.radius, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
         }
     }, {
-        key: "plotPinTexts",
-        value: function plotPinTexts(draw, component, offset, transform) {
+        key: "plotDrawCircle",
+        value: function plotDrawCircle(draw, component, offset, transform) {
+            var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+            this.circle(pos, draw.radius * 2, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+        }
+    }, {
+        key: "plotDrawPolyline",
+        value: function plotDrawPolyline(draw, component, offset, transform) {
+            var points = [];
+            for (var i = 0, len = draw.points.length; i < len; i += 2) {
+                var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.points[i], y: draw.points[i + 1] }), offset);
+                points.push(pos);
+            }
+            this.polyline(points, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+        }
+    }, {
+        key: "plotDrawSquare",
+        value: function plotDrawSquare(draw, component, offset, transform) {
+            var pos1 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.startx, y: draw.starty }), offset);
+            var pos2 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.endx, y: draw.endy }), offset);
+            this.rect(pos1, pos2, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+        }
+    }, {
+        key: "plotDrawText",
+        value: function plotDrawText(draw, component, offset, transform) {
+            var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+            this.text(pos, "black", draw.text, component.field.textOrientation, draw.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
+        }
+    }, {
+        key: "plotDrawPin",
+        value: function plotDrawPin(draw, component, offset, transform) {
+            this.plotDrawPinTexts(draw, component, offset, transform);
+            this.plotDrawPinSymbol(draw, component, offset, transform);
+        }
+    }, {
+        key: "plotDrawPinTexts",
+        value: function plotDrawPinTexts(draw, component, offset, transform) {
             var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
             var x1 = pos.x,
                 y1 = pos.y;
@@ -9892,8 +9917,8 @@ var Plotter = function () {
             }
         }
     }, {
-        key: "plotPinSymbol",
-        value: function plotPinSymbol(draw, component, offset, transform) {
+        key: "plotDrawPinSymbol",
+        value: function plotDrawPinSymbol(draw, component, offset, transform) {
             var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
             var orientation = this.pinDrawOrientation(draw, transform);
             var x1 = pos.x,

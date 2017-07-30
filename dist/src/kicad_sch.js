@@ -85,13 +85,13 @@ class Schematic {
                 this.texts.push(new Text(tokens.slice(1)).parse(lines));
             }
             else if (tokens[0] === 'Entry') {
-                // TODO
+                this.entries.push(new Entry(tokens.slice(1)).parse(lines));
             }
             else if (tokens[0] === 'Connection') {
-                // TODO
+                this.connections.push(new Connection(tokens.slice(1)).parse(lines));
             }
             else if (tokens[0] === 'NoConn') {
-                // TODO
+                this.noconns.push(new NoConn(tokens.slice(1)).parse(lines));
             }
             else if (tokens[0] === 'Wire') {
                 this.wires.push(new Wire(tokens.slice(1)).parse(lines));
@@ -268,7 +268,26 @@ class Bitmap {
         while ((line = lines.shift()) !== undefined) {
             if (line === '$EndBitmap')
                 break;
-            // TODO
+            const tokens = line.split(/ +/);
+            if (tokens[0] === 'Pos') {
+                this.posx = Number(tokens[1]);
+                this.posy = Number(tokens[2]);
+            }
+            else if (tokens[0] === 'Scale') {
+                this.scale = Number(tokens[1]);
+            }
+            else if (tokens[0] === 'Data') {
+                this.data = '';
+                while ((line = lines.shift()) !== undefined) {
+                    if (line === 'EndData')
+                        break;
+                    // raw hex data
+                    this.data += line;
+                }
+            }
+            else {
+                throw "unexpected token " + tokens[0];
+            }
         }
         return this;
     }
@@ -307,4 +326,40 @@ class Wire {
     }
 }
 exports.Wire = Wire;
+class Entry {
+    constructor(tokens) {
+        this.name1 = tokens[0];
+        this.name2 = tokens[1];
+    }
+    parse(lines) {
+        const entry = lines.shift();
+        if (!entry)
+            throw "expected text wire but not";
+        [this.posx, this.posy, this.sizex, this.sizey] = entry.split(/\s+/).map((i) => Number(i));
+        return this;
+    }
+}
+exports.Entry = Entry;
+class Connection {
+    constructor(tokens) {
+        this.name1 = tokens[0];
+        this.posx = Number(tokens[1]);
+        this.posy = Number(tokens[2]);
+    }
+    parse(lines) {
+        return this;
+    }
+}
+exports.Connection = Connection;
+class NoConn {
+    constructor(tokens) {
+        this.name1 = tokens[0];
+        this.posx = Number(tokens[1]);
+        this.posy = Number(tokens[2]);
+    }
+    parse(lines) {
+        return this;
+    }
+}
+exports.NoConn = NoConn;
 //# sourceMappingURL=kicad_sch.js.map

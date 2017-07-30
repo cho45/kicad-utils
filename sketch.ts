@@ -15,6 +15,7 @@ const fs = require('fs');
 	console.log(sch);
 }
 
+/*
 // const content = fs.readFileSync('../project/keyboard-schematic/Root-cache.lib', 'utf-8')
 {
 	const content = fs.readFileSync('/Library/Application Support/kicad/library/device.lib', 'utf-8')
@@ -45,10 +46,10 @@ const lib = Library.load(content);
 // const component = lib.findByName("Led_x2");
 
 const plotter = new CanvasPlotter(ctx);
-plotter.plotComponent(lib.findByName("Coded_Switch"), 1, 1, { x: 500, y: 500 }, new Transform());
-plotter.plotComponent(lib.findByName("LED_RGB"), 1, 1, { x: 1500, y: 500 }, new Transform());
-plotter.plotComponent(lib.findByName("ZENER"), 1, 1, { x: 500, y: 1500 }, new Transform());
-plotter.plotComponent(lib.findByName("TVS"), 1, 1, { x: 1500, y: 1500 }, new Transform());
+plotter.plotLibComponent(lib.findByName("Coded_Switch"), 1, 1, { x: 500, y: 500 }, new Transform());
+plotter.plotLibComponent(lib.findByName("LED_RGB"), 1, 1, { x: 1500, y: 500 }, new Transform());
+plotter.plotLibComponent(lib.findByName("ZENER"), 1, 1, { x: 500, y: 1500 }, new Transform());
+plotter.plotLibComponent(lib.findByName("TVS"), 1, 1, { x: 1500, y: 1500 }, new Transform());
 
 const out = fs.createWriteStream(__dirname + '/text.png'), stream = canvas.pngStream();
 
@@ -59,3 +60,4 @@ stream.on('data', function (chunk: any) {
 stream.on('end', function(){
 	console.log('saved png');
 });
+*/

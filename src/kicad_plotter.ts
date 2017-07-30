@@ -42,7 +42,7 @@ import {
 } from "kicad_common";
 
 import {
-	Component,
+	Component as LibComponent,
 	DrawPin,
 	DrawArc,
 	DrawCircle,
@@ -50,6 +50,20 @@ import {
 	DrawSquare,
 	DrawText,
 } from "kicad_lib";
+
+import {
+	Schematic,
+	Sheet,
+	SheetPin,
+	Field,
+	Bitmap,
+	Text,
+	Wire,
+	Entry,
+	Connection,
+	NoConn,
+	Component as SchComponent,
+} from "kicad_sch";
 
 
 /**
@@ -118,7 +132,7 @@ export abstract class Plotter {
 	/**
 	 * kicad-js implements plot methods to plotter instead of each library items.
 	 */
-	plotComponent(component: Component, unit: number, convert: number, offset: Point, transform: Transform): void {
+	plotLibComponent(component: LibComponent, unit: number, convert: number, offset: Point, transform: Transform): void {
 		if (component.field) {
 			const pos = Point.add(transform.transformCoordinate({ x: component.field.posx, y: component.field.posy}), offset);
 			this.text(
@@ -159,78 +173,98 @@ export abstract class Plotter {
 				continue;
 			}
 			if (draw instanceof DrawArc) {
-				const pos = Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy}), offset);
-				const [startAngle, endAngle] = transform.mapAngles(draw.startAngle, draw.endAngle);
-
-				this.arc(
-					pos,
-					startAngle,
-					endAngle,
-					draw.radius,
-					draw.fill,
-					DEFAULT_LINE_WIDTH
-				);
+				this.plotDrawArc(draw, component, offset, transform);
 			} else
 			if (draw instanceof DrawCircle) {
-				const pos = Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy}), offset);
-				this.circle(
-					pos,
-					draw.radius * 2,
-					draw.fill,
-					DEFAULT_LINE_WIDTH
-				);
+				this.plotDrawCircle(draw, component, offset, transform);
 			} else
 			if (draw instanceof DrawPolyline) {
-				const points: Array<Point> = [];
-				for (let i = 0, len = draw.points.length; i < len; i += 2) {
-					const pos = Point.add(transform.transformCoordinate({x:draw.points[i] , y:draw.points[i+1] }), offset);
-					points.push(pos);
-				}
-				this.polyline(
-					points,
-					draw.fill,
-					DEFAULT_LINE_WIDTH
-				);
+				this.plotDrawPolyline(draw, component, offset, transform);
 			} else
 			if (draw instanceof DrawSquare) {
-				const pos1 = Point.add(transform.transformCoordinate({x: draw.startx, y: draw.starty}), offset);
-				const pos2 = Point.add(transform.transformCoordinate({x: draw.endx, y: draw.endy}), offset);
-				this.rect(
-					pos1,
-					pos2,
-					draw.fill,
-					DEFAULT_LINE_WIDTH
-				);
+				this.plotDrawSquare(draw, component, offset, transform);
 			} else
 			if (draw instanceof DrawText) {
-				const pos = Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy}), offset);
-				this.text(
-					pos,
-					"black",
-					draw.text,
-					component.field.textOrientation,
-					draw.textSize,
-					TextHjustify.CENTER,
-					TextVjustify.CENTER,
-					0,
-					false,
-					false
-				);
+				this.plotDrawText(draw, component, offset, transform);
 			} else
 			if (draw instanceof DrawPin) {
-				this.plotPin(draw, component, offset, transform);
+				this.plotDrawPin(draw, component, offset, transform);
 			} else {
 				throw 'unknown draw object type: ' + draw.constructor.name;
 			}
 		}
 	}
 
-	plotPin(draw: DrawPin, component: Component, offset: Point, transform: Transform ):void {
-		this.plotPinTexts(draw, component, offset, transform);
-		this.plotPinSymbol(draw, component, offset, transform);
+	plotDrawArc(draw: DrawArc, component: LibComponent, offset: Point, transform: Transform ):void {
+		const pos = Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy}), offset);
+		const [startAngle, endAngle] = transform.mapAngles(draw.startAngle, draw.endAngle);
+
+		this.arc(
+			pos,
+			startAngle,
+			endAngle,
+			draw.radius,
+			draw.fill,
+			DEFAULT_LINE_WIDTH
+		);
 	}
 
-	plotPinTexts(draw: DrawPin, component: Component, offset: Point, transform: Transform ): void {
+	plotDrawCircle(draw: DrawCircle, component: LibComponent, offset: Point, transform: Transform ):void {
+		const pos = Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy}), offset);
+		this.circle(
+			pos,
+			draw.radius * 2,
+			draw.fill,
+			DEFAULT_LINE_WIDTH
+		);
+	}
+
+	plotDrawPolyline(draw: DrawPolyline, component: LibComponent, offset: Point, transform: Transform ):void {
+		const points: Array<Point> = [];
+		for (let i = 0, len = draw.points.length; i < len; i += 2) {
+			const pos = Point.add(transform.transformCoordinate({x:draw.points[i] , y:draw.points[i+1] }), offset);
+			points.push(pos);
+		}
+		this.polyline(
+			points,
+			draw.fill,
+			DEFAULT_LINE_WIDTH
+		);
+	}
+
+	plotDrawSquare(draw: DrawSquare, component: LibComponent, offset: Point, transform: Transform ):void {
+		const pos1 = Point.add(transform.transformCoordinate({x: draw.startx, y: draw.starty}), offset);
+		const pos2 = Point.add(transform.transformCoordinate({x: draw.endx, y: draw.endy}), offset);
+		this.rect(
+			pos1,
+			pos2,
+			draw.fill,
+			DEFAULT_LINE_WIDTH
+		);
+	}
+	
+	plotDrawText(draw: DrawText, component: LibComponent, offset: Point, transform: Transform ):void {
+		const pos = Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy}), offset);
+		this.text(
+			pos,
+			"black",
+			draw.text,
+			component.field.textOrientation,
+			draw.textSize,
+			TextHjustify.CENTER,
+			TextVjustify.CENTER,
+			0,
+			false,
+			false
+		);
+	}
+
+	plotDrawPin(draw: DrawPin, component: LibComponent, offset: Point, transform: Transform ):void {
+		this.plotDrawPinTexts(draw, component, offset, transform);
+		this.plotDrawPinSymbol(draw, component, offset, transform);
+	}
+
+	plotDrawPinTexts(draw: DrawPin, component: LibComponent, offset: Point, transform: Transform ): void {
 		const pos = Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy}), offset);
 		let x1 = pos.x, y1 = pos.y;
 		if (draw.orientation === PinOrientation.UP) {
@@ -424,7 +458,7 @@ export abstract class Plotter {
 		}
 	}
 
-	plotPinSymbol(draw: DrawPin, component: Component, offset: Point, transform: Transform): void {
+	plotDrawPinSymbol(draw: DrawPin, component: LibComponent, offset: Point, transform: Transform): void {
 		const pos = Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy}), offset);
 		const orientation = this.pinDrawOrientation(draw, transform);
 		

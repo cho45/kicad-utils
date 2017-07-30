@@ -75,7 +75,7 @@ const app = new Vue({
 				ctx.fillStyle  = '#000';
 
 				const plotter = new CanvasPlotter(ctx);
-				plotter.plotComponent(component, 1, 1, { x: 0, y: 0 }, new Transform());
+				plotter.plotLibComponent(component, 1, 1, { x: 0, y: 0 }, new Transform());
 			}
 			this.status = "done";
 		}
