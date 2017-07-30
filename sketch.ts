@@ -2,9 +2,9 @@
 // typings install ds~node
 ///<reference path="./typings/index.d.ts"/>
 
-import { Transform, Rect } from "./kicad_common";
-import { CanvasPlotter } from "./kicad_plotter";
-import { Library } from "./kicad_lib";
+import { Transform } from "src/kicad_common";
+import { CanvasPlotter } from "src/kicad_plotter";
+import { Library } from "src/kicad_lib";
 
 const fs = require('fs');
 

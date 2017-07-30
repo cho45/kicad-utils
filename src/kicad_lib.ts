@@ -1,6 +1,6 @@
 //#!tsc --target ES6 --noUnusedLocals --module commonjs kicad.ts && node kicad.js
 // typings install ds~node
-///<reference path="./typings/index.d.ts"/>
+///<reference path="../typings/index.d.ts"/>
 
 /*
  * This program source code file is part of kicad-js.
@@ -53,7 +53,7 @@ import {
 	Rect,
 	Point,
 	Transform,
-} from "./kicad_common";
+} from "kicad_common";
 
 export class Library {
 	components: Array<Component>;

@@ -1,8 +1,16 @@
 
 const path = require('path');
 
+const babelOptions = {
+	"presets": [ [ "env", {
+		browsers: ["last 2 versions"] 
+	} ] ]
+};
+
 module.exports = {
-	entry: './static/js/app.js',
+	entry: {
+		index: ['babel-polyfill', 'whatwg-fetch', './static/js/app.js']
+	},
 	output: {
 		filename: './static/js/bundle.js',
 	},
@@ -10,10 +18,11 @@ module.exports = {
 	devtool: 'source-map',
 
 	resolve: {
-		alias: {
-			".": path.resolve(__dirname)
-		},
-		extensions: ['.ts', '.js']
+		extensions: ['.ts', '.js'],
+		modules: [
+			path.join(__dirname, "src"),
+			"node_modules"
+		]
 	},
 
 	module: {
@@ -21,7 +30,23 @@ module.exports = {
 			{
 				test: /\.ts?$/,
 				use: [
-					{loader: 'ts-loader'}
+					{
+						loader: 'babel-loader',
+						options: babelOptions,
+					},
+					{
+						loader: 'ts-loader'
+					}
+				]
+			},
+			{
+				test: /\.js?$/,
+				exclude: /node_modules/, 
+				use: [
+					{
+						loader: 'babel-loader',
+						options: babelOptions,
+					}
 				]
 			}
 		]

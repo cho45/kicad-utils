@@ -1,7 +1,7 @@
 
-const { Transform } = require("./kicad_common");
-const { CanvasPlotter } = require("./kicad_plotter");
-const { Library } = require("./kicad_lib");
+const { Transform } = require("kicad_common");
+const { CanvasPlotter } = require("kicad_plotter");
+const { Library } = require("kicad_lib");
 //import { Trasform } from "../../kicad_common";
 //import { CanvasPlotter } from "../../kicad_plotter";
 //import { Library } from "../../kicad_lib";
