@@ -20,11 +20,13 @@ const app = new Vue({
 	},
 
 	created: function () {
-		// this.loadLibrary(location.search.substring(1) || '/lib/device.lib');
 	},
 
 	mounted: function () {
 		console.log(this.$refs);
+		if (location.search) {
+			this.loadLibrary(location.search.substring(1) || '/lib/device.lib');
+		}
 	},
 
 	methods: {
@@ -56,12 +58,19 @@ const app = new Vue({
 				if (!rect) {
 					return "data:";
 				}
-				const width = rect.getWidth(), height = rect.getHeight();
-				console.log('plot', component.name, rect, width, height);
-				canvas.width = width + 400;
-				canvas.height = height + 400;
+
+				const PADDING = 500;
+				const width = rect.getWidth() + PADDING, height = rect.getHeight() + PADDING;
+
+				canvas.width  = 500;
+				canvas.height = 500;
+
+				const scale = Math.min(canvas.width / width, canvas.height / height);
+				console.log('plot', component.name, rect, width, height, scale);
+
 				const ctx = canvas.getContext('2d');
 				ctx.translate(canvas.width / 2, canvas.height / 2);
+				ctx.scale(scale, scale);
 				ctx.stokeStyle = '#000';
 				ctx.fillStyle  = '#000';
 

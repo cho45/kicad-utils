@@ -9479,12 +9479,13 @@ var app = new Vue({
 		components: []
 	},
 
-	created: function created() {
-		// this.loadLibrary(location.search.substring(1) || '/lib/device.lib');
-	},
+	created: function created() {},
 
 	mounted: function mounted() {
 		console.log(this.$refs);
+		if (location.search) {
+			this.loadLibrary(location.search.substring(1) || '/lib/device.lib');
+		}
 	},
 
 	methods: {
@@ -9497,7 +9498,7 @@ var app = new Vue({
 
 		loadLibrary: function () {
 			var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(url) {
-				var res, text, lib, canvasElements, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, canvas, name, component, rect, width, height, ctx, plotter;
+				var res, text, lib, canvasElements, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, canvas, name, component, rect, PADDING, width, height, scale, ctx, plotter;
 
 				return regeneratorRuntime.wrap(function _callee$(_context) {
 					while (1) {
@@ -9536,7 +9537,7 @@ var app = new Vue({
 
 							case 22:
 								if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-									_context.next = 43;
+									_context.next = 46;
 									break;
 								}
 
@@ -9555,14 +9556,21 @@ var app = new Vue({
 								return _context.abrupt("return", "data:");
 
 							case 30:
-								width = rect.getWidth(), height = rect.getHeight();
+								PADDING = 500;
+								width = rect.getWidth() + PADDING, height = rect.getHeight() + PADDING;
 
-								console.log('plot', component.name, rect, width, height);
-								canvas.width = width + 400;
-								canvas.height = height + 400;
+
+								canvas.width = 500;
+								canvas.height = 500;
+
+								scale = Math.min(canvas.width / width, canvas.height / height);
+
+								console.log('plot', component.name, rect, width, height, scale);
+
 								ctx = canvas.getContext('2d');
 
 								ctx.translate(canvas.width / 2, canvas.height / 2);
+								ctx.scale(scale, scale);
 								ctx.stokeStyle = '#000';
 								ctx.fillStyle = '#000';
 
@@ -9570,54 +9578,54 @@ var app = new Vue({
 
 								plotter.plotComponent(component, 1, 1, { x: 0, y: 0 }, new Transform());
 
-							case 40:
+							case 43:
 								_iteratorNormalCompletion = true;
 								_context.next = 22;
 								break;
 
-							case 43:
-								_context.next = 49;
+							case 46:
+								_context.next = 52;
 								break;
 
-							case 45:
-								_context.prev = 45;
+							case 48:
+								_context.prev = 48;
 								_context.t0 = _context["catch"](20);
 								_didIteratorError = true;
 								_iteratorError = _context.t0;
 
-							case 49:
-								_context.prev = 49;
-								_context.prev = 50;
+							case 52:
+								_context.prev = 52;
+								_context.prev = 53;
 
 								if (!_iteratorNormalCompletion && _iterator.return) {
 									_iterator.return();
 								}
 
-							case 52:
-								_context.prev = 52;
+							case 55:
+								_context.prev = 55;
 
 								if (!_didIteratorError) {
-									_context.next = 55;
+									_context.next = 58;
 									break;
 								}
 
 								throw _iteratorError;
 
-							case 55:
+							case 58:
+								return _context.finish(55);
+
+							case 59:
 								return _context.finish(52);
 
-							case 56:
-								return _context.finish(49);
-
-							case 57:
+							case 60:
 								this.status = "done";
 
-							case 58:
+							case 61:
 							case "end":
 								return _context.stop();
 						}
 					}
-				}, _callee, this, [[20, 45, 49, 57], [50,, 52, 56]]);
+				}, _callee, this, [[20, 48, 52, 60], [53,, 55, 59]]);
 			}));
 
 			function loadLibrary(_x) {
