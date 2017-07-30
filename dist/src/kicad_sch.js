@@ -1,7 +1,4 @@
 "use strict";
-// typings install ds~node
-///<reference path="../typings/index.d.ts"/>
-Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * This program source code file is part of kicad-js.
  * Copyright (C) 2017 cho45 <cho45@lowreal.net>.
@@ -30,6 +27,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * or you may write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
+Object.defineProperty(exports, "__esModule", { value: true });
 class Schematic {
     static load(content) {
         const lines = content.split(/\n/);

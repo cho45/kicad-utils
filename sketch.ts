@@ -1,6 +1,4 @@
 //#!tsc && NODE_PATH=dist/src node dist/sketch.js #
-// typings install ds~node
-///<reference path="./typings/index.d.ts"/>
 
 import { Transform } from "kicad_common";
 import { CanvasPlotter } from "kicad_plotter";

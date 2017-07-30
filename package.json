@@ -4,6 +4,7 @@
   "description": "",
   "main": "kicad.js",
   "dependencies": {
+    "@types/node": "^8.0.17",
     "babel-polyfill": "^6.23.0",
     "canvas": "^1.6.5",
     "express": "^4.15.3",

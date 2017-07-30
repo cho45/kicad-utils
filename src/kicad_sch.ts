@@ -1,6 +1,3 @@
-// typings install ds~node
-///<reference path="../typings/index.d.ts"/>
-
 /*
  * This program source code file is part of kicad-js.
  * Copyright (C) 2017 cho45 <cho45@lowreal.net>.

@@ -1,7 +1,5 @@
 "use strict";
 //#!tsc && NODE_PATH=dist/src node dist/sketch.js #
-// typings install ds~node
-///<reference path="./typings/index.d.ts"/>
 Object.defineProperty(exports, "__esModule", { value: true });
 const kicad_common_1 = require("kicad_common");
 const kicad_plotter_1 = require("kicad_plotter");

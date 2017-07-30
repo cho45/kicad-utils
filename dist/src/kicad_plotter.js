@@ -1,8 +1,4 @@
 "use strict";
-//#!tsc --target ES6 --noUnusedLocals --module commonjs kicad.ts && node kicad.js
-// typings install ds~node
-///<reference path="../typings/index.d.ts"/>
-Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * This program source code file is part of kicad-js.
  * Copyright (C) 2017 cho45 <cho45@lowreal.net>.
@@ -31,6 +27,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * or you may write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
+Object.defineProperty(exports, "__esModule", { value: true });
 const kicad_common_1 = require("kicad_common");
 const kicad_lib_1 = require("kicad_lib");
 /**
