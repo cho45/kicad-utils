@@ -9774,14 +9774,15 @@ var Plotter = function () {
 
     }, {
         key: "plotLibComponent",
-        value: function plotLibComponent(component, unit, convert, offset, transform) {
+        value: function plotLibComponent(component, unit, convert, offset, transform, reference, name) {
             if (component.field) {
                 var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: component.field.posx, y: component.field.posy }), offset);
-                this.text(pos, "black", component.field.reference, component.field.textOrientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
+                this.text(pos, "black", typeof reference !== 'undefined' ? reference : component.field.reference, component.field.textOrientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
             }
             if (component.fields[0]) {
                 var _pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy }), offset);
-                this.text(_pos, "black", component.fields[0].name, component.field.textOrientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
+                console.log(component.fields);
+                this.text(_pos, "black", typeof name !== 'undefined' ? name : component.fields[0].name, component.fields[0].textOrientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
             }
             var _iteratorNormalCompletion = true;
             var _didIteratorError = false;
@@ -10058,7 +10059,7 @@ var Plotter = function () {
                         if (!component) {
                             throw "component " + item.name + " is not found in libraries";
                         }
-                        this.plotLibComponent(component, item.unit, item.convert, { x: item.posx, y: item.posy }, item.transform);
+                        this.plotLibComponent(component, item.unit, item.convert, { x: item.posx, y: item.posy }, item.transform, item.reference, item.name);
                     } else if (item instanceof kicad_sch_1.Sheet) {
                         this.setColor("black");
                         this.setCurrentLineWidth(kicad_common_1.DEFAULT_LINE_WIDTH);
@@ -10073,6 +10074,13 @@ var Plotter = function () {
                     } else if (item instanceof kicad_sch_1.Bitmap) {} else if (item instanceof kicad_sch_1.Text) {
                         console.log(item);
                         this.text({ x: item.posx, y: item.posy }, "black", item.text, item.orientation, item.size, item.hjustify, item.vjustify, 0, item.italic, item.bold);
+                        if (item.name1 === 'GLabel') {
+                            // TODO global label style
+                            //					const x = item.text.length * item.size + DEFAULT_LINE_WIDTH;
+                            //					const y = item.size / 2 * 1.4 + DEFAULT_LINE_WIDTH + DEFAULT_LINE_WIDTH / 2;
+                            //					this.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
+                            //					this.fill = Fill.NO_FILL;
+                        }
                     } else if (item instanceof kicad_sch_1.Entry) {} else if (item instanceof kicad_sch_1.Connection) {
                         this.setColor("black");
                         this.circle({ x: item.posx, y: item.posy }, 40, kicad_common_1.Fill.FILLED_SHAPE, kicad_common_1.DEFAULT_LINE_WIDTH);
@@ -10346,7 +10354,12 @@ var SVGPlotter = function (_Plotter2) {
                 dominantBaseline = "text-after-edge";
             }
             var rotate = -orientation / 10;
-            this.output += "<text x=\"" + p.x + "\" y=\"" + p.y + "\"\n\t\t\ttext-anchor=\"" + textAnchor + "\"\n\t\t\tdominant-baseline=\"" + dominantBaseline + "\"\n\t\t\tfont-family=\"monospace\"\n\t\t\tfont-size=\"" + size + "\"\n\t\t\tfill=\"#000000\"\n\t\t\ttransform=\"rotate(" + rotate + ", " + p.x + ", " + p.y + ")\">" + _text2 + "</text>";
+            var h = this.htmlentities;
+            var lines = _text2.split(/\n/);
+            for (var i = 0, len = lines.length; i < len; i++) {
+                var y = p.y + i * size * 1.2;
+                this.output += "<text x=\"" + p.x + "\" y=\"" + y + "\"\n\t\t\t\ttext-anchor=\"" + textAnchor + "\"\n\t\t\t\tdominant-baseline=\"" + dominantBaseline + "\"\n\t\t\t\tfont-family=\"monospace\"\n\t\t\t\tfont-size=\"" + size + "\"\n\t\t\t\tfill=\"#000000\"\n\t\t\t\ttransform=\"rotate(" + rotate + ", " + p.x + ", " + p.y + ")\">" + h(lines[i]) + "</text>";
+            }
         }
         /**
          * U = Pen is up
@@ -10388,6 +10401,18 @@ var SVGPlotter = function (_Plotter2) {
     }, {
         key: "setCurrentLineWidth",
         value: function setCurrentLineWidth(w) {}
+    }, {
+        key: "htmlentities",
+        value: function htmlentities(s) {
+            var map = {
+                '<': '&lt;',
+                '>': '&gt;',
+                '&': '&amp;'
+            };
+            return s.replace(/[<>&]/g, function (_) {
+                return map[_];
+            });
+        }
     }]);
 
     return SVGPlotter;
@@ -10850,7 +10875,7 @@ var Text = function (_SchItem6) {
         value: function parse(lines) {
             var text = lines.shift();
             if (!text) throw "expected text line but not";
-            this.text = text;
+            this.text = text.replace(/\\n/g, "\n");
             return this;
         }
     }]);

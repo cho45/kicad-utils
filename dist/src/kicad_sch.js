@@ -377,7 +377,7 @@ class Text extends SchItem {
         const text = lines.shift();
         if (!text)
             throw "expected text line but not";
-        this.text = text;
+        this.text = text.replace(/\\n/g, "\n");
         return this;
     }
 }

@@ -460,7 +460,7 @@ export class Text extends SchItem {
 	parse(lines: Array<string>): this {
 		const text = lines.shift();
 		if (!text) throw "expected text line but not";
-		this.text = text;
+		this.text = text.replace(/\\n/g, "\n");
 		return this;
 	}
 }

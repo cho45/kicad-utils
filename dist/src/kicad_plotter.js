@@ -68,14 +68,15 @@ class Plotter {
     /**
      * kicad-js implements plot methods to plotter instead of each library items for simplify parsing dependencies.
      */
-    plotLibComponent(component, unit, convert, offset, transform) {
+    plotLibComponent(component, unit, convert, offset, transform, reference, name) {
         if (component.field) {
             const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: component.field.posx, y: component.field.posy }), offset);
-            this.text(pos, "black", component.field.reference, component.field.textOrientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
+            this.text(pos, "black", (typeof reference !== 'undefined') ? reference : component.field.reference, component.field.textOrientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
         }
         if (component.fields[0]) {
             const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy }), offset);
-            this.text(pos, "black", component.fields[0].name, component.field.textOrientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
+            console.log(component.fields);
+            this.text(pos, "black", (typeof name !== 'undefined') ? name : component.fields[0].name, component.fields[0].textOrientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
         }
         for (let draw of component.draw.objects) {
             if (draw.unit !== 0 && unit !== draw.unit) {
@@ -298,7 +299,7 @@ class Plotter {
                 if (!component) {
                     throw "component " + item.name + " is not found in libraries";
                 }
-                this.plotLibComponent(component, item.unit, item.convert, { x: item.posx, y: item.posy }, item.transform);
+                this.plotLibComponent(component, item.unit, item.convert, { x: item.posx, y: item.posy }, item.transform, item.reference, item.name);
             }
             else if (item instanceof kicad_sch_1.Sheet) {
                 this.setColor("black");
@@ -317,6 +318,13 @@ class Plotter {
             else if (item instanceof kicad_sch_1.Text) {
                 console.log(item);
                 this.text({ x: item.posx, y: item.posy }, "black", item.text, item.orientation, item.size, item.hjustify, item.vjustify, 0, item.italic, item.bold);
+                if (item.name1 === 'GLabel') {
+                    // TODO global label style
+                    //					const x = item.text.length * item.size + DEFAULT_LINE_WIDTH;
+                    //					const y = item.size / 2 * 1.4 + DEFAULT_LINE_WIDTH + DEFAULT_LINE_WIDTH / 2;
+                    //					this.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
+                    //					this.fill = Fill.NO_FILL;
+                }
             }
             else if (item instanceof kicad_sch_1.Entry) {
             }
@@ -545,13 +553,18 @@ class SVGPlotter extends Plotter {
             dominantBaseline = "text-after-edge";
         }
         const rotate = -orientation / 10;
-        this.output += `<text x="${p.x}" y="${p.y}"
-			text-anchor="${textAnchor}"
-			dominant-baseline="${dominantBaseline}"
-			font-family="monospace"
-			font-size="${size}"
-			fill="#000000"
-			transform="rotate(${rotate}, ${p.x}, ${p.y})">${text}</text>`;
+        const h = this.htmlentities;
+        const lines = text.split(/\n/);
+        for (var i = 0, len = lines.length; i < len; i++) {
+            const y = p.y + (i * size * 1.2);
+            this.output += `<text x="${p.x}" y="${y}"
+				text-anchor="${textAnchor}"
+				dominant-baseline="${dominantBaseline}"
+				font-family="monospace"
+				font-size="${size}"
+				fill="#000000"
+				transform="rotate(${rotate}, ${p.x}, ${p.y})">${h(lines[i])}</text>`;
+        }
     }
     /**
      * U = Pen is up
@@ -591,6 +604,14 @@ class SVGPlotter extends Plotter {
     setColor(c) {
     }
     setCurrentLineWidth(w) {
+    }
+    htmlentities(s) {
+        const map = {
+            '<': '&lt;',
+            '>': '&gt;',
+            '&': '&amp;',
+        };
+        return s.replace(/[<>&]/g, (_) => map[_]);
     }
 }
 exports.SVGPlotter = SVGPlotter;

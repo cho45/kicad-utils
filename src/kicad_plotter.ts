@@ -135,13 +135,13 @@ export abstract class Plotter {
 	/**
 	 * kicad-js implements plot methods to plotter instead of each library items for simplify parsing dependencies.
 	 */
-	plotLibComponent(component: LibComponent, unit: number, convert: number, offset: Point, transform: Transform): void {
+	plotLibComponent(component: LibComponent, unit: number, convert: number, offset: Point, transform: Transform, reference?: string, name?: string): void {
 		if (component.field) {
 			const pos = Point.add(transform.transformCoordinate({ x: component.field.posx, y: component.field.posy}), offset);
 			this.text(
 				pos,
 				"black",
-				component.field.reference,
+				(typeof reference !== 'undefined') ? reference : component.field.reference,
 				component.field.textOrientation,
 				component.field.textSize,
 				TextHjustify.CENTER,
@@ -154,11 +154,12 @@ export abstract class Plotter {
 
 		if (component.fields[0]) {
 			const pos = Point.add(transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy}), offset);
+			console.log(component.fields);
 			this.text(
 				pos,
 				"black",
-				component.fields[0].name,
-				component.field.textOrientation,
+				(typeof name !== 'undefined') ? name : component.fields[0].name,
+				component.fields[0].textOrientation,
 				component.fields[0].textSize,
 				TextHjustify.CENTER,
 				TextVjustify.CENTER,
@@ -564,7 +565,7 @@ export abstract class Plotter {
 				if (!component) {
 					throw "component " + item.name + " is not found in libraries";
 				}
-				this.plotLibComponent(component, item.unit, item.convert, { x: item.posx, y: item.posy }, item.transform);
+				this.plotLibComponent(component, item.unit, item.convert, { x: item.posx, y: item.posy }, item.transform, item.reference, item.name);
 			} else
 			if (item instanceof Sheet) {
 				this.setColor("black");
@@ -616,6 +617,13 @@ export abstract class Plotter {
 					item.italic,
 					item.bold
 				);
+				if (item.name1 === 'GLabel') {
+					// TODO global label style
+//					const x = item.text.length * item.size + DEFAULT_LINE_WIDTH;
+//					const y = item.size / 2 * 1.4 + DEFAULT_LINE_WIDTH + DEFAULT_LINE_WIDTH / 2;
+//					this.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
+//					this.fill = Fill.NO_FILL;
+				}
 			} else
 			if (item instanceof Entry) {
 			} else
@@ -885,13 +893,18 @@ export class SVGPlotter extends Plotter {
 		}
 
 		const rotate = -orientation / 10;
-		this.output += `<text x="${p.x}" y="${p.y}"
-			text-anchor="${textAnchor}"
-			dominant-baseline="${dominantBaseline}"
-			font-family="monospace"
-			font-size="${size}"
-			fill="#000000"
-			transform="rotate(${rotate}, ${p.x}, ${p.y})">${text}</text>`;
+		const h = this.htmlentities;
+		const lines = text.split(/\n/);
+		for (var i = 0, len = lines.length; i < len; i++) {
+			const y = p.y + (i * size * 1.2);
+			this.output += `<text x="${p.x}" y="${y}"
+				text-anchor="${textAnchor}"
+				dominant-baseline="${dominantBaseline}"
+				font-family="monospace"
+				font-size="${size}"
+				fill="#000000"
+				transform="rotate(${rotate}, ${p.x}, ${p.y})">${h(lines[i])}</text>`;
+		}
 	}
 
 	/**
@@ -933,5 +946,14 @@ export class SVGPlotter extends Plotter {
 	}
 
 	setCurrentLineWidth(w: number): void {
+	}
+
+	htmlentities(s: string): string {
+		const map : { [key: string]:string } = {
+			'<': '&lt;',
+			'>': '&gt;',
+			'&': '&amp;',
+		};
+		return s.replace(/[<>&]/g, (_) => map[_] );
 	}
 }
