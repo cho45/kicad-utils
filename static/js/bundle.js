@@ -348,7 +348,7 @@ exports.f = __webpack_require__(6) ? gOPD : function getOwnPropertyDescriptor(O,
 // 19.1.2.9 / 15.2.3.2 Object.getPrototypeOf(O)
 var has         = __webpack_require__(10)
   , toObject    = __webpack_require__(9)
-  , IE_PROTO    = __webpack_require__(61)('IE_PROTO')
+  , IE_PROTO    = __webpack_require__(62)('IE_PROTO')
   , ObjectProto = Object.prototype;
 
 module.exports = Object.getPrototypeOf || function(O){
@@ -516,7 +516,7 @@ if(__webpack_require__(6)){
     , fails               = __webpack_require__(3)
     , $export             = __webpack_require__(0)
     , $typed              = __webpack_require__(57)
-    , $buffer             = __webpack_require__(84)
+    , $buffer             = __webpack_require__(85)
     , ctx                 = __webpack_require__(25)
     , anInstance          = __webpack_require__(38)
     , propertyDesc        = __webpack_require__(28)
@@ -531,21 +531,21 @@ if(__webpack_require__(6)){
     , classof             = __webpack_require__(47)
     , isObject            = __webpack_require__(4)
     , toObject            = __webpack_require__(9)
-    , isArrayIter         = __webpack_require__(76)
+    , isArrayIter         = __webpack_require__(77)
     , create              = __webpack_require__(35)
     , getPrototypeOf      = __webpack_require__(17)
     , gOPN                = __webpack_require__(36).f
-    , getIterFn           = __webpack_require__(78)
+    , getIterFn           = __webpack_require__(79)
     , uid                 = __webpack_require__(31)
     , wks                 = __webpack_require__(5)
     , createArrayMethod   = __webpack_require__(23)
     , createArrayIncludes = __webpack_require__(49)
-    , speciesConstructor  = __webpack_require__(81)
-    , ArrayIterators      = __webpack_require__(80)
+    , speciesConstructor  = __webpack_require__(82)
+    , ArrayIterators      = __webpack_require__(81)
     , Iterators           = __webpack_require__(42)
     , $iterDetect         = __webpack_require__(53)
     , setSpecies          = __webpack_require__(37)
-    , arrayFill           = __webpack_require__(79)
+    , arrayFill           = __webpack_require__(80)
     , arrayCopyWithin     = __webpack_require__(102)
     , $DP                 = __webpack_require__(7)
     , $GOPD               = __webpack_require__(16)
@@ -1149,7 +1149,7 @@ module.exports = false;
 
 // 19.1.2.14 / 15.2.3.14 Object.keys(O)
 var $keys       = __webpack_require__(89)
-  , enumBugKeys = __webpack_require__(62);
+  , enumBugKeys = __webpack_require__(63);
 
 module.exports = Object.keys || function keys(O){
   return $keys(O, enumBugKeys);
@@ -1174,21 +1174,21 @@ module.exports = function(index, length){
 // 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
 var anObject    = __webpack_require__(1)
   , dPs         = __webpack_require__(90)
-  , enumBugKeys = __webpack_require__(62)
-  , IE_PROTO    = __webpack_require__(61)('IE_PROTO')
+  , enumBugKeys = __webpack_require__(63)
+  , IE_PROTO    = __webpack_require__(62)('IE_PROTO')
   , Empty       = function(){ /* empty */ }
   , PROTOTYPE   = 'prototype';
 
 // Create object with fake `null` prototype: use iframe Object with cleared prototype
 var createDict = function(){
   // Thrash, waste and sodomy: IE GC bug
-  var iframe = __webpack_require__(59)('iframe')
+  var iframe = __webpack_require__(60)('iframe')
     , i      = enumBugKeys.length
     , lt     = '<'
     , gt     = '>'
     , iframeDocument;
   iframe.style.display = 'none';
-  __webpack_require__(64).appendChild(iframe);
+  __webpack_require__(65).appendChild(iframe);
   iframe.src = 'javascript:'; // eslint-disable-line no-script-url
   // createDict = iframe.contentWindow.Object;
   // html.removeChild(iframe);
@@ -1220,7 +1220,7 @@ module.exports = Object.create || function create(O, Properties){
 
 // 19.1.2.7 / 15.2.3.4 Object.getOwnPropertyNames(O)
 var $keys      = __webpack_require__(89)
-  , hiddenKeys = __webpack_require__(62).concat('length', 'prototype');
+  , hiddenKeys = __webpack_require__(63).concat('length', 'prototype');
 
 exports.f = Object.getOwnPropertyNames || function getOwnPropertyNames(O){
   return $keys(O, hiddenKeys);
@@ -1284,7 +1284,7 @@ module.exports = function(it, tag, stat){
 var $export = __webpack_require__(0)
   , defined = __webpack_require__(19)
   , fails   = __webpack_require__(3)
-  , spaces  = __webpack_require__(66)
+  , spaces  = __webpack_require__(67)
   , space   = '[' + spaces + ']'
   , non     = '\u200b\u0085'
   , ltrim   = RegExp('^' + space + space + '*')
@@ -1336,10 +1336,10 @@ module.exports = function(key){
 
 var ctx         = __webpack_require__(25)
   , call        = __webpack_require__(100)
-  , isArrayIter = __webpack_require__(76)
+  , isArrayIter = __webpack_require__(77)
   , anObject    = __webpack_require__(1)
   , toLength    = __webpack_require__(8)
-  , getIterFn   = __webpack_require__(78)
+  , getIterFn   = __webpack_require__(79)
   , BREAK       = {}
   , RETURN      = {};
 var exports = module.exports = function(iterable, entries, fn, that, ITERATOR){
@@ -1577,7 +1577,7 @@ var global            = __webpack_require__(2)
   , fails             = __webpack_require__(3)
   , $iterDetect       = __webpack_require__(53)
   , setToStringTag    = __webpack_require__(40)
-  , inheritIfRequired = __webpack_require__(67);
+  , inheritIfRequired = __webpack_require__(68);
 
 module.exports = function(NAME, wrapper, methods, common, IS_MAP, IS_WEAK){
   var Base  = global[NAME]
@@ -1698,6 +1698,280 @@ module.exports = __webpack_require__(32)|| !__webpack_require__(3)(function(){
 /* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
+"use strict";
+
+/*
+ * This program source code file is part of kicad-js.
+ * Copyright (C) 2017 cho45 <cho45@lowreal.net>.
+ *
+ * And this program source code file is imported from KiCad, a free EDA CAD application.
+ *
+ * Original Author Copyright:
+ *
+ * Copyright (C) 2015 Jean-Pierre Charras, jaen-pierre.charras@gipsa-lab.inpg.com
+ * Copyright (C) 1992-2017 KiCad Developers, see KiCAD AUTHORS.txt for contributors.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, you may find one here:
+ * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * or you may search the http://www.gnu.org website for the version 2 license,
+ * or you may write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+ */
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DEFAULT_LINE_WIDTH = 6;
+function DECIDEG2RAD(deg) {
+    return deg * Math.PI / 1800;
+}
+exports.DECIDEG2RAD = DECIDEG2RAD;
+function RAD2DECIDEG(rad) {
+    return rad * 1800 / Math.PI;
+}
+exports.RAD2DECIDEG = RAD2DECIDEG;
+function NORMALIZE_ANGLE_POS(angle) {
+    while (angle < 0) {
+        angle += 3600;
+    }while (angle >= 3600) {
+        angle -= 3600;
+    }return angle;
+}
+exports.NORMALIZE_ANGLE_POS = NORMALIZE_ANGLE_POS;
+/**
+ * KiCAD internal unit is mil (1/1000 inch)
+ */
+function MM2MIL(mm) {
+    return mm / 0.0254;
+}
+exports.MM2MIL = MM2MIL;
+function MIL2MM(mil) {
+    return mil * 0.0254;
+}
+exports.MIL2MM = MIL2MM;
+
+var Transform = function () {
+    function Transform() {
+        var x1 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+        var y1 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+        var x2 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+        var y2 = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : -1;
+
+        _classCallCheck(this, Transform);
+
+        this.x1 = x1;
+        this.y1 = y1;
+        this.x2 = x2;
+        this.y2 = y2;
+    }
+
+    _createClass(Transform, [{
+        key: "transformCoordinate",
+        value: function transformCoordinate(p) {
+            return {
+                x: this.x1 * p.x + this.y1 * p.y,
+                y: this.x2 * p.x + this.y2 * p.y
+            };
+        }
+    }, {
+        key: "mapAngles",
+        value: function mapAngles(angle1, angle2) {
+            var angle = void 0,
+                delta = void 0;
+            var x = void 0,
+                y = void 0,
+                t = void 0;
+            var swap = 0;
+            delta = angle2 - angle1;
+            if (delta >= 1800) {
+                angle1 -= 1;
+                angle2 += 1;
+            }
+            x = Math.cos(DECIDEG2RAD(angle1));
+            y = Math.sin(DECIDEG2RAD(angle1));
+            t = x * this.x1 + y * this.y1;
+            y = x * this.x2 + y * this.y2;
+            x = t;
+            angle1 = Math.round(RAD2DECIDEG(Math.atan2(y, x)));
+            x = Math.cos(DECIDEG2RAD(angle2));
+            y = Math.sin(DECIDEG2RAD(angle2));
+            t = x * this.x1 + y * this.y1;
+            y = x * this.x2 + y * this.y2;
+            x = t;
+            angle2 = Math.round(RAD2DECIDEG(Math.atan2(y, x)));
+            angle1 = NORMALIZE_ANGLE_POS(angle1);
+            angle2 = NORMALIZE_ANGLE_POS(angle2);
+            if (angle2 < angle1) angle2 += 3600;
+            if (angle2 - angle1 > 1800) {
+                angle = angle1;
+                angle1 = angle2;
+                angle2 = angle;
+                angle1 = NORMALIZE_ANGLE_POS(angle1);
+                angle2 = NORMALIZE_ANGLE_POS(angle2);
+                if (angle2 < angle1) angle2 += 3600;
+                swap = 1;
+            }
+            if (delta >= 1800) {
+                angle1 += 1;
+                angle2 -= 1;
+            }
+            return [angle1, angle2, swap];
+        }
+    }]);
+
+    return Transform;
+}();
+
+exports.Transform = Transform;
+
+var Point = function () {
+    function Point(x, y) {
+        _classCallCheck(this, Point);
+
+        this.x = x;
+        this.y = y;
+    }
+
+    _createClass(Point, null, [{
+        key: "add",
+        value: function add(p1, p2) {
+            return {
+                x: p1.x + p2.x,
+                y: p1.y + p2.y
+            };
+        }
+    }, {
+        key: "sub",
+        value: function sub(p1, p2) {
+            return {
+                x: p1.x - p2.x,
+                y: p1.y - p2.y
+            };
+        }
+    }, {
+        key: "isZero",
+        value: function isZero(p) {
+            return p.x === 0 && p.y === 0;
+        }
+    }]);
+
+    return Point;
+}();
+
+exports.Point = Point;
+
+var Rect = function () {
+    function Rect(pos1x, pos1y, pos2x, pos2y) {
+        _classCallCheck(this, Rect);
+
+        this.pos1 = new Point(pos1x, pos1y);
+        this.pos2 = new Point(pos2x, pos2y);
+    }
+
+    _createClass(Rect, [{
+        key: "getWidth",
+        value: function getWidth() {
+            return this.pos2.x - this.pos1.x;
+        }
+    }, {
+        key: "getHeight",
+        value: function getHeight() {
+            return this.pos2.y - this.pos1.y;
+        }
+    }, {
+        key: "merge",
+        value: function merge(o) {
+            return new Rect(Math.min(this.pos1.x, o.pos1.x), Math.min(this.pos1.y, o.pos1.y), Math.max(this.pos2.x, o.pos2.x), Math.max(this.pos2.y, o.pos2.y));
+        }
+    }, {
+        key: "inflate",
+        value: function inflate(n) {
+            this.pos1.x -= n;
+            this.pos1.y -= n;
+            this.pos2.x += n;
+            this.pos2.y += n;
+            return this;
+        }
+    }]);
+
+    return Rect;
+}();
+
+exports.Rect = Rect;
+var Fill;
+(function (Fill) {
+    Fill["NO_FILL"] = "N";
+    Fill["FILLED_SHAPE"] = "F";
+    Fill["FILLED_WITH_BG_BODYCOLOR"] = "f";
+})(Fill = exports.Fill || (exports.Fill = {}));
+var TextHjustify;
+(function (TextHjustify) {
+    TextHjustify["LEFT"] = "L";
+    TextHjustify["CENTER"] = "C";
+    TextHjustify["RIGHT"] = "R";
+})(TextHjustify = exports.TextHjustify || (exports.TextHjustify = {}));
+var TextVjustify;
+(function (TextVjustify) {
+    TextVjustify["TOP"] = "T";
+    TextVjustify["CENTER"] = "C";
+    TextVjustify["BOTTOM"] = "B";
+})(TextVjustify = exports.TextVjustify || (exports.TextVjustify = {}));
+var PinOrientation;
+(function (PinOrientation) {
+    PinOrientation["RIGHT"] = "R";
+    PinOrientation["LEFT"] = "L";
+    PinOrientation["UP"] = "U";
+    PinOrientation["DOWN"] = "D";
+})(PinOrientation = exports.PinOrientation || (exports.PinOrientation = {}));
+var TextAngle;
+(function (TextAngle) {
+    TextAngle[TextAngle["HORIZ"] = 0] = "HORIZ";
+    TextAngle[TextAngle["VERT"] = 900] = "VERT";
+})(TextAngle = exports.TextAngle || (exports.TextAngle = {}));
+var PinType;
+(function (PinType) {
+    PinType["PIN_INPUT"] = "I";
+    PinType["PIN_OUTPUT"] = "O";
+    PinType["PIN_BIDI"] = "B";
+    PinType["PIN_TRISTATE"] = "T";
+    PinType["PIN_PASSIVE"] = "P";
+    PinType["PIN_UNSPECIFIED"] = "U";
+    PinType["PIN_POWER_IN"] = "W";
+    PinType["PIN_POWER_OUT"] = "w";
+    PinType["PIN_OPENCOLLECTOR"] = "C";
+    PinType["PIN_OPENEMITTER"] = "E";
+    PinType["PIN_NC"] = "N";
+})(PinType = exports.PinType || (exports.PinType = {}));
+;
+var PinAttribute;
+(function (PinAttribute) {
+    PinAttribute["NONE"] = "~";
+    PinAttribute["INVERTED"] = "I";
+    PinAttribute["CLOCK"] = "C";
+    PinAttribute["LOWLEVEL_IN"] = "L";
+    PinAttribute["LOWLEVEL_OUT"] = "V";
+    PinAttribute["FALLING_EDGE"] = "F";
+    PinAttribute["NONLOGIC"] = "X";
+    PinAttribute["INVISIBLE"] = "N";
+})(PinAttribute = exports.PinAttribute || (exports.PinAttribute = {}));
+
+/***/ }),
+/* 60 */
+/***/ (function(module, exports, __webpack_require__) {
+
 var isObject = __webpack_require__(4)
   , document = __webpack_require__(2).document
   // in old IE typeof document.createElement is 'object'
@@ -1707,7 +1981,7 @@ module.exports = function(it){
 };
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var global         = __webpack_require__(2)
@@ -1721,7 +1995,7 @@ module.exports = function(name){
 };
 
 /***/ }),
-/* 61 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var shared = __webpack_require__(48)('keys')
@@ -1731,7 +2005,7 @@ module.exports = function(key){
 };
 
 /***/ }),
-/* 62 */
+/* 63 */
 /***/ (function(module, exports) {
 
 // IE 8- don't enum bug keys
@@ -1740,7 +2014,7 @@ module.exports = (
 ).split(',');
 
 /***/ }),
-/* 63 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // 7.2.2 IsArray(argument)
@@ -1750,13 +2024,13 @@ module.exports = Array.isArray || function isArray(arg){
 };
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(2).document && document.documentElement;
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Works with __proto__ only. Old v8 can't work with null proto objects.
@@ -1786,18 +2060,18 @@ module.exports = {
 };
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, exports) {
 
 module.exports = '\x09\x0A\x0B\x0C\x0D\x20\xA0\u1680\u180E\u2000\u2001\u2002\u2003' +
   '\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\u2028\u2029\uFEFF';
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var isObject       = __webpack_require__(4)
-  , setPrototypeOf = __webpack_require__(65).set;
+  , setPrototypeOf = __webpack_require__(66).set;
 module.exports = function(that, target, C){
   var P, S = target.constructor;
   if(S !== C && typeof S == 'function' && (P = S.prototype) !== C.prototype && isObject(P) && setPrototypeOf){
@@ -1806,7 +2080,7 @@ module.exports = function(that, target, C){
 };
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1824,7 +2098,7 @@ module.exports = function repeat(count){
 };
 
 /***/ }),
-/* 69 */
+/* 70 */
 /***/ (function(module, exports) {
 
 // 20.2.2.28 Math.sign(x)
@@ -1833,7 +2107,7 @@ module.exports = Math.sign || function sign(x){
 };
 
 /***/ }),
-/* 70 */
+/* 71 */
 /***/ (function(module, exports) {
 
 // 20.2.2.14 Math.expm1(x)
@@ -1848,7 +2122,7 @@ module.exports = (!$expm1
 } : $expm1;
 
 /***/ }),
-/* 71 */
+/* 72 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var toInteger = __webpack_require__(30)
@@ -1870,7 +2144,7 @@ module.exports = function(TO_STRING){
 };
 
 /***/ }),
-/* 72 */
+/* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1881,7 +2155,7 @@ var LIBRARY        = __webpack_require__(32)
   , hide           = __webpack_require__(11)
   , has            = __webpack_require__(10)
   , Iterators      = __webpack_require__(42)
-  , $iterCreate    = __webpack_require__(73)
+  , $iterCreate    = __webpack_require__(74)
   , setToStringTag = __webpack_require__(40)
   , getPrototypeOf = __webpack_require__(17)
   , ITERATOR       = __webpack_require__(5)('iterator')
@@ -1946,7 +2220,7 @@ module.exports = function(Base, NAME, Constructor, next, DEFAULT, IS_SET, FORCED
 };
 
 /***/ }),
-/* 73 */
+/* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1965,7 +2239,7 @@ module.exports = function(Constructor, NAME, next){
 };
 
 /***/ }),
-/* 74 */
+/* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // helper for String#{startsWith, endsWith, includes}
@@ -1978,7 +2252,7 @@ module.exports = function(that, searchString, NAME){
 };
 
 /***/ }),
-/* 75 */
+/* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var MATCH = __webpack_require__(5)('match');
@@ -1995,7 +2269,7 @@ module.exports = function(KEY){
 };
 
 /***/ }),
-/* 76 */
+/* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // check on default Array iterator
@@ -2008,7 +2282,7 @@ module.exports = function(it){
 };
 
 /***/ }),
-/* 77 */
+/* 78 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2022,7 +2296,7 @@ module.exports = function(object, index, value){
 };
 
 /***/ }),
-/* 78 */
+/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var classof   = __webpack_require__(47)
@@ -2035,7 +2309,7 @@ module.exports = __webpack_require__(24).getIteratorMethod = function(it){
 };
 
 /***/ }),
-/* 79 */
+/* 80 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2056,7 +2330,7 @@ module.exports = function fill(value /*, start = 0, end = @length */){
 };
 
 /***/ }),
-/* 80 */
+/* 81 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2070,7 +2344,7 @@ var addToUnscopables = __webpack_require__(43)
 // 22.1.3.13 Array.prototype.keys()
 // 22.1.3.29 Array.prototype.values()
 // 22.1.3.30 Array.prototype[@@iterator]()
-module.exports = __webpack_require__(72)(Array, 'Array', function(iterated, kind){
+module.exports = __webpack_require__(73)(Array, 'Array', function(iterated, kind){
   this._t = toIObject(iterated); // target
   this._i = 0;                   // next index
   this._k = kind;                // kind
@@ -2096,7 +2370,7 @@ addToUnscopables('values');
 addToUnscopables('entries');
 
 /***/ }),
-/* 81 */
+/* 82 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // 7.3.20 SpeciesConstructor(O, defaultConstructor)
@@ -2109,13 +2383,13 @@ module.exports = function(O, D){
 };
 
 /***/ }),
-/* 82 */
+/* 83 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var ctx                = __webpack_require__(25)
   , invoke             = __webpack_require__(51)
-  , html               = __webpack_require__(64)
-  , cel                = __webpack_require__(59)
+  , html               = __webpack_require__(65)
+  , cel                = __webpack_require__(60)
   , global             = __webpack_require__(2)
   , process            = global.process
   , setTask            = global.setImmediate
@@ -2189,11 +2463,11 @@ module.exports = {
 };
 
 /***/ }),
-/* 83 */
+/* 84 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var global    = __webpack_require__(2)
-  , macrotask = __webpack_require__(82).set
+  , macrotask = __webpack_require__(83).set
   , Observer  = global.MutationObserver || global.WebKitMutationObserver
   , process   = global.process
   , Promise   = global.Promise
@@ -2262,7 +2536,7 @@ module.exports = function(){
 };
 
 /***/ }),
-/* 84 */
+/* 85 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2279,7 +2553,7 @@ var global         = __webpack_require__(2)
   , toLength       = __webpack_require__(8)
   , gOPN           = __webpack_require__(36).f
   , dP             = __webpack_require__(7).f
-  , arrayFill      = __webpack_require__(79)
+  , arrayFill      = __webpack_require__(80)
   , setToStringTag = __webpack_require__(40)
   , ARRAY_BUFFER   = 'ArrayBuffer'
   , DATA_VIEW      = 'DataView'
@@ -2541,269 +2815,6 @@ exports[ARRAY_BUFFER] = $ArrayBuffer;
 exports[DATA_VIEW] = $DataView;
 
 /***/ }),
-/* 85 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/*
- * This program source code file is part of kicad-js.
- * Copyright (C) 2017 cho45 <cho45@lowreal.net>.
- *
- * And this program source code file is imported from KiCad, a free EDA CAD application.
- *
- * Original Author Copyright:
- *
- * Copyright (C) 2015 Jean-Pierre Charras, jaen-pierre.charras@gipsa-lab.inpg.com
- * Copyright (C) 1992-2017 KiCad Developers, see KiCAD AUTHORS.txt for contributors.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, you may find one here:
- * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- * or you may search the http://www.gnu.org website for the version 2 license,
- * or you may write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
- */
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DEFAULT_LINE_WIDTH = 6;
-function DECIDEG2RAD(deg) {
-    return deg * Math.PI / 1800;
-}
-exports.DECIDEG2RAD = DECIDEG2RAD;
-function RAD2DECIDEG(rad) {
-    return rad * 1800 / Math.PI;
-}
-exports.RAD2DECIDEG = RAD2DECIDEG;
-function NORMALIZE_ANGLE_POS(angle) {
-    while (angle < 0) {
-        angle += 3600;
-    }while (angle >= 3600) {
-        angle -= 3600;
-    }return angle;
-}
-exports.NORMALIZE_ANGLE_POS = NORMALIZE_ANGLE_POS;
-
-var Transform = function () {
-    function Transform() {
-        var x1 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-        var y1 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-        var x2 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
-        var y2 = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : -1;
-
-        _classCallCheck(this, Transform);
-
-        this.x1 = x1;
-        this.y1 = y1;
-        this.x2 = x2;
-        this.y2 = y2;
-    }
-
-    _createClass(Transform, [{
-        key: "transformCoordinate",
-        value: function transformCoordinate(p) {
-            return {
-                x: this.x1 * p.x + this.y1 * p.y,
-                y: this.x2 * p.x + this.y2 * p.y
-            };
-        }
-    }, {
-        key: "mapAngles",
-        value: function mapAngles(angle1, angle2) {
-            var angle = void 0,
-                delta = void 0;
-            var x = void 0,
-                y = void 0,
-                t = void 0;
-            var swap = 0;
-            delta = angle2 - angle1;
-            if (delta >= 1800) {
-                angle1 -= 1;
-                angle2 += 1;
-            }
-            x = Math.cos(DECIDEG2RAD(angle1));
-            y = Math.sin(DECIDEG2RAD(angle1));
-            t = x * this.x1 + y * this.y1;
-            y = x * this.x2 + y * this.y2;
-            x = t;
-            angle1 = Math.round(RAD2DECIDEG(Math.atan2(y, x)));
-            x = Math.cos(DECIDEG2RAD(angle2));
-            y = Math.sin(DECIDEG2RAD(angle2));
-            t = x * this.x1 + y * this.y1;
-            y = x * this.x2 + y * this.y2;
-            x = t;
-            angle2 = Math.round(RAD2DECIDEG(Math.atan2(y, x)));
-            angle1 = NORMALIZE_ANGLE_POS(angle1);
-            angle2 = NORMALIZE_ANGLE_POS(angle2);
-            if (angle2 < angle1) angle2 += 3600;
-            if (angle2 - angle1 > 1800) {
-                angle = angle1;
-                angle1 = angle2;
-                angle2 = angle;
-                angle1 = NORMALIZE_ANGLE_POS(angle1);
-                angle2 = NORMALIZE_ANGLE_POS(angle2);
-                if (angle2 < angle1) angle2 += 3600;
-                swap = 1;
-            }
-            if (delta >= 1800) {
-                angle1 += 1;
-                angle2 -= 1;
-            }
-            return [angle1, angle2, swap];
-        }
-    }]);
-
-    return Transform;
-}();
-
-exports.Transform = Transform;
-
-var Point = function () {
-    function Point(x, y) {
-        _classCallCheck(this, Point);
-
-        this.x = x;
-        this.y = y;
-    }
-
-    _createClass(Point, null, [{
-        key: "add",
-        value: function add(p1, p2) {
-            return {
-                x: p1.x + p2.x,
-                y: p1.y + p2.y
-            };
-        }
-    }, {
-        key: "sub",
-        value: function sub(p1, p2) {
-            return {
-                x: p1.x - p2.x,
-                y: p1.y - p2.y
-            };
-        }
-    }, {
-        key: "isZero",
-        value: function isZero(p) {
-            return p.x === 0 && p.y === 0;
-        }
-    }]);
-
-    return Point;
-}();
-
-exports.Point = Point;
-
-var Rect = function () {
-    function Rect(pos1x, pos1y, pos2x, pos2y) {
-        _classCallCheck(this, Rect);
-
-        this.pos1 = new Point(pos1x, pos1y);
-        this.pos2 = new Point(pos2x, pos2y);
-    }
-
-    _createClass(Rect, [{
-        key: "getWidth",
-        value: function getWidth() {
-            return this.pos2.x - this.pos1.x;
-        }
-    }, {
-        key: "getHeight",
-        value: function getHeight() {
-            return this.pos2.y - this.pos1.y;
-        }
-    }, {
-        key: "merge",
-        value: function merge(o) {
-            return new Rect(Math.min(this.pos1.x, o.pos1.x), Math.min(this.pos1.y, o.pos1.y), Math.max(this.pos2.x, o.pos2.x), Math.max(this.pos2.y, o.pos2.y));
-        }
-    }, {
-        key: "inflate",
-        value: function inflate(n) {
-            this.pos1.x -= n;
-            this.pos1.y -= n;
-            this.pos2.x += n;
-            this.pos2.y += n;
-            return this;
-        }
-    }]);
-
-    return Rect;
-}();
-
-exports.Rect = Rect;
-var Fill;
-(function (Fill) {
-    Fill["NO_FILL"] = "N";
-    Fill["FILLED_SHAPE"] = "F";
-    Fill["FILLED_WITH_BG_BODYCOLOR"] = "f";
-})(Fill = exports.Fill || (exports.Fill = {}));
-var TextHjustify;
-(function (TextHjustify) {
-    TextHjustify["LEFT"] = "L";
-    TextHjustify["CENTER"] = "C";
-    TextHjustify["RIGHT"] = " R";
-})(TextHjustify = exports.TextHjustify || (exports.TextHjustify = {}));
-var TextVjustify;
-(function (TextVjustify) {
-    TextVjustify["TOP"] = "T";
-    TextVjustify["CENTER"] = "C";
-    TextVjustify["BOTTOM"] = "B";
-})(TextVjustify = exports.TextVjustify || (exports.TextVjustify = {}));
-var PinOrientation;
-(function (PinOrientation) {
-    PinOrientation["RIGHT"] = "R";
-    PinOrientation["LEFT"] = "L";
-    PinOrientation["UP"] = "U";
-    PinOrientation["DOWN"] = "D";
-})(PinOrientation = exports.PinOrientation || (exports.PinOrientation = {}));
-var TextAngle;
-(function (TextAngle) {
-    TextAngle[TextAngle["HORIZ"] = 0] = "HORIZ";
-    TextAngle[TextAngle["VERT"] = 900] = "VERT";
-})(TextAngle = exports.TextAngle || (exports.TextAngle = {}));
-var PinType;
-(function (PinType) {
-    PinType["PIN_INPUT"] = "I";
-    PinType["PIN_OUTPUT"] = "O";
-    PinType["PIN_BIDI"] = "B";
-    PinType["PIN_TRISTATE"] = "T";
-    PinType["PIN_PASSIVE"] = "P";
-    PinType["PIN_UNSPECIFIED"] = "U";
-    PinType["PIN_POWER_IN"] = "W";
-    PinType["PIN_POWER_OUT"] = "w";
-    PinType["PIN_OPENCOLLECTOR"] = "C";
-    PinType["PIN_OPENEMITTER"] = "E";
-    PinType["PIN_NC"] = "N";
-})(PinType = exports.PinType || (exports.PinType = {}));
-;
-var PinAttribute;
-(function (PinAttribute) {
-    PinAttribute["NONE"] = "~";
-    PinAttribute["INVERTED"] = "I";
-    PinAttribute["CLOCK"] = "C";
-    PinAttribute["LOWLEVEL_IN"] = "L";
-    PinAttribute["LOWLEVEL_OUT"] = "V";
-    PinAttribute["FALLING_EDGE"] = "F";
-    PinAttribute["NONLOGIC"] = "X";
-    PinAttribute["INVISIBLE"] = "N";
-})(PinAttribute = exports.PinAttribute || (exports.PinAttribute = {}));
-
-/***/ }),
 /* 86 */
 /***/ (function(module, exports) {
 
@@ -2835,7 +2846,7 @@ module.exports = g;
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = !__webpack_require__(6) && !__webpack_require__(3)(function(){
-  return Object.defineProperty(__webpack_require__(59)('div'), 'a', {get: function(){ return 7; }}).a != 7;
+  return Object.defineProperty(__webpack_require__(60)('div'), 'a', {get: function(){ return 7; }}).a != 7;
 });
 
 /***/ }),
@@ -2851,7 +2862,7 @@ exports.f = __webpack_require__(5);
 var has          = __webpack_require__(10)
   , toIObject    = __webpack_require__(14)
   , arrayIndexOf = __webpack_require__(49)(false)
-  , IE_PROTO     = __webpack_require__(61)('IE_PROTO');
+  , IE_PROTO     = __webpack_require__(62)('IE_PROTO');
 
 module.exports = function(object, names){
   var O      = toIObject(object)
@@ -2993,7 +3004,7 @@ module.exports = Function.bind || function bind(that /*, args... */){
 
 var $parseInt = __webpack_require__(2).parseInt
   , $trim     = __webpack_require__(41).trim
-  , ws        = __webpack_require__(66)
+  , ws        = __webpack_require__(67)
   , hex       = /^[\-+]?0[xX]/;
 
 module.exports = $parseInt(ws + '08') !== 8 || $parseInt(ws + '0x16') !== 22 ? function parseInt(str, radix){
@@ -3008,7 +3019,7 @@ module.exports = $parseInt(ws + '08') !== 8 || $parseInt(ws + '0x16') !== 22 ? f
 var $parseFloat = __webpack_require__(2).parseFloat
   , $trim       = __webpack_require__(41).trim;
 
-module.exports = 1 / $parseFloat(__webpack_require__(66) + '-0') !== -Infinity ? function parseFloat(str){
+module.exports = 1 / $parseFloat(__webpack_require__(67) + '-0') !== -Infinity ? function parseFloat(str){
   var string = $trim(String(str), 3)
     , result = $parseFloat(string);
   return result === 0 && string.charAt(0) == '-' ? -0 : result;
@@ -3180,7 +3191,7 @@ var dP          = __webpack_require__(7).f
   , anInstance  = __webpack_require__(38)
   , defined     = __webpack_require__(19)
   , forOf       = __webpack_require__(44)
-  , $iterDefine = __webpack_require__(72)
+  , $iterDefine = __webpack_require__(73)
   , step        = __webpack_require__(103)
   , setSpecies  = __webpack_require__(37)
   , DESCRIPTORS = __webpack_require__(6)
@@ -3505,7 +3516,7 @@ module.exports = Reflect && Reflect.ownKeys || function ownKeys(it){
 
 // https://github.com/tc39/proposal-string-pad-start-end
 var toLength = __webpack_require__(8)
-  , repeat   = __webpack_require__(68)
+  , repeat   = __webpack_require__(69)
   , defined  = __webpack_require__(19);
 
 module.exports = function(that, maxLength, fillString, left){
@@ -3626,7 +3637,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * eeschema/lib_circle.cpp
  * eeschema/lib_arc.cpp
  */
-var kicad_common_1 = __webpack_require__(85);
+var kicad_common_1 = __webpack_require__(59);
 
 var Library = function () {
     _createClass(Library, null, [{
@@ -4255,7 +4266,7 @@ __webpack_require__(219);
 __webpack_require__(220);
 __webpack_require__(221);
 __webpack_require__(222);
-__webpack_require__(80);
+__webpack_require__(81);
 __webpack_require__(223);
 __webpack_require__(224);
 __webpack_require__(104);
@@ -4352,10 +4363,10 @@ var global         = __webpack_require__(2)
   , uid            = __webpack_require__(31)
   , wks            = __webpack_require__(5)
   , wksExt         = __webpack_require__(88)
-  , wksDefine      = __webpack_require__(60)
+  , wksDefine      = __webpack_require__(61)
   , keyOf          = __webpack_require__(120)
   , enumKeys       = __webpack_require__(121)
-  , isArray        = __webpack_require__(63)
+  , isArray        = __webpack_require__(64)
   , anObject       = __webpack_require__(1)
   , toIObject      = __webpack_require__(14)
   , toPrimitive    = __webpack_require__(21)
@@ -4788,7 +4799,7 @@ $export($export.S, 'Object', {is: __webpack_require__(93)});
 
 // 19.1.3.19 Object.setPrototypeOf(O, proto)
 var $export = __webpack_require__(0);
-$export($export.S, 'Object', {setPrototypeOf: __webpack_require__(65).set});
+$export($export.S, 'Object', {setPrototypeOf: __webpack_require__(66).set});
 
 /***/ }),
 /* 138 */
@@ -4891,7 +4902,7 @@ $export($export.G + $export.F * (parseFloat != $parseFloat), {parseFloat: $parse
 var global            = __webpack_require__(2)
   , has               = __webpack_require__(10)
   , cof               = __webpack_require__(18)
-  , inheritIfRequired = __webpack_require__(67)
+  , inheritIfRequired = __webpack_require__(68)
   , toPrimitive       = __webpack_require__(21)
   , fails             = __webpack_require__(3)
   , gOPN              = __webpack_require__(36).f
@@ -4966,7 +4977,7 @@ if(!$Number(' 0o1') || !$Number('0b1') || $Number('+0x1')){
 var $export      = __webpack_require__(0)
   , toInteger    = __webpack_require__(30)
   , aNumberValue = __webpack_require__(97)
-  , repeat       = __webpack_require__(68)
+  , repeat       = __webpack_require__(69)
   , $toFixed     = 1..toFixed
   , floor        = Math.floor
   , data         = [0, 0, 0, 0, 0, 0]
@@ -5255,7 +5266,7 @@ $export($export.S + $export.F * !($atanh && 1 / $atanh(-0) < 0), 'Math', {
 
 // 20.2.2.9 Math.cbrt(x)
 var $export = __webpack_require__(0)
-  , sign    = __webpack_require__(69);
+  , sign    = __webpack_require__(70);
 
 $export($export.S, 'Math', {
   cbrt: function cbrt(x){
@@ -5296,7 +5307,7 @@ $export($export.S, 'Math', {
 
 // 20.2.2.14 Math.expm1(x)
 var $export = __webpack_require__(0)
-  , $expm1  = __webpack_require__(70);
+  , $expm1  = __webpack_require__(71);
 
 $export($export.S + $export.F * ($expm1 != Math.expm1), 'Math', {expm1: $expm1});
 
@@ -5306,7 +5317,7 @@ $export($export.S + $export.F * ($expm1 != Math.expm1), 'Math', {expm1: $expm1})
 
 // 20.2.2.16 Math.fround(x)
 var $export   = __webpack_require__(0)
-  , sign      = __webpack_require__(69)
+  , sign      = __webpack_require__(70)
   , pow       = Math.pow
   , EPSILON   = pow(2, -52)
   , EPSILON32 = pow(2, -23)
@@ -5425,7 +5436,7 @@ $export($export.S, 'Math', {
 // 20.2.2.28 Math.sign(x)
 var $export = __webpack_require__(0);
 
-$export($export.S, 'Math', {sign: __webpack_require__(69)});
+$export($export.S, 'Math', {sign: __webpack_require__(70)});
 
 /***/ }),
 /* 170 */
@@ -5433,7 +5444,7 @@ $export($export.S, 'Math', {sign: __webpack_require__(69)});
 
 // 20.2.2.30 Math.sinh(x)
 var $export = __webpack_require__(0)
-  , expm1   = __webpack_require__(70)
+  , expm1   = __webpack_require__(71)
   , exp     = Math.exp;
 
 // V8 near Chromium 38 has a problem with very small numbers
@@ -5453,7 +5464,7 @@ $export($export.S + $export.F * __webpack_require__(3)(function(){
 
 // 20.2.2.33 Math.tanh(x)
 var $export = __webpack_require__(0)
-  , expm1   = __webpack_require__(70)
+  , expm1   = __webpack_require__(71)
   , exp     = Math.exp;
 
 $export($export.S, 'Math', {
@@ -5547,10 +5558,10 @@ __webpack_require__(41)('trim', function($trim){
 
 "use strict";
 
-var $at  = __webpack_require__(71)(true);
+var $at  = __webpack_require__(72)(true);
 
 // 21.1.3.27 String.prototype[@@iterator]()
-__webpack_require__(72)(String, 'String', function(iterated){
+__webpack_require__(73)(String, 'String', function(iterated){
   this._t = String(iterated); // target
   this._i = 0;                // next index
 // 21.1.5.2.1 %StringIteratorPrototype%.next()
@@ -5571,7 +5582,7 @@ __webpack_require__(72)(String, 'String', function(iterated){
 "use strict";
 
 var $export = __webpack_require__(0)
-  , $at     = __webpack_require__(71)(false);
+  , $at     = __webpack_require__(72)(false);
 $export($export.P, 'String', {
   // 21.1.3.3 String.prototype.codePointAt(pos)
   codePointAt: function codePointAt(pos){
@@ -5588,11 +5599,11 @@ $export($export.P, 'String', {
 
 var $export   = __webpack_require__(0)
   , toLength  = __webpack_require__(8)
-  , context   = __webpack_require__(74)
+  , context   = __webpack_require__(75)
   , ENDS_WITH = 'endsWith'
   , $endsWith = ''[ENDS_WITH];
 
-$export($export.P + $export.F * __webpack_require__(75)(ENDS_WITH), 'String', {
+$export($export.P + $export.F * __webpack_require__(76)(ENDS_WITH), 'String', {
   endsWith: function endsWith(searchString /*, endPosition = @length */){
     var that = context(this, searchString, ENDS_WITH)
       , endPosition = arguments.length > 1 ? arguments[1] : undefined
@@ -5613,10 +5624,10 @@ $export($export.P + $export.F * __webpack_require__(75)(ENDS_WITH), 'String', {
 // 21.1.3.7 String.prototype.includes(searchString, position = 0)
 
 var $export  = __webpack_require__(0)
-  , context  = __webpack_require__(74)
+  , context  = __webpack_require__(75)
   , INCLUDES = 'includes';
 
-$export($export.P + $export.F * __webpack_require__(75)(INCLUDES), 'String', {
+$export($export.P + $export.F * __webpack_require__(76)(INCLUDES), 'String', {
   includes: function includes(searchString /*, position = 0 */){
     return !!~context(this, searchString, INCLUDES)
       .indexOf(searchString, arguments.length > 1 ? arguments[1] : undefined);
@@ -5631,7 +5642,7 @@ var $export = __webpack_require__(0);
 
 $export($export.P, 'String', {
   // 21.1.3.13 String.prototype.repeat(count)
-  repeat: __webpack_require__(68)
+  repeat: __webpack_require__(69)
 });
 
 /***/ }),
@@ -5643,11 +5654,11 @@ $export($export.P, 'String', {
 
 var $export     = __webpack_require__(0)
   , toLength    = __webpack_require__(8)
-  , context     = __webpack_require__(74)
+  , context     = __webpack_require__(75)
   , STARTS_WITH = 'startsWith'
   , $startsWith = ''[STARTS_WITH];
 
-$export($export.P + $export.F * __webpack_require__(75)(STARTS_WITH), 'String', {
+$export($export.P + $export.F * __webpack_require__(76)(STARTS_WITH), 'String', {
   startsWith: function startsWith(searchString /*, position = 0 */){
     var that   = context(this, searchString, STARTS_WITH)
       , index  = toLength(Math.min(arguments.length > 1 ? arguments[1] : undefined, that.length))
@@ -5937,7 +5948,7 @@ module.exports = function(hint){
 // 22.1.2.2 / 15.4.3.2 Array.isArray(arg)
 var $export = __webpack_require__(0);
 
-$export($export.S, 'Array', {isArray: __webpack_require__(63)});
+$export($export.S, 'Array', {isArray: __webpack_require__(64)});
 
 /***/ }),
 /* 202 */
@@ -5949,10 +5960,10 @@ var ctx            = __webpack_require__(25)
   , $export        = __webpack_require__(0)
   , toObject       = __webpack_require__(9)
   , call           = __webpack_require__(100)
-  , isArrayIter    = __webpack_require__(76)
+  , isArrayIter    = __webpack_require__(77)
   , toLength       = __webpack_require__(8)
-  , createProperty = __webpack_require__(77)
-  , getIterFn      = __webpack_require__(78);
+  , createProperty = __webpack_require__(78)
+  , getIterFn      = __webpack_require__(79);
 
 $export($export.S + $export.F * !__webpack_require__(53)(function(iter){ Array.from(iter); }), 'Array', {
   // 22.1.2.1 Array.from(arrayLike, mapfn = undefined, thisArg = undefined)
@@ -5990,7 +6001,7 @@ $export($export.S + $export.F * !__webpack_require__(53)(function(iter){ Array.f
 "use strict";
 
 var $export        = __webpack_require__(0)
-  , createProperty = __webpack_require__(77);
+  , createProperty = __webpack_require__(78);
 
 // WebKit Array.of isn't generic
 $export($export.S + $export.F * __webpack_require__(3)(function(){
@@ -6033,7 +6044,7 @@ $export($export.P + $export.F * (__webpack_require__(45) != Object || !__webpack
 "use strict";
 
 var $export    = __webpack_require__(0)
-  , html       = __webpack_require__(64)
+  , html       = __webpack_require__(65)
   , cof        = __webpack_require__(18)
   , toIndex    = __webpack_require__(34)
   , toLength   = __webpack_require__(8)
@@ -6122,7 +6133,7 @@ module.exports = function(original, length){
 /***/ (function(module, exports, __webpack_require__) {
 
 var isObject = __webpack_require__(4)
-  , isArray  = __webpack_require__(63)
+  , isArray  = __webpack_require__(64)
   , SPECIES  = __webpack_require__(5)('species');
 
 module.exports = function(original){
@@ -6301,7 +6312,7 @@ __webpack_require__(43)('copyWithin');
 // 22.1.3.6 Array.prototype.fill(value, start = 0, end = this.length)
 var $export = __webpack_require__(0);
 
-$export($export.P, 'Array', {fill: __webpack_require__(79)});
+$export($export.P, 'Array', {fill: __webpack_require__(80)});
 
 __webpack_require__(43)('fill');
 
@@ -6356,7 +6367,7 @@ __webpack_require__(37)('Array');
 /***/ (function(module, exports, __webpack_require__) {
 
 var global            = __webpack_require__(2)
-  , inheritIfRequired = __webpack_require__(67)
+  , inheritIfRequired = __webpack_require__(68)
   , dP                = __webpack_require__(7).f
   , gOPN              = __webpack_require__(36).f
   , isRegExp          = __webpack_require__(52)
@@ -6567,9 +6578,9 @@ var LIBRARY            = __webpack_require__(32)
   , aFunction          = __webpack_require__(13)
   , anInstance         = __webpack_require__(38)
   , forOf              = __webpack_require__(44)
-  , speciesConstructor = __webpack_require__(81)
-  , task               = __webpack_require__(82).set
-  , microtask          = __webpack_require__(83)()
+  , speciesConstructor = __webpack_require__(82)
+  , task               = __webpack_require__(83).set
+  , microtask          = __webpack_require__(84)()
   , PROMISE            = 'Promise'
   , TypeError          = global.TypeError
   , process            = global.process
@@ -6883,13 +6894,13 @@ __webpack_require__(56)('WeakSet', function(get){
 
 var $export      = __webpack_require__(0)
   , $typed       = __webpack_require__(57)
-  , buffer       = __webpack_require__(84)
+  , buffer       = __webpack_require__(85)
   , anObject     = __webpack_require__(1)
   , toIndex      = __webpack_require__(34)
   , toLength     = __webpack_require__(8)
   , isObject     = __webpack_require__(4)
   , ArrayBuffer  = __webpack_require__(2).ArrayBuffer
-  , speciesConstructor = __webpack_require__(81)
+  , speciesConstructor = __webpack_require__(82)
   , $ArrayBuffer = buffer.ArrayBuffer
   , $DataView    = buffer.DataView
   , $isView      = $typed.ABV && ArrayBuffer.isView
@@ -6933,7 +6944,7 @@ __webpack_require__(37)(ARRAY_BUFFER);
 
 var $export = __webpack_require__(0);
 $export($export.G + $export.W + $export.F * !__webpack_require__(57).ABV, {
-  DataView: __webpack_require__(84).DataView
+  DataView: __webpack_require__(85).DataView
 });
 
 /***/ }),
@@ -7158,7 +7169,7 @@ var Enumerate = function(iterated){
     , key;
   for(key in iterated)keys.push(key);
 };
-__webpack_require__(73)(Enumerate, 'Object', function(){
+__webpack_require__(74)(Enumerate, 'Object', function(){
   var that = this
     , keys = that._k
     , key;
@@ -7331,7 +7342,7 @@ $export($export.S, 'Reflect', {set: set});
 
 // 26.1.14 Reflect.setPrototypeOf(target, proto)
 var $export  = __webpack_require__(0)
-  , setProto = __webpack_require__(65);
+  , setProto = __webpack_require__(66);
 
 if(setProto)$export($export.S, 'Reflect', {
   setPrototypeOf: function setPrototypeOf(target, proto){
@@ -7371,7 +7382,7 @@ __webpack_require__(43)('includes');
 
 // https://github.com/mathiasbynens/String.prototype.at
 var $export = __webpack_require__(0)
-  , $at     = __webpack_require__(71)(true);
+  , $at     = __webpack_require__(72)(true);
 
 $export($export.P, 'String', {
   at: function at(pos){
@@ -7456,7 +7467,7 @@ var $RegExpStringIterator = function(regexp, string){
   this._s = string;
 };
 
-__webpack_require__(73)($RegExpStringIterator, 'RegExp String', function next(){
+__webpack_require__(74)($RegExpStringIterator, 'RegExp String', function next(){
   var match = this._r.exec(this._s);
   return {value: match, done: match === null};
 });
@@ -7477,13 +7488,13 @@ $export($export.P, 'String', {
 /* 263 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(60)('asyncIterator');
+__webpack_require__(61)('asyncIterator');
 
 /***/ }),
 /* 264 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(60)('observable');
+__webpack_require__(61)('observable');
 
 /***/ }),
 /* 265 */
@@ -7494,7 +7505,7 @@ var $export        = __webpack_require__(0)
   , ownKeys        = __webpack_require__(110)
   , toIObject      = __webpack_require__(14)
   , gOPD           = __webpack_require__(16)
-  , createProperty = __webpack_require__(77);
+  , createProperty = __webpack_require__(78);
 
 $export($export.S, 'Object', {
   getOwnPropertyDescriptors: function getOwnPropertyDescriptors(object){
@@ -7903,7 +7914,7 @@ metadata.exp({metadata: function metadata(metadataKey, metadataValue){
 
 // https://github.com/rwaldron/tc39-notes/blob/master/es6/2014-09/sept-25.md#510-globalasap-for-enqueuing-a-microtask
 var $export   = __webpack_require__(0)
-  , microtask = __webpack_require__(83)()
+  , microtask = __webpack_require__(84)()
   , process   = __webpack_require__(2).process
   , isNode    = __webpack_require__(18)(process) == 'process';
 
@@ -7924,7 +7935,7 @@ $export($export.G, {
 var $export     = __webpack_require__(0)
   , global      = __webpack_require__(2)
   , core        = __webpack_require__(24)
-  , microtask   = __webpack_require__(83)()
+  , microtask   = __webpack_require__(84)()
   , OBSERVABLE  = __webpack_require__(5)('observable')
   , aFunction   = __webpack_require__(13)
   , anObject    = __webpack_require__(1)
@@ -8184,7 +8195,7 @@ module.exports = __webpack_require__(2);
 /***/ (function(module, exports, __webpack_require__) {
 
 var $export = __webpack_require__(0)
-  , $task   = __webpack_require__(82);
+  , $task   = __webpack_require__(83);
 $export($export.G + $export.B, {
   setImmediate:   $task.set,
   clearImmediate: $task.clear
@@ -8194,7 +8205,7 @@ $export($export.G + $export.B, {
 /* 295 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var $iterators    = __webpack_require__(80)
+var $iterators    = __webpack_require__(81)
   , redefine      = __webpack_require__(12)
   , global        = __webpack_require__(2)
   , hide          = __webpack_require__(11)
@@ -9467,7 +9478,7 @@ module.exports = function(regExp, replace){
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
-var _require = __webpack_require__(85),
+var _require = __webpack_require__(59),
     Transform = _require.Transform;
 
 var _require2 = __webpack_require__(302),
@@ -9486,6 +9497,7 @@ var _require3 = __webpack_require__(115),
 var app = new Vue({
 	el: '#app',
 	data: {
+		url: "https://raw.githubusercontent.com/KiCad/kicad-library/master/library/device.lib",
 		fileName: "",
 		status: "init",
 		lib: {},
@@ -9507,6 +9519,19 @@ var app = new Vue({
 			this.fileName = file.name;
 			var objectURL = window.URL.createObjectURL(file);
 			this.loadLibrary(objectURL);
+		},
+
+		onSubmit: function onSubmit() {
+			var _this = this;
+
+			var url = this.url;
+			if (!url) {
+				this.status = "url is required";
+				return;
+			}
+			this.loadLibrary(url).catch(function (e) {
+				_this.status = e;
+			});
 		},
 
 		loadLibrary: function () {
@@ -9696,8 +9721,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var kicad_common_1 = __webpack_require__(85);
+var kicad_common_1 = __webpack_require__(59);
 var kicad_lib_1 = __webpack_require__(115);
+var kicad_sch_1 = __webpack_require__(303);
 /**
  * similar to KiCAD Plotter
  *
@@ -9743,7 +9769,7 @@ var Plotter = function () {
             this.penTo({ x: 0, y: 0 }, "Z");
         }
         /**
-         * kicad-js implements plot methods to plotter instead of each library items.
+         * kicad-js implements plot methods to plotter instead of each library items for simplify parsing dependencies.
          */
 
     }, {
@@ -9943,7 +9969,7 @@ var Plotter = function () {
             this.setCurrentLineWidth(kicad_common_1.DEFAULT_LINE_WIDTH);
             this.moveTo({ x: x1, y: y1 });
             this.finishTo({ x: pos.x, y: pos.y });
-            this.circle({ x: pos.x, y: pos.y }, 20, kicad_common_1.Fill.NO_FILL, 2);
+            // this.circle({ x: pos.x, y: pos.y}, 20, Fill.NO_FILL, 2);
         }
     }, {
         key: "pinDrawOrientation",
@@ -9970,6 +9996,118 @@ var Plotter = function () {
                     return kicad_common_1.PinOrientation.LEFT;
                 } else {
                     return kicad_common_1.PinOrientation.RIGHT;
+                }
+            }
+        }
+    }, {
+        key: "plotSchematic",
+        value: function plotSchematic(sch, libs) {
+            // default page layout
+            var MARGIN = kicad_common_1.MM2MIL(10);
+            this.rect({ x: MARGIN, y: MARGIN }, { x: sch.descr.width - MARGIN, y: sch.descr.height - MARGIN }, kicad_common_1.Fill.NO_FILL, kicad_common_1.DEFAULT_LINE_WIDTH);
+            var OFFSET = kicad_common_1.MM2MIL(2);
+            this.rect({ x: MARGIN + OFFSET, y: MARGIN + OFFSET }, { x: sch.descr.width - MARGIN - OFFSET, y: sch.descr.height - MARGIN - OFFSET }, kicad_common_1.Fill.NO_FILL, kicad_common_1.DEFAULT_LINE_WIDTH);
+            // up
+            this.moveTo(sch.descr.width / 2, MARGIN);
+            this.finishTo(sch.descr.width / 2, MARGIN + OFFSET);
+            // bottom
+            this.moveTo(sch.descr.width / 2, sch.descr.height - MARGIN - OFFSET);
+            this.finishTo(sch.descr.width / 2, sch.descr.height - MARGIN);
+            // left
+            this.moveTo(MARGIN, sch.descr.height / 2);
+            this.finishTo(MARGIN + OFFSET, sch.descr.height / 2);
+            // right
+            this.moveTo(sch.descr.width - MARGIN - OFFSET, sch.descr.height / 2);
+            this.finishTo(sch.descr.width - MARGIN, sch.descr.height / 2);
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
+
+            try {
+                for (var _iterator2 = sch.items[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var item = _step2.value;
+
+                    if (item instanceof kicad_sch_1.Component) {
+                        var component = void 0;
+                        var _iteratorNormalCompletion3 = true;
+                        var _didIteratorError3 = false;
+                        var _iteratorError3 = undefined;
+
+                        try {
+                            for (var _iterator3 = libs[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                                var lib = _step3.value;
+
+                                component = lib.findByName(item.name);
+                                if (component) break;
+                            }
+                        } catch (err) {
+                            _didIteratorError3 = true;
+                            _iteratorError3 = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                                    _iterator3.return();
+                                }
+                            } finally {
+                                if (_didIteratorError3) {
+                                    throw _iteratorError3;
+                                }
+                            }
+                        }
+
+                        if (!component) {
+                            throw "component " + item.name + " is not found in libraries";
+                        }
+                        this.plotLibComponent(component, item.unit, item.convert, { x: item.posx, y: item.posy }, item.transform);
+                    } else if (item instanceof kicad_sch_1.Sheet) {
+                        this.setColor("black");
+                        this.setCurrentLineWidth(kicad_common_1.DEFAULT_LINE_WIDTH);
+                        this.fill = kicad_common_1.Fill.NO_FILL;
+                        this.moveTo(item.posx, item.posy);
+                        this.lineTo(item.posx, item.posy + item.sizey);
+                        this.lineTo(item.posx + item.sizex, item.posy + item.sizey);
+                        this.lineTo(item.posx + item.sizex, item.posy);
+                        this.finishTo(item.posx, item.posy);
+                        this.text({ x: item.posx, y: item.posy - 4 }, "black", item.sheetName, 0, item.sheetNameSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
+                        this.text({ x: item.posx, y: item.posy + item.sizey + 4 }, "black", item.fileName, 0, item.fileNameSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.TOP, 0, false, false);
+                    } else if (item instanceof kicad_sch_1.Bitmap) {} else if (item instanceof kicad_sch_1.Text) {
+                        console.log(item);
+                        this.text({ x: item.posx, y: item.posy }, "black", item.text, item.orientation, item.size, item.hjustify, item.vjustify, 0, item.italic, item.bold);
+                    } else if (item instanceof kicad_sch_1.Entry) {} else if (item instanceof kicad_sch_1.Connection) {
+                        this.setColor("black");
+                        this.circle({ x: item.posx, y: item.posy }, 40, kicad_common_1.Fill.FILLED_SHAPE, kicad_common_1.DEFAULT_LINE_WIDTH);
+                    } else if (item instanceof kicad_sch_1.NoConn) {
+                        this.fill = kicad_common_1.Fill.NO_FILL;
+                        var DRAWNOCONNECT_SIZE = 48;
+                        var delta = DRAWNOCONNECT_SIZE / 2;
+                        this.setColor("black");
+                        this.setCurrentLineWidth(kicad_common_1.DEFAULT_LINE_WIDTH);
+                        this.moveTo(item.posx - delta, item.posy - delta);
+                        this.finishTo(item.posx + delta, item.posy + delta);
+                        this.moveTo(item.posx + delta, item.posy - delta);
+                        this.finishTo(item.posx - delta, item.posy + delta);
+                    } else if (item instanceof kicad_sch_1.Wire) {
+                        this.setColor("black");
+                        this.setCurrentLineWidth(kicad_common_1.DEFAULT_LINE_WIDTH);
+                        this.fill = kicad_common_1.Fill.NO_FILL;
+                        this.moveTo(item.startx, item.starty);
+                        this.finishTo(item.endx, item.endy);
+                    } else {
+                        throw "unknown SchItem: " + item.constructor.name;
+                    }
+                }
+            } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                        _iterator2.return();
+                    }
+                } finally {
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
+                    }
                 }
             }
         }
@@ -10065,10 +10203,12 @@ var CanvasPlotter = function (_Plotter) {
             } else if (vjustify === kicad_common_1.TextVjustify.BOTTOM) {
                 this.ctx.textBaseline = "bottom";
             }
+            this.ctx.fillStyle = color;
             this.ctx.save();
             this.ctx.translate(p.x, p.y);
             this.ctx.rotate(-kicad_common_1.DECIDEG2RAD(orientation));
             this.ctx.font = size + "px monospace";
+            // console.log('fillText', text, p.x, p.y, hjustfy, vjustify);
             this.ctx.fillText(_text, 0, 0);
             this.ctx.restore();
         }
@@ -10110,6 +10250,12 @@ var CanvasPlotter = function (_Plotter) {
             this.penState = s;
         }
     }, {
+        key: "setColor",
+        value: function setColor(c) {
+            this.ctx.fillStyle = c;
+            this.ctx.strokeStyle = c;
+        }
+    }, {
         key: "setCurrentLineWidth",
         value: function setCurrentLineWidth(w) {
             this.ctx.lineWidth = w;
@@ -10120,6 +10266,729 @@ var CanvasPlotter = function (_Plotter) {
 }(Plotter);
 
 exports.CanvasPlotter = CanvasPlotter;
+
+var SVGPlotter = function (_Plotter2) {
+    _inherits(SVGPlotter, _Plotter2);
+
+    function SVGPlotter() {
+        _classCallCheck(this, SVGPlotter);
+
+        var _this2 = _possibleConstructorReturn(this, (SVGPlotter.__proto__ || Object.getPrototypeOf(SVGPlotter)).call(this));
+
+        _this2.penState = "Z";
+        _this2.output = "";
+        return _this2;
+    }
+
+    _createClass(SVGPlotter, [{
+        key: "rect",
+        value: function rect(p1, p2, fill, width) {
+            this.setCurrentLineWidth(width);
+            this.fill = fill;
+            this.moveTo(p1.x, p1.y);
+            this.lineTo(p1.x, p2.y);
+            this.lineTo(p2.x, p2.y);
+            this.lineTo(p2.x, p1.y);
+            this.finishTo(p1.x, p1.y);
+        }
+    }, {
+        key: "circle",
+        value: function circle(p, dia, fill, width) {
+            this.setCurrentLineWidth(width);
+            this.fill = fill;
+            this.output += "<circle cx=\"" + p.x + "\" cy=\"" + p.y + "\" r=\"" + dia / 2 + "\" ";
+            if (this.fill === kicad_common_1.Fill.NO_FILL) {
+                this.output += " style=\"stroke: #000000; fill: none; stroke-width: " + kicad_common_1.DEFAULT_LINE_WIDTH + "\"/>\n";
+            } else {
+                this.output += " style=\"stroke: #000000; fill: #000000; stroke-width: " + kicad_common_1.DEFAULT_LINE_WIDTH + "\"/>\n";
+            }
+        }
+    }, {
+        key: "arc",
+        value: function arc(p, startAngle, endAngle, radius, fill, width) {
+            this.setCurrentLineWidth(width);
+            this.fill = fill;
+            // TODO
+        }
+    }, {
+        key: "polyline",
+        value: function polyline(points, fill, width) {
+            this.setCurrentLineWidth(width);
+            this.fill = fill;
+            this.moveTo(points[0]);
+            for (var i = 1, len = points.length; i < len; i++) {
+                this.lineTo(points[i]);
+            }
+            this.finishPen();
+            //		this.output += `<polyline points="`;
+            //		for (var i = 1, len = points.length; i < len; i++) {
+            //			this.output += `${points[i].x},${points[i].y}\n`;
+            //		}
+            //		this.output += `" style="stroke: #000000; fill: none; stroke-width: ${DEFAULT_LINE_WIDTH}"/>\n`;
+        }
+    }, {
+        key: "text",
+        value: function text(p, color, _text2, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
+            var textAnchor = void 0;
+            if (hjustfy === kicad_common_1.TextHjustify.LEFT) {
+                textAnchor = "start";
+            } else if (hjustfy === kicad_common_1.TextHjustify.CENTER) {
+                textAnchor = "middle";
+            } else if (hjustfy === kicad_common_1.TextHjustify.RIGHT) {
+                textAnchor = "end";
+            }
+            var dominantBaseline = void 0;
+            if (vjustify === kicad_common_1.TextVjustify.TOP) {
+                dominantBaseline = "text-before-edge";
+            } else if (vjustify === kicad_common_1.TextVjustify.CENTER) {
+                dominantBaseline = "middle";
+            } else if (vjustify === kicad_common_1.TextVjustify.BOTTOM) {
+                dominantBaseline = "text-after-edge";
+            }
+            var rotate = -orientation / 10;
+            this.output += "<text x=\"" + p.x + "\" y=\"" + p.y + "\"\n\t\t\ttext-anchor=\"" + textAnchor + "\"\n\t\t\tdominant-baseline=\"" + dominantBaseline + "\"\n\t\t\tfont-family=\"monospace\"\n\t\t\tfont-size=\"" + size + "\"\n\t\t\tfill=\"#000000\"\n\t\t\ttransform=\"rotate(" + rotate + ", " + p.x + ", " + p.y + ")\">" + _text2 + "</text>";
+        }
+        /**
+         * U = Pen is up
+         * D = Pen is down
+         * Z = Pen is outof canvas
+         */
+
+    }, {
+        key: "penTo",
+        value: function penTo(p, s) {
+            if (s === "Z") {
+                if (this.penState !== "Z") {
+                    if (this.fill === kicad_common_1.Fill.NO_FILL) {
+                        this.output += "\" style=\"stroke: #000000; fill: none; stroke-width: " + kicad_common_1.DEFAULT_LINE_WIDTH + "\"/>\n";
+                    } else {
+                        this.output += "\" style=\"stroke: #000000; fill: #000000; stroke-width: " + kicad_common_1.DEFAULT_LINE_WIDTH + "\"/>\n";
+                    }
+                } else {
+                    throw "invalid pen state Z -> Z";
+                }
+                this.penState = "Z";
+                return;
+            }
+            // s is U | D
+            if (this.penState === "Z") {
+                this.output += "<path d=\"M" + p.x + " " + p.y + "\n";
+            } else {
+                if (s === "U") {
+                    this.output += "M" + p.x + " " + p.y + "\n";
+                } else {
+                    this.output += "L" + p.x + " " + p.y + "\n";
+                }
+            }
+            this.penState = s;
+        }
+    }, {
+        key: "setColor",
+        value: function setColor(c) {}
+    }, {
+        key: "setCurrentLineWidth",
+        value: function setCurrentLineWidth(w) {}
+    }]);
+
+    return SVGPlotter;
+}(Plotter);
+
+exports.SVGPlotter = SVGPlotter;
+
+/***/ }),
+/* 303 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/*
+ * This program source code file is part of kicad-js.
+ * Copyright (C) 2017 cho45 <cho45@lowreal.net>.
+ *
+ * And this program source code file is imported from KiCad, a free EDA CAD application.
+ *
+ * Original Author Copyright:
+ *
+ * Copyright (C) 2015 Jean-Pierre Charras, jaen-pierre.charras@gipsa-lab.inpg.com
+ * Copyright (C) 1992-2017 KiCad Developers, see KiCAD AUTHORS.txt for contributors.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, you may find one here:
+ * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * or you may search the http://www.gnu.org website for the version 2 license,
+ * or you may write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+ */
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var kicad_common_1 = __webpack_require__(59);
+
+var Schematic = function () {
+    _createClass(Schematic, null, [{
+        key: "load",
+        value: function load(content) {
+            var lines = content.split(/\n/);
+            var sch = new this();
+            sch.parse(lines);
+            return sch;
+        }
+    }]);
+
+    function Schematic() {
+        _classCallCheck(this, Schematic);
+
+        this.items = [];
+        this.parsed = false;
+    }
+
+    _createClass(Schematic, [{
+        key: "parse",
+        value: function parse(lines) {
+            var version = lines.shift();
+            if (!version || version.indexOf('EESchema Schematic File Version 2') !== 0) {
+                throw "unknwon library format";
+            }
+            var line = void 0;
+            while ((line = lines.shift()) !== undefined) {
+                if (line[0] === '#') continue;
+                if (!line) continue;
+                if (line.indexOf("LIBS:") === 0) {
+                    // skip this section
+                    continue;
+                }
+                var tokens = line.split(/ +/);
+                if (tokens[0] === 'EELAYER') {
+                    while ((line = lines.shift()) !== undefined) {
+                        if (line === 'EELAYER END') break;
+                        // skip this section
+                    }
+                } else if (tokens[0] === '$Descr') {
+                    this.descr = new Descr(tokens.slice(1)).parse(lines);
+                } else if (tokens[0] === '$Comp') {
+                    this.items.push(new Component().parse(lines));
+                } else if (tokens[0] === '$Sheet') {
+                    this.items.push(new Sheet().parse(lines));
+                } else if (tokens[0] === '$Bitmap') {
+                    this.items.push(new Bitmap().parse(lines));
+                } else if (tokens[0] === 'Text') {
+                    this.items.push(new Text(tokens.slice(1)).parse(lines));
+                } else if (tokens[0] === 'Entry') {
+                    this.items.push(new Entry(tokens.slice(1)).parse(lines));
+                } else if (tokens[0] === 'Connection') {
+                    this.items.push(new Connection(tokens.slice(1)).parse(lines));
+                } else if (tokens[0] === 'NoConn') {
+                    this.items.push(new NoConn(tokens.slice(1)).parse(lines));
+                } else if (tokens[0] === 'Wire') {
+                    this.items.push(new Wire(tokens.slice(1)).parse(lines));
+                } else if (tokens[0] === '$EndSCHEMATC') {
+                    this.parsed = true;
+                } else {
+                    throw 'unkown token ' + tokens[0];
+                }
+            }
+        }
+    }]);
+
+    return Schematic;
+}();
+
+exports.Schematic = Schematic;
+
+var SchItem = function SchItem() {
+    _classCallCheck(this, SchItem);
+};
+
+exports.SchItem = SchItem;
+
+var Sheet = function (_SchItem) {
+    _inherits(Sheet, _SchItem);
+
+    function Sheet() {
+        _classCallCheck(this, Sheet);
+
+        var _this = _possibleConstructorReturn(this, (Sheet.__proto__ || Object.getPrototypeOf(Sheet)).call(this));
+
+        _this.sheetPins = [];
+        return _this;
+    }
+
+    _createClass(Sheet, [{
+        key: "parse",
+        value: function parse(lines) {
+            var line = void 0;
+            while ((line = lines.shift()) !== undefined) {
+                if (line === '$EndSheet') break;
+                var tokens = line.split(/\s+/);
+                if (tokens[0] === 'S') {
+                    this.posx = Number(tokens[1]);
+                    this.posy = Number(tokens[2]);
+                    this.sizex = Number(tokens[3]);
+                    this.sizey = Number(tokens[4]);
+                } else if (tokens[0] === 'U') {
+                    this.timestamp = Number(tokens[1]);
+                } else if (tokens[0].match(/F(\d)/)) {
+                    var n = Number(RegExp.$1);
+                    if (n === 0) {
+                        this.sheetName = tokens[1];
+                        this.sheetNameSize = Number(tokens[2]);
+                    } else if (n === 1) {
+                        this.fileName = tokens[1];
+                        this.fileNameSize = Number(tokens[2]);
+                    } else {
+                        this.sheetPins.push(new SheetPin(tokens.slice(1)).parse(lines));
+                    }
+                }
+            }
+            return this;
+        }
+    }]);
+
+    return Sheet;
+}(SchItem);
+
+exports.Sheet = Sheet;
+
+var SheetPin = function (_SchItem2) {
+    _inherits(SheetPin, _SchItem2);
+
+    function SheetPin(tokens) {
+        _classCallCheck(this, SheetPin);
+
+        var _this2 = _possibleConstructorReturn(this, (SheetPin.__proto__ || Object.getPrototypeOf(SheetPin)).call(this));
+
+        _this2.name = tokens[0];
+        _this2.connectType = tokens[1];
+        _this2.sheetSide = tokens[2];
+        _this2.posx = Number(tokens[3]);
+        _this2.posy = Number(tokens[4]);
+        _this2.textWidth = Number(tokens[5]);
+        return _this2;
+    }
+
+    _createClass(SheetPin, [{
+        key: "parse",
+        value: function parse(lines) {
+            return this;
+        }
+    }]);
+
+    return SheetPin;
+}(SchItem);
+
+exports.SheetPin = SheetPin;
+
+var Component = function (_SchItem3) {
+    _inherits(Component, _SchItem3);
+
+    function Component() {
+        _classCallCheck(this, Component);
+
+        var _this3 = _possibleConstructorReturn(this, (Component.__proto__ || Object.getPrototypeOf(Component)).call(this));
+
+        _this3.ar = {};
+        _this3.fields = [];
+        return _this3;
+    }
+
+    _createClass(Component, [{
+        key: "parse",
+        value: function parse(lines) {
+            var line = void 0;
+            var tabLines = [];
+            while ((line = lines.shift()) !== undefined) {
+                if (line === '$EndComp') break;
+                if (line[0] === "\t") {
+                    tabLines.push(line.substring(1));
+                    continue;
+                }
+                var tokens = line.split(/\s+/);
+                if (tokens[0] === 'L') {
+                    this.name = tokens[1].replace(/''/g, '"').replace(/~/g, ' ').replace(/^"|"$/g, '');
+                    this.reference = tokens[2];
+                } else if (tokens[0] === 'U') {
+                    this.unit = Number(tokens[1]);
+                    this.convert = Number(tokens[2]);
+                    this.timestamp = Number(tokens[3]);
+                } else if (tokens[0] === 'P') {
+                    this.posx = Number(tokens[1]);
+                    this.posy = Number(tokens[2]);
+                } else if (tokens[0] === 'AR') {
+                    tokens.slice(1).reduce(function (r, i) {
+                        var _i$split = i.split(/=/),
+                            _i$split2 = _slicedToArray(_i$split, 2),
+                            name = _i$split2[0],
+                            value = _i$split2[1];
+
+                        r[name] = value;
+                        return r;
+                    }, this.ar);
+                } else if (tokens[0] === 'F') {
+                    this.fields.push(new Field(tokens.slice(1)));
+                }
+            }
+            var _oldPosAndUnit = tabLines.shift();
+            if (!_oldPosAndUnit) {
+                throw 'unexpected line';
+            }
+            var transform = tabLines.shift();
+            if (!transform) {
+                throw 'unexpected line';
+            }
+            this.transform = new (Function.prototype.bind.apply(kicad_common_1.Transform, [null].concat(_toConsumableArray(transform.split(/\s+/).map(function (i) {
+                return Number(i);
+            })))))();
+            return this;
+        }
+    }]);
+
+    return Component;
+}(SchItem);
+
+exports.Component = Component;
+
+var Field = function (_SchItem4) {
+    _inherits(Field, _SchItem4);
+
+    function Field(tokens) {
+        _classCallCheck(this, Field);
+
+        var _this4 = _possibleConstructorReturn(this, (Field.__proto__ || Object.getPrototypeOf(Field)).call(this));
+
+        _this4.number = Number(tokens[0]);
+        _this4.text = tokens[1];
+        _this4.angle = tokens[2];
+        _this4.posx = Number(tokens[3]);
+        _this4.posy = Number(tokens[4]);
+        _this4.width = Number(tokens[5]);
+        _this4.visible = Number(tokens[6]) == 0;
+        _this4.hjustify = tokens[7];
+        _this4.vjustify = tokens[8];
+        _this4.italic = tokens[9] === 'I';
+        _this4.bold = tokens[10] === 'B';
+        _this4.name = tokens[11];
+        return _this4;
+    }
+
+    return Field;
+}(SchItem);
+
+exports.Field = Field;
+
+var Descr = function () {
+    function Descr(tokens) {
+        _classCallCheck(this, Descr);
+
+        this.pageType = tokens[0];
+        this.width = Number(tokens[1]);
+        this.height = Number(tokens[2]);
+        this.orientation = Number(tokens[3] || 0);
+    }
+
+    _createClass(Descr, [{
+        key: "parse",
+        value: function parse(lines) {
+            var line = void 0;
+            while ((line = lines.shift()) !== undefined) {
+                if (line === '$EndDescr') break;
+                var tokens = line.split(/\s+/);
+                if (tokens[0] === 'Sheet') {
+                    this.screenNumber = Number(tokens[1]);
+                    this.numberOfScreens = Number(tokens[2]);
+                } else if (tokens[0] === 'Title') {
+                    this.title = tokens[1];
+                } else if (tokens[0] === 'Date') {
+                    this.date = tokens[1];
+                } else if (tokens[0] === 'Rev') {
+                    this.rev = tokens[1];
+                } else if (tokens[0] === 'Comp') {
+                    this.date = tokens[1];
+                } else if (tokens[0] === 'Date') {
+                    this.date = tokens[1];
+                } else if (tokens[0] === 'Comment1') {
+                    this.comment1 = tokens[1];
+                } else if (tokens[0] === 'Comment2') {
+                    this.comment2 = tokens[1];
+                } else if (tokens[0] === 'Comment3') {
+                    this.comment3 = tokens[1];
+                } else if (tokens[0] === 'Comment4') {
+                    this.comment4 = tokens[1];
+                }
+            }
+            return this;
+        }
+    }]);
+
+    return Descr;
+}();
+
+exports.Descr = Descr;
+
+var Bitmap = function (_SchItem5) {
+    _inherits(Bitmap, _SchItem5);
+
+    function Bitmap() {
+        _classCallCheck(this, Bitmap);
+
+        return _possibleConstructorReturn(this, (Bitmap.__proto__ || Object.getPrototypeOf(Bitmap)).call(this));
+    }
+
+    _createClass(Bitmap, [{
+        key: "parse",
+        value: function parse(lines) {
+            var line = void 0;
+            while ((line = lines.shift()) !== undefined) {
+                if (line === '$EndBitmap') break;
+                var tokens = line.split(/ +/);
+                if (tokens[0] === 'Pos') {
+                    this.posx = Number(tokens[1]);
+                    this.posy = Number(tokens[2]);
+                } else if (tokens[0] === 'Scale') {
+                    this.scale = Number(tokens[1]);
+                } else if (tokens[0] === 'Data') {
+                    this.data = '';
+                    while ((line = lines.shift()) !== undefined) {
+                        if (line === 'EndData') break;
+                        // raw hex data
+                        this.data += line;
+                    }
+                } else {
+                    throw "unexpected token " + tokens[0];
+                }
+            }
+            return this;
+        }
+    }]);
+
+    return Bitmap;
+}(SchItem);
+
+exports.Bitmap = Bitmap;
+
+var Text = function (_SchItem6) {
+    _inherits(Text, _SchItem6);
+
+    function Text(tokens) {
+        _classCallCheck(this, Text);
+
+        var _this6 = _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this));
+
+        _this6.name1 = tokens[0];
+        _this6.posx = Number(tokens[1]);
+        _this6.posy = Number(tokens[2]);
+        var orientationType = Number(tokens[3]);
+        if (_this6.name1 === "GLabel") {
+            if (orientationType === 0) {
+                _this6.orientation = kicad_common_1.TextAngle.HORIZ;
+                _this6.hjustify = kicad_common_1.TextHjustify.RIGHT;
+                _this6.vjustify = kicad_common_1.TextVjustify.CENTER;
+            } else if (orientationType === 1) {
+                _this6.orientation = kicad_common_1.TextAngle.VERT;
+                _this6.hjustify = kicad_common_1.TextHjustify.LEFT;
+                _this6.vjustify = kicad_common_1.TextVjustify.CENTER;
+            } else if (orientationType === 2) {
+                _this6.orientation = kicad_common_1.TextAngle.HORIZ;
+                _this6.hjustify = kicad_common_1.TextHjustify.LEFT;
+                _this6.vjustify = kicad_common_1.TextVjustify.CENTER;
+            } else if (orientationType === 3) {
+                _this6.orientation = kicad_common_1.TextAngle.VERT;
+                _this6.hjustify = kicad_common_1.TextHjustify.RIGHT;
+                _this6.vjustify = kicad_common_1.TextVjustify.CENTER;
+            } else {
+                throw "invalid orientationType: " + orientationType;
+            }
+        } else {
+            if (orientationType === 0) {
+                _this6.orientation = kicad_common_1.TextAngle.HORIZ;
+                _this6.hjustify = kicad_common_1.TextHjustify.LEFT;
+                _this6.vjustify = kicad_common_1.TextVjustify.CENTER;
+            } else if (orientationType === 1) {
+                _this6.orientation = kicad_common_1.TextAngle.VERT;
+                _this6.hjustify = kicad_common_1.TextHjustify.LEFT;
+                _this6.vjustify = kicad_common_1.TextVjustify.CENTER;
+            } else if (orientationType === 2) {
+                _this6.orientation = kicad_common_1.TextAngle.HORIZ;
+                _this6.hjustify = kicad_common_1.TextHjustify.RIGHT;
+                _this6.vjustify = kicad_common_1.TextVjustify.CENTER;
+            } else if (orientationType === 3) {
+                _this6.orientation = kicad_common_1.TextAngle.VERT;
+                _this6.hjustify = kicad_common_1.TextHjustify.RIGHT;
+                _this6.vjustify = kicad_common_1.TextVjustify.CENTER;
+            } else {
+                throw "invalid orientationType: " + orientationType;
+            }
+        }
+        _this6.size = Number(tokens[4]);
+        _this6.italic = tokens[5] === 'Italic';
+        _this6.bold = Number(tokens[6]) != 0;
+        return _this6;
+    }
+
+    _createClass(Text, [{
+        key: "parse",
+        value: function parse(lines) {
+            var text = lines.shift();
+            if (!text) throw "expected text line but not";
+            this.text = text;
+            return this;
+        }
+    }]);
+
+    return Text;
+}(SchItem);
+
+exports.Text = Text;
+
+var Wire = function (_SchItem7) {
+    _inherits(Wire, _SchItem7);
+
+    function Wire(tokens) {
+        _classCallCheck(this, Wire);
+
+        var _this7 = _possibleConstructorReturn(this, (Wire.__proto__ || Object.getPrototypeOf(Wire)).call(this));
+
+        _this7.name1 = tokens[0];
+        _this7.name2 = tokens[1];
+        return _this7;
+    }
+
+    _createClass(Wire, [{
+        key: "parse",
+        value: function parse(lines) {
+            var wire = lines.shift();
+            if (!wire) throw "expected text wire but not";
+
+            var _wire$substring$split = wire.substring(1).split(/\s+/).map(function (i) {
+                return Number(i);
+            });
+
+            var _wire$substring$split2 = _slicedToArray(_wire$substring$split, 4);
+
+            this.startx = _wire$substring$split2[0];
+            this.starty = _wire$substring$split2[1];
+            this.endx = _wire$substring$split2[2];
+            this.endy = _wire$substring$split2[3];
+
+            return this;
+        }
+    }]);
+
+    return Wire;
+}(SchItem);
+
+exports.Wire = Wire;
+
+var Entry = function (_SchItem8) {
+    _inherits(Entry, _SchItem8);
+
+    function Entry(tokens) {
+        _classCallCheck(this, Entry);
+
+        var _this8 = _possibleConstructorReturn(this, (Entry.__proto__ || Object.getPrototypeOf(Entry)).call(this));
+
+        _this8.name1 = tokens[0];
+        _this8.name2 = tokens[1];
+        return _this8;
+    }
+
+    _createClass(Entry, [{
+        key: "parse",
+        value: function parse(lines) {
+            var entry = lines.shift();
+            if (!entry) throw "expected text wire but not";
+
+            var _entry$split$map = entry.split(/\s+/).map(function (i) {
+                return Number(i);
+            });
+
+            var _entry$split$map2 = _slicedToArray(_entry$split$map, 4);
+
+            this.posx = _entry$split$map2[0];
+            this.posy = _entry$split$map2[1];
+            this.sizex = _entry$split$map2[2];
+            this.sizey = _entry$split$map2[3];
+
+            return this;
+        }
+    }]);
+
+    return Entry;
+}(SchItem);
+
+exports.Entry = Entry;
+
+var Connection = function (_SchItem9) {
+    _inherits(Connection, _SchItem9);
+
+    function Connection(tokens) {
+        _classCallCheck(this, Connection);
+
+        var _this9 = _possibleConstructorReturn(this, (Connection.__proto__ || Object.getPrototypeOf(Connection)).call(this));
+
+        _this9.name1 = tokens[0];
+        _this9.posx = Number(tokens[1]);
+        _this9.posy = Number(tokens[2]);
+        return _this9;
+    }
+
+    _createClass(Connection, [{
+        key: "parse",
+        value: function parse(lines) {
+            return this;
+        }
+    }]);
+
+    return Connection;
+}(SchItem);
+
+exports.Connection = Connection;
+
+var NoConn = function (_SchItem10) {
+    _inherits(NoConn, _SchItem10);
+
+    function NoConn(tokens) {
+        _classCallCheck(this, NoConn);
+
+        var _this10 = _possibleConstructorReturn(this, (NoConn.__proto__ || Object.getPrototypeOf(NoConn)).call(this));
+
+        _this10.name1 = tokens[0];
+        _this10.posx = Number(tokens[1]);
+        _this10.posy = Number(tokens[2]);
+        return _this10;
+    }
+
+    _createClass(NoConn, [{
+        key: "parse",
+        value: function parse(lines) {
+            return this;
+        }
+    }]);
+
+    return NoConn;
+}(SchItem);
+
+exports.NoConn = NoConn;
 
 /***/ })
 /******/ ]);

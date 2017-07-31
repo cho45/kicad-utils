@@ -1,18 +1,65 @@
-//#!tsc && NODE_PATH=dist/src node dist/sketch.js #
+//#!tsc && NODE_PATH=dist/src node dist/sketch.js 
 
 import { Transform } from "kicad_common";
-import { CanvasPlotter } from "kicad_plotter";
+import { CanvasPlotter, SVGPlotter } from "kicad_plotter";
 import { Library } from "kicad_lib";
 import { Schematic } from "kicad_sch";
 
 const fs = require('fs');
 
 {
-	
-	const content = fs.readFileSync('/Users/cho45/Dropbox/project/keyboard-schematic/Root.sch', 'utf-8');
-	const sch = Schematic.load(content);
-
+//	const lib = Library.load(fs.readFileSync('../keyboard-schematic/Root-cache.lib', 'utf-8'));
+//	const sch = Schematic.load(fs.readFileSync('../keyboard-schematic/Root.sch', 'utf-8'));
+//	const lib = Library.load(fs.readFileSync('../keyboard-schematic/KeyModule-L-cache.lib', 'utf-8'));
+//	const sch = Schematic.load(fs.readFileSync('../keyboard-schematic/KeyModule-L.sch', 'utf-8'));
+	const lib = Library.load(fs.readFileSync('../keyboard-schematic/Root-cache.lib', 'utf-8'));
+	const sch = Schematic.load(fs.readFileSync('../keyboard-schematic/_keymodule_l.sch', 'utf-8'));
 	console.log(sch);
+
+	const MAX_WIDTH = 1920 * 2;
+	const MAX_HEIGHT = 1080 * 2;
+
+	const scale = Math.min(MAX_WIDTH / sch.descr.width, MAX_HEIGHT / sch.descr.height);
+
+
+	const Canvas = require('canvas');
+
+	const canvas = Canvas.createCanvas ? Canvas.createCanvas(sch.descr.width * scale, sch.descr.height * scale) : new Canvas(sch.descr.width * scale, sch.descr.height * scale);
+	const ctx = canvas.getContext('2d');
+	console.log(scale, canvas);
+	ctx.fillStyle = "#fff";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	ctx.translate(0, 0);
+	ctx.scale(scale, scale);
+
+	const plotter = new CanvasPlotter(ctx);
+	plotter.plotSchematic(sch, [ lib ]);
+
+	const out = fs.createWriteStream(__dirname + '/text.png'), stream = canvas.pngStream();
+
+	stream.on('data', function (chunk: any) {
+		out.write(chunk);
+	});
+
+	stream.on('end', function(){
+		console.log('saved png');
+	});
+
+	const svgPlotter = new SVGPlotter();
+	svgPlotter.plotSchematic(sch, [ lib ]);
+
+	let dpi = 72; // 72 dpi == 72000 dot/mil
+	// sch.descr.{width,height} is mil
+	// 1000mil = 1inch = 72dot
+
+	const width = 1920 * 2; // sch.descr.width;
+	const height = 1080 * 2; // sch.descr.height;
+
+	let output = '';
+	output += `<svg preserveAspectRatio="xMinYMin" width="${width}" height="${height}" viewBox="0 0 ${sch.descr.width} ${sch.descr.height}" xmlns="http://www.w3.org/2000/svg" version="1.1">`;
+	output += svgPlotter.output;
+	output += `</svg>`;
+	fs.writeFileSync("text.svg", output);
 }
 
 /*

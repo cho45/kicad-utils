@@ -43,6 +43,17 @@ export function NORMALIZE_ANGLE_POS(angle: number): number {
 	return angle;
 }
 
+/**
+ * KiCAD internal unit is mil (1/1000 inch)
+ */
+export function MM2MIL(mm: number) {
+	return mm / 0.0254;
+}
+
+export function MIL2MM(mil: number) {
+	return mil * 0.0254;
+}
+
 export class Transform {
 	constructor(public x1: number = 1, public y1: number = 0, public x2: number = 0, public y2: number = -1) {
 	}
@@ -180,7 +191,7 @@ export enum Fill {
 export enum TextHjustify {
 	LEFT = "L",
 	CENTER = "C",
-	RIGHT =" R",
+	RIGHT = "R",
 }
 
 export enum TextVjustify {

@@ -30,6 +30,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const kicad_common_1 = require("kicad_common");
 const kicad_lib_1 = require("kicad_lib");
+const kicad_sch_1 = require("kicad_sch");
 /**
  * similar to KiCAD Plotter
  *
@@ -65,7 +66,7 @@ class Plotter {
         this.penTo({ x: 0, y: 0 }, "Z");
     }
     /**
-     * kicad-js implements plot methods to plotter instead of each library items.
+     * kicad-js implements plot methods to plotter instead of each library items for simplify parsing dependencies.
      */
     plotLibComponent(component, unit, convert, offset, transform) {
         if (component.field) {
@@ -85,30 +86,19 @@ class Plotter {
                 continue;
             }
             if (draw instanceof kicad_lib_1.DrawArc) {
-                const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
-                const [startAngle, endAngle] = transform.mapAngles(draw.startAngle, draw.endAngle);
-                this.arc(pos, startAngle, endAngle, draw.radius, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+                this.plotDrawArc(draw, component, offset, transform);
             }
             else if (draw instanceof kicad_lib_1.DrawCircle) {
-                const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
-                this.circle(pos, draw.radius * 2, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+                this.plotDrawCircle(draw, component, offset, transform);
             }
             else if (draw instanceof kicad_lib_1.DrawPolyline) {
-                const points = [];
-                for (let i = 0, len = draw.points.length; i < len; i += 2) {
-                    const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.points[i], y: draw.points[i + 1] }), offset);
-                    points.push(pos);
-                }
-                this.polyline(points, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+                this.plotDrawPolyline(draw, component, offset, transform);
             }
             else if (draw instanceof kicad_lib_1.DrawSquare) {
-                const pos1 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.startx, y: draw.starty }), offset);
-                const pos2 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.endx, y: draw.endy }), offset);
-                this.rect(pos1, pos2, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+                this.plotDrawSquare(draw, component, offset, transform);
             }
             else if (draw instanceof kicad_lib_1.DrawText) {
-                const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
-                this.text(pos, "black", draw.text, component.field.textOrientation, draw.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
+                this.plotDrawText(draw, component, offset, transform);
             }
             else if (draw instanceof kicad_lib_1.DrawPin) {
                 this.plotDrawPin(draw, component, offset, transform);
@@ -117,6 +107,32 @@ class Plotter {
                 throw 'unknown draw object type: ' + draw.constructor.name;
             }
         }
+    }
+    plotDrawArc(draw, component, offset, transform) {
+        const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+        const [startAngle, endAngle] = transform.mapAngles(draw.startAngle, draw.endAngle);
+        this.arc(pos, startAngle, endAngle, draw.radius, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+    }
+    plotDrawCircle(draw, component, offset, transform) {
+        const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+        this.circle(pos, draw.radius * 2, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+    }
+    plotDrawPolyline(draw, component, offset, transform) {
+        const points = [];
+        for (let i = 0, len = draw.points.length; i < len; i += 2) {
+            const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.points[i], y: draw.points[i + 1] }), offset);
+            points.push(pos);
+        }
+        this.polyline(points, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+    }
+    plotDrawSquare(draw, component, offset, transform) {
+        const pos1 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.startx, y: draw.starty }), offset);
+        const pos2 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.endx, y: draw.endy }), offset);
+        this.rect(pos1, pos2, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+    }
+    plotDrawText(draw, component, offset, transform) {
+        const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+        this.text(pos, "black", draw.text, component.field.textOrientation, draw.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
     }
     plotDrawPin(draw, component, offset, transform) {
         this.plotDrawPinTexts(draw, component, offset, transform);
@@ -219,7 +235,7 @@ class Plotter {
         this.setCurrentLineWidth(kicad_common_1.DEFAULT_LINE_WIDTH);
         this.moveTo({ x: x1, y: y1 });
         this.finishTo({ x: pos.x, y: pos.y });
-        this.circle({ x: pos.x, y: pos.y }, 20, kicad_common_1.Fill.NO_FILL, 2);
+        // this.circle({ x: pos.x, y: pos.y}, 20, Fill.NO_FILL, 2);
     }
     pinDrawOrientation(draw, transform) {
         let end = { x: 0, y: 0 };
@@ -250,6 +266,84 @@ class Plotter {
             }
             else {
                 return kicad_common_1.PinOrientation.RIGHT;
+            }
+        }
+    }
+    plotSchematic(sch, libs) {
+        // default page layout
+        const MARGIN = kicad_common_1.MM2MIL(10);
+        this.rect({ x: MARGIN, y: MARGIN }, { x: sch.descr.width - MARGIN, y: sch.descr.height - MARGIN }, kicad_common_1.Fill.NO_FILL, kicad_common_1.DEFAULT_LINE_WIDTH);
+        const OFFSET = kicad_common_1.MM2MIL(2);
+        this.rect({ x: MARGIN + OFFSET, y: MARGIN + OFFSET }, { x: sch.descr.width - MARGIN - OFFSET, y: sch.descr.height - MARGIN - OFFSET }, kicad_common_1.Fill.NO_FILL, kicad_common_1.DEFAULT_LINE_WIDTH);
+        // up
+        this.moveTo(sch.descr.width / 2, MARGIN);
+        this.finishTo(sch.descr.width / 2, MARGIN + OFFSET);
+        // bottom
+        this.moveTo(sch.descr.width / 2, sch.descr.height - MARGIN - OFFSET);
+        this.finishTo(sch.descr.width / 2, sch.descr.height - MARGIN);
+        // left
+        this.moveTo(MARGIN, sch.descr.height / 2);
+        this.finishTo(MARGIN + OFFSET, sch.descr.height / 2);
+        // right
+        this.moveTo(sch.descr.width - MARGIN - OFFSET, sch.descr.height / 2);
+        this.finishTo(sch.descr.width - MARGIN, sch.descr.height / 2);
+        for (let item of sch.items) {
+            if (item instanceof kicad_sch_1.Component) {
+                let component;
+                for (let lib of libs) {
+                    component = lib.findByName(item.name);
+                    if (component)
+                        break;
+                }
+                if (!component) {
+                    throw "component " + item.name + " is not found in libraries";
+                }
+                this.plotLibComponent(component, item.unit, item.convert, { x: item.posx, y: item.posy }, item.transform);
+            }
+            else if (item instanceof kicad_sch_1.Sheet) {
+                this.setColor("black");
+                this.setCurrentLineWidth(kicad_common_1.DEFAULT_LINE_WIDTH);
+                this.fill = kicad_common_1.Fill.NO_FILL;
+                this.moveTo(item.posx, item.posy);
+                this.lineTo(item.posx, item.posy + item.sizey);
+                this.lineTo(item.posx + item.sizex, item.posy + item.sizey);
+                this.lineTo(item.posx + item.sizex, item.posy);
+                this.finishTo(item.posx, item.posy);
+                this.text({ x: item.posx, y: item.posy - 4 }, "black", item.sheetName, 0, item.sheetNameSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
+                this.text({ x: item.posx, y: item.posy + item.sizey + 4 }, "black", item.fileName, 0, item.fileNameSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.TOP, 0, false, false);
+            }
+            else if (item instanceof kicad_sch_1.Bitmap) {
+            }
+            else if (item instanceof kicad_sch_1.Text) {
+                console.log(item);
+                this.text({ x: item.posx, y: item.posy }, "black", item.text, item.orientation, item.size, item.hjustify, item.vjustify, 0, item.italic, item.bold);
+            }
+            else if (item instanceof kicad_sch_1.Entry) {
+            }
+            else if (item instanceof kicad_sch_1.Connection) {
+                this.setColor("black");
+                this.circle({ x: item.posx, y: item.posy }, 40, kicad_common_1.Fill.FILLED_SHAPE, kicad_common_1.DEFAULT_LINE_WIDTH);
+            }
+            else if (item instanceof kicad_sch_1.NoConn) {
+                this.fill = kicad_common_1.Fill.NO_FILL;
+                const DRAWNOCONNECT_SIZE = 48;
+                const delta = DRAWNOCONNECT_SIZE / 2;
+                this.setColor("black");
+                this.setCurrentLineWidth(kicad_common_1.DEFAULT_LINE_WIDTH);
+                this.moveTo(item.posx - delta, item.posy - delta);
+                this.finishTo(item.posx + delta, item.posy + delta);
+                this.moveTo(item.posx + delta, item.posy - delta);
+                this.finishTo(item.posx - delta, item.posy + delta);
+            }
+            else if (item instanceof kicad_sch_1.Wire) {
+                this.setColor("black");
+                this.setCurrentLineWidth(kicad_common_1.DEFAULT_LINE_WIDTH);
+                this.fill = kicad_common_1.Fill.NO_FILL;
+                this.moveTo(item.startx, item.starty);
+                this.finishTo(item.endx, item.endy);
+            }
+            else {
+                throw "unknown SchItem: " + item.constructor.name;
             }
         }
     }
@@ -329,10 +423,12 @@ class CanvasPlotter extends Plotter {
         else if (vjustify === kicad_common_1.TextVjustify.BOTTOM) {
             this.ctx.textBaseline = "bottom";
         }
+        this.ctx.fillStyle = color;
         this.ctx.save();
         this.ctx.translate(p.x, p.y);
         this.ctx.rotate(-kicad_common_1.DECIDEG2RAD(orientation));
         this.ctx.font = size + "px monospace";
+        // console.log('fillText', text, p.x, p.y, hjustfy, vjustify);
         this.ctx.fillText(text, 0, 0);
         this.ctx.restore();
     }
@@ -373,9 +469,129 @@ class CanvasPlotter extends Plotter {
         }
         this.penState = s;
     }
+    setColor(c) {
+        this.ctx.fillStyle = c;
+        this.ctx.strokeStyle = c;
+    }
     setCurrentLineWidth(w) {
         this.ctx.lineWidth = w;
     }
 }
 exports.CanvasPlotter = CanvasPlotter;
+class SVGPlotter extends Plotter {
+    constructor() {
+        super();
+        this.penState = "Z";
+        this.output = "";
+    }
+    rect(p1, p2, fill, width) {
+        this.setCurrentLineWidth(width);
+        this.fill = fill;
+        this.moveTo(p1.x, p1.y);
+        this.lineTo(p1.x, p2.y);
+        this.lineTo(p2.x, p2.y);
+        this.lineTo(p2.x, p1.y);
+        this.finishTo(p1.x, p1.y);
+    }
+    circle(p, dia, fill, width) {
+        this.setCurrentLineWidth(width);
+        this.fill = fill;
+        this.output += `<circle cx="${p.x}" cy="${p.y}" r="${dia / 2}" `;
+        if (this.fill === kicad_common_1.Fill.NO_FILL) {
+            this.output += ` style="stroke: #000000; fill: none; stroke-width: ${kicad_common_1.DEFAULT_LINE_WIDTH}"/>\n`;
+        }
+        else {
+            this.output += ` style="stroke: #000000; fill: #000000; stroke-width: ${kicad_common_1.DEFAULT_LINE_WIDTH}"/>\n`;
+        }
+    }
+    arc(p, startAngle, endAngle, radius, fill, width) {
+        this.setCurrentLineWidth(width);
+        this.fill = fill;
+        // TODO
+    }
+    polyline(points, fill, width) {
+        this.setCurrentLineWidth(width);
+        this.fill = fill;
+        this.moveTo(points[0]);
+        for (var i = 1, len = points.length; i < len; i++) {
+            this.lineTo(points[i]);
+        }
+        this.finishPen();
+        //		this.output += `<polyline points="`;
+        //		for (var i = 1, len = points.length; i < len; i++) {
+        //			this.output += `${points[i].x},${points[i].y}\n`;
+        //		}
+        //		this.output += `" style="stroke: #000000; fill: none; stroke-width: ${DEFAULT_LINE_WIDTH}"/>\n`;
+    }
+    text(p, color, text, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
+        let textAnchor;
+        if (hjustfy === kicad_common_1.TextHjustify.LEFT) {
+            textAnchor = "start";
+        }
+        else if (hjustfy === kicad_common_1.TextHjustify.CENTER) {
+            textAnchor = "middle";
+        }
+        else if (hjustfy === kicad_common_1.TextHjustify.RIGHT) {
+            textAnchor = "end";
+        }
+        let dominantBaseline;
+        if (vjustify === kicad_common_1.TextVjustify.TOP) {
+            dominantBaseline = "text-before-edge";
+        }
+        else if (vjustify === kicad_common_1.TextVjustify.CENTER) {
+            dominantBaseline = "middle";
+        }
+        else if (vjustify === kicad_common_1.TextVjustify.BOTTOM) {
+            dominantBaseline = "text-after-edge";
+        }
+        const rotate = -orientation / 10;
+        this.output += `<text x="${p.x}" y="${p.y}"
+			text-anchor="${textAnchor}"
+			dominant-baseline="${dominantBaseline}"
+			font-family="monospace"
+			font-size="${size}"
+			fill="#000000"
+			transform="rotate(${rotate}, ${p.x}, ${p.y})">${text}</text>`;
+    }
+    /**
+     * U = Pen is up
+     * D = Pen is down
+     * Z = Pen is outof canvas
+     */
+    penTo(p, s) {
+        if (s === "Z") {
+            if (this.penState !== "Z") {
+                if (this.fill === kicad_common_1.Fill.NO_FILL) {
+                    this.output += `" style="stroke: #000000; fill: none; stroke-width: ${kicad_common_1.DEFAULT_LINE_WIDTH}"/>\n`;
+                }
+                else {
+                    this.output += `" style="stroke: #000000; fill: #000000; stroke-width: ${kicad_common_1.DEFAULT_LINE_WIDTH}"/>\n`;
+                }
+            }
+            else {
+                throw "invalid pen state Z -> Z";
+            }
+            this.penState = "Z";
+            return;
+        }
+        // s is U | D
+        if (this.penState === "Z") {
+            this.output += `<path d="M${p.x} ${p.y}\n`;
+        }
+        else {
+            if (s === "U") {
+                this.output += `M${p.x} ${p.y}\n`;
+            }
+            else {
+                this.output += `L${p.x} ${p.y}\n`;
+            }
+        }
+        this.penState = s;
+    }
+    setColor(c) {
+    }
+    setCurrentLineWidth(w) {
+    }
+}
+exports.SVGPlotter = SVGPlotter;
 //# sourceMappingURL=kicad_plotter.js.map

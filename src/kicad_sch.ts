@@ -27,17 +27,17 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
 
+import { 
+	Transform,
+	TextAngle,
+	TextHjustify,
+	TextVjustify,
+} from "kicad_common";
+
 export class Schematic {
-	sheets: Array<Sheet>;
-	components: Array<Component>;
-	bitmaps: Array<Bitmap>;
 	libs: Array<string>;
 	descr: Descr;
-	wires: Array<Wire>;
-	texts: Array<Text>;
-	entries: Array<Entry>;
-	connections: Array<Connection>;
-	noconns: Array<NoConn>;
+	items: Array<SchItem>;
 	parsed: boolean;
 
 	static load(content: string): Schematic {
@@ -48,11 +48,7 @@ export class Schematic {
 	}
 
 	constructor() {
-		this.sheets = [];
-		this.components = [];
-		this.bitmaps = [];
-		this.wires = [];
-		this.texts = [];
+		this.items = [];
 		this.parsed = false;
 	}
 
@@ -78,35 +74,35 @@ export class Schematic {
 					// skip this section
 				}
 			} else
-			if (tokens[0] === '$Comp') {
-				this.components.push(new Component().parse(lines));
-			} else
 			if (tokens[0] === '$Descr') {
 				this.descr = new Descr(tokens.slice(1)).parse(lines);
 			} else
+			if (tokens[0] === '$Comp') {
+				this.items.push(new Component().parse(lines));
+			} else
 			if (tokens[0] === '$Sheet') {
-				this.sheets.push(new Sheet().parse(lines));
+				this.items.push(new Sheet().parse(lines));
 			} else
 			if (tokens[0] === '$Bitmap') {
-				this.bitmaps.push(new Bitmap().parse(lines));
+				this.items.push(new Bitmap().parse(lines));
+			} else
+			if (tokens[0] === 'Text') {
+				this.items.push(new Text(tokens.slice(1)).parse(lines));
+			} else
+			if (tokens[0] === 'Entry') {
+				this.items.push(new Entry(tokens.slice(1)).parse(lines));
+			} else
+			if (tokens[0] === 'Connection') {
+				this.items.push(new Connection(tokens.slice(1)).parse(lines));
+			} else
+			if (tokens[0] === 'NoConn') {
+				this.items.push(new NoConn(tokens.slice(1)).parse(lines));
+			} else
+			if (tokens[0] === 'Wire') {
+				this.items.push(new Wire(tokens.slice(1)).parse(lines));
 			} else
 			if (tokens[0] === '$EndSCHEMATC') {
 				this.parsed = true;
-			} else
-			if (tokens[0] === 'Text') {
-				this.texts.push(new Text(tokens.slice(1)).parse(lines));
-			} else
-			if (tokens[0] === 'Entry') {
-				this.entries.push(new Entry(tokens.slice(1)).parse(lines));
-			} else
-			if (tokens[0] === 'Connection') {
-				this.connections.push(new Connection(tokens.slice(1)).parse(lines));
-			} else
-			if (tokens[0] === 'NoConn') {
-				this.noconns.push(new NoConn(tokens.slice(1)).parse(lines));
-			} else
-			if (tokens[0] === 'Wire') {
-				this.wires.push(new Wire(tokens.slice(1)).parse(lines));
 			} else {
 				throw 'unkown token ' + tokens[0];
 			}
@@ -114,7 +110,10 @@ export class Schematic {
 	}
 }
 
-export class Sheet {
+export abstract class SchItem {
+}
+
+export class Sheet extends SchItem {
 	posx: number;
 	posy: number;
 	sizex: number;
@@ -129,6 +128,7 @@ export class Sheet {
 	sheetPins: Array<SheetPin>;
 
 	constructor() {
+		super();
 		this.sheetPins = [];
 	}
 
@@ -141,7 +141,7 @@ export class Sheet {
 				this.posx = Number(tokens[1]);
 				this.posy = Number(tokens[2]);
 				this.sizex = Number(tokens[3]);
-				this.sizex = Number(tokens[4]);
+				this.sizey = Number(tokens[4]);
 			} else
 			if (tokens[0] === 'U') {
 				this.timestamp = Number(tokens[1]);
@@ -164,7 +164,7 @@ export class Sheet {
 	}
 }
 
-export class SheetPin {
+export class SheetPin extends SchItem {
 	number: number;
 	name: string;
 	connectType: string;
@@ -174,6 +174,7 @@ export class SheetPin {
 	textWidth: number;
 
 	constructor(tokens: Array<string>) {
+		super();
 		this.name = tokens[0];
 		this.connectType = tokens[1];
 		this.sheetSide = tokens[2];
@@ -187,9 +188,9 @@ export class SheetPin {
 	}
 }
 
-export class Component {
-	name1: string;
-	name2: string;
+export class Component extends SchItem {
+	reference: string;
+	name: string;
 	unit: number;
 	convert: number;
 	timestamp: number;
@@ -197,20 +198,28 @@ export class Component {
 	posy: number;
 	ar: { [ key: string]: string };
 	fields: Array<Field>;
+	transform: Transform;
 
 	constructor() {
+		super();
 		this.ar = {};
 		this.fields = [];
 	}
 
 	parse(lines: Array<string>): this {
 		let line;
+		let tabLines: Array<string> = [];
 		while ( (line = lines.shift()) !== undefined ) {
 			if (line === '$EndComp') break;
+			if (line[0] === "\t") {
+				tabLines.push(line.substring(1));
+				continue
+			}
+
 			const tokens = line.split(/\s+/);
 			if (tokens[0] === 'L') {
-				this.name2 = tokens[1];
-				this.name1 = tokens[2];
+				this.name = tokens[1].replace(/''/g, '"').replace(/~/g, ' ').replace(/^"|"$/g, '');
+				this.reference = tokens[2];
 			} else
 			if (tokens[0] === 'U') {
 				this.unit = Number(tokens[1]);
@@ -232,11 +241,21 @@ export class Component {
 				this.fields.push(new Field(tokens.slice(1)));
 			}
 		}
+		const _oldPosAndUnit = tabLines.shift();
+		if (!_oldPosAndUnit) {
+			throw 'unexpected line';
+		}
+		const transform = tabLines.shift();
+		if (!transform) {
+			throw 'unexpected line';
+		}
+		this.transform = new Transform( ...transform.split(/\s+/).map( (i) => Number(i) ) );
+
 		return this;
 	}
 }
 
-export class Field {
+export class Field extends SchItem {
 	number: number;
 	text: string;
 	angle: string;
@@ -251,6 +270,7 @@ export class Field {
 	name: string;
 
 	constructor(tokens: Array<string>) {
+		super();
 		this.number = Number(tokens[0]);
 		this.text = tokens[1];
 		this.angle = tokens[2];
@@ -330,13 +350,14 @@ export class Descr {
 	}
 }
 
-export class Bitmap {
+export class Bitmap extends SchItem {
 	posx: number;
 	posy: number;
 	scale: number;
 	data: string;
 
 	constructor() {
+		super();
 	}
 
 	parse(lines: Array<string>): this {
@@ -366,7 +387,7 @@ export class Bitmap {
 	}
 }
 
-export class Text {
+export class Text extends SchItem {
 	name1: string;
 	posx: number;
 	posy: number;
@@ -375,12 +396,62 @@ export class Text {
 	bold: boolean;
 	italic: boolean;
 	text: string;
+	hjustify: TextHjustify;
+	vjustify: TextVjustify;
 
 	constructor(tokens: Array<string>) {
+		super();
 		this.name1 = tokens[0];
 		this.posx = Number(tokens[1]);
 		this.posy = Number(tokens[2]);
-		this.orientation = Number(tokens[3]);
+		let orientationType = Number(tokens[3]);
+		if (this.name1 === "GLabel") {
+			if (orientationType === 0) {
+				this.orientation = TextAngle.HORIZ;
+				this.hjustify = TextHjustify.RIGHT;
+				this.vjustify = TextVjustify.CENTER;
+			} else
+			if (orientationType === 1) {
+				this.orientation = TextAngle.VERT;
+				this.hjustify = TextHjustify.LEFT;
+				this.vjustify = TextVjustify.CENTER;
+			} else
+			if (orientationType === 2) {
+				this.orientation = TextAngle.HORIZ;
+				this.hjustify = TextHjustify.LEFT;
+				this.vjustify = TextVjustify.CENTER;
+			} else
+			if (orientationType === 3) {
+				this.orientation = TextAngle.VERT;
+				this.hjustify = TextHjustify.RIGHT;
+				this.vjustify = TextVjustify.CENTER;
+			} else {
+				throw "invalid orientationType: " + orientationType;
+			}
+		} else {
+			if (orientationType === 0) {
+				this.orientation = TextAngle.HORIZ;
+				this.hjustify = TextHjustify.LEFT;
+				this.vjustify = TextVjustify.CENTER;
+			} else
+			if (orientationType === 1) {
+				this.orientation = TextAngle.VERT;
+				this.hjustify = TextHjustify.LEFT;
+				this.vjustify = TextVjustify.CENTER;
+			} else
+			if (orientationType === 2) {
+				this.orientation = TextAngle.HORIZ;
+				this.hjustify = TextHjustify.RIGHT;
+				this.vjustify = TextVjustify.CENTER;
+			} else
+			if (orientationType === 3) {
+				this.orientation = TextAngle.VERT;
+				this.hjustify = TextHjustify.RIGHT;
+				this.vjustify = TextVjustify.CENTER;
+			} else {
+				throw "invalid orientationType: " + orientationType;
+			}
+		}
 		this.size = Number(tokens[4]);
 		this.italic = tokens[5] === 'Italic';
 		this.bold = Number(tokens[6]) != 0;
@@ -394,7 +465,7 @@ export class Text {
 	}
 }
 
-export class Wire {
+export class Wire extends SchItem {
 	name1: string;
 	name2: string;
 	startx: number;
@@ -403,6 +474,7 @@ export class Wire {
 	endy: number;
 
 	constructor(tokens: Array<string>) {
+		super();
 		this.name1 = tokens[0];
 		this.name2 = tokens[1];
 	}
@@ -410,12 +482,12 @@ export class Wire {
 	parse(lines: Array<string>): this {
 		const wire = lines.shift();
 		if (!wire) throw "expected text wire but not";
-		[ this.startx, this.starty, this.endx, this.endy] = wire.split(/\s+/).map( (i) => Number(i) );
+		[ this.startx, this.starty, this.endx, this.endy] = wire.substring(1).split(/\s+/).map( (i) => Number(i) );
 		return this;
 	}
 }
 
-export class Entry {
+export class Entry extends SchItem {
 	name1: string;
 	name2: string;
 	posx: number;
@@ -424,6 +496,7 @@ export class Entry {
 	sizey: number;
 
 	constructor(tokens: Array<string>) {
+		super();
 		this.name1 = tokens[0];
 		this.name2 = tokens[1];
 	}
@@ -436,12 +509,13 @@ export class Entry {
 	}
 }
 
-export class Connection {
+export class Connection extends SchItem {
 	name1: string;
 	posx: number;
 	posy: number;
 
 	constructor(tokens: Array<string>) {
+		super();
 		this.name1 = tokens[0];
 		this.posx  = Number(tokens[1]);
 		this.posy  = Number(tokens[2]);
@@ -452,12 +526,13 @@ export class Connection {
 	}
 }
 
-export class NoConn {
+export class NoConn extends SchItem {
 	name1: string;
 	posx: number;
 	posy: number;
 
 	constructor(tokens: Array<string>) {
+		super();
 		this.name1 = tokens[0];
 		this.posx  = Number(tokens[1]);
 		this.posy  = Number(tokens[2]);

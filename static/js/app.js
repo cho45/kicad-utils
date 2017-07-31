@@ -13,6 +13,7 @@ const { Library } = require("kicad_lib");
 const app = new Vue({
 	el: '#app',
 	data: {
+		url: "https://raw.githubusercontent.com/KiCad/kicad-library/master/library/device.lib",
 		fileName : "",
 		status: "init",
 		lib: {},
@@ -35,6 +36,17 @@ const app = new Vue({
 			this.fileName = file.name;
 			const objectURL = window.URL.createObjectURL(file);
 			this.loadLibrary(objectURL);
+		},
+
+		onSubmit: function () {
+			const url = this.url;
+			if (!url) {
+				this.status = "url is required";
+				return;
+			}
+			this.loadLibrary(url).catch( (e) => {
+				this.status = e;
+			});
 		},
 
 		loadLibrary: async function (url) {

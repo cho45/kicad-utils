@@ -29,6 +29,7 @@
 
 import {
 	DECIDEG2RAD,
+	MM2MIL,
 	DEFAULT_LINE_WIDTH,
 
 	Fill,
@@ -43,6 +44,7 @@ import {
 
 import {
 	Component as LibComponent,
+	Library,
 	DrawPin,
 	DrawArc,
 	DrawCircle,
@@ -78,6 +80,7 @@ export abstract class Plotter {
 	abstract arc(p: Point, startAngle: number, endAngle: number, radius: number, fill: Fill, width: number): void;
 	abstract polyline(points: Array<Point>, fill: Fill, width: number): void;
 	abstract setCurrentLineWidth(w: number): void;
+	abstract setColor(c: string): void;
 	abstract penTo(p: Point, s: "U"|"D"|"Z"): void;
 	abstract text(
 		p: Point,
@@ -130,7 +133,7 @@ export abstract class Plotter {
 	}
 
 	/**
-	 * kicad-js implements plot methods to plotter instead of each library items.
+	 * kicad-js implements plot methods to plotter instead of each library items for simplify parsing dependencies.
 	 */
 	plotLibComponent(component: LibComponent, unit: number, convert: number, offset: Point, transform: Transform): void {
 		if (component.field) {
@@ -487,7 +490,7 @@ export abstract class Plotter {
 		this.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
 		this.moveTo({ x: x1, y: y1 });
 		this.finishTo({ x: pos.x, y: pos.y});
-		this.circle({ x: pos.x, y: pos.y}, 20, Fill.NO_FILL, 2);
+		// this.circle({ x: pos.x, y: pos.y}, 20, Fill.NO_FILL, 2);
 	}
 
 	pinDrawOrientation(draw: DrawPin, transform: Transform): PinOrientation {
@@ -518,6 +521,127 @@ export abstract class Plotter {
 				return PinOrientation.LEFT;
 			} else {
 				return PinOrientation.RIGHT;
+			}
+		}
+	}
+
+	plotSchematic(sch: Schematic, libs: Array<Library>) {
+		// default page layout
+		const MARGIN = MM2MIL(10);
+		this.rect(
+			{ x: MARGIN, y: MARGIN },
+			{ x: sch.descr.width - MARGIN, y: sch.descr.height - MARGIN },
+			Fill.NO_FILL,
+			DEFAULT_LINE_WIDTH
+		);
+		const OFFSET = MM2MIL(2);
+		this.rect(
+			{ x: MARGIN + OFFSET, y: MARGIN + OFFSET },
+			{ x: sch.descr.width - MARGIN - OFFSET, y: sch.descr.height - MARGIN - OFFSET },
+			Fill.NO_FILL,
+			DEFAULT_LINE_WIDTH
+		);
+		// up
+		this.moveTo(sch.descr.width / 2, MARGIN);
+		this.finishTo(sch.descr.width / 2, MARGIN + OFFSET);
+		// bottom
+		this.moveTo(sch.descr.width / 2, sch.descr.height - MARGIN - OFFSET);
+		this.finishTo(sch.descr.width / 2, sch.descr.height - MARGIN);
+		// left
+		this.moveTo(MARGIN, sch.descr.height / 2);
+		this.finishTo(MARGIN + OFFSET, sch.descr.height / 2);
+		// right
+		this.moveTo(sch.descr.width - MARGIN - OFFSET, sch.descr.height / 2);
+		this.finishTo(sch.descr.width - MARGIN, sch.descr.height / 2);
+
+		for (let item of sch.items) {
+			if (item instanceof SchComponent) {
+				let component;
+				for (let lib of libs) {
+					component = lib.findByName(item.name);
+					if (component) break;
+				}
+				if (!component) {
+					throw "component " + item.name + " is not found in libraries";
+				}
+				this.plotLibComponent(component, item.unit, item.convert, { x: item.posx, y: item.posy }, item.transform);
+			} else
+			if (item instanceof Sheet) {
+				this.setColor("black");
+				this.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
+				this.fill = Fill.NO_FILL;
+				this.moveTo(item.posx, item.posy);
+				this.lineTo(item.posx, item.posy + item.sizey);
+				this.lineTo(item.posx + item.sizex, item.posy + item.sizey);
+				this.lineTo(item.posx + item.sizex, item.posy);
+				this.finishTo(item.posx, item.posy);
+				this.text(
+					{x: item.posx, y: item.posy - 4},
+					"black",
+					item.sheetName,
+					0,
+					item.sheetNameSize,
+					TextHjustify.LEFT,
+					TextVjustify.BOTTOM,
+					0,
+					false,
+					false
+				);
+				this.text(
+					{x: item.posx, y: item.posy + item.sizey + 4},
+					"black",
+					item.fileName,
+					0,
+					item.fileNameSize,
+					TextHjustify.LEFT,
+					TextVjustify.TOP,
+					0,
+					false,
+					false
+				);
+			} else
+			if (item instanceof Bitmap) {
+			} else
+			if (item instanceof Text) {
+				console.log(item);
+				this.text(
+					{x: item.posx, y: item.posy},
+					"black",
+					item.text,
+					item.orientation,
+					item.size,
+					item.hjustify,
+					item.vjustify,
+					0,
+					item.italic,
+					item.bold
+				);
+			} else
+			if (item instanceof Entry) {
+			} else
+			if (item instanceof Connection) {
+				this.setColor("black");
+				this.circle({ x: item.posx, y: item.posy }, 40, Fill.FILLED_SHAPE, DEFAULT_LINE_WIDTH);
+			} else
+			if (item instanceof NoConn) {
+				this.fill = Fill.NO_FILL;
+				const DRAWNOCONNECT_SIZE = 48;
+				const delta = DRAWNOCONNECT_SIZE / 2;
+				this.setColor("black");
+				this.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
+				this.moveTo( item.posx - delta, item.posy - delta);
+				this.finishTo(item.posx + delta, item.posy + delta);
+				this.moveTo( item.posx + delta, item.posy - delta);
+				this.finishTo(item.posx - delta, item.posy + delta);
+			} else
+			if (item instanceof Wire) {
+				this.setColor("black");
+				this.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
+				this.fill = Fill.NO_FILL;
+				this.moveTo(item.startx, item.starty);
+				this.finishTo(item.endx, item.endy);
+			} else {
+				throw "unknown SchItem: " + item.constructor.name;
 			}
 		}
 	}
@@ -616,10 +740,12 @@ export class CanvasPlotter extends Plotter {
 		if (vjustify === TextVjustify.BOTTOM) {
 			this.ctx.textBaseline = "bottom";
 		}
+		this.ctx.fillStyle = color;
 		this.ctx.save();
 		this.ctx.translate(p.x, p.y);
 		this.ctx.rotate(-DECIDEG2RAD(orientation));
 		this.ctx.font = size + "px monospace";
+		// console.log('fillText', text, p.x, p.y, hjustfy, vjustify);
 		this.ctx.fillText(text, 0, 0);
 		this.ctx.restore();
 	}
@@ -662,7 +788,150 @@ export class CanvasPlotter extends Plotter {
 		this.penState = s;
 	} 
 
+	setColor(c: string): void {
+		this.ctx.fillStyle = c;
+		this.ctx.strokeStyle = c;
+	}
+
 	setCurrentLineWidth(w: number): void {
 		this.ctx.lineWidth = w;
+	}
+}
+
+export class SVGPlotter extends Plotter {
+	penState: "U"|"D"|"Z";
+	output: string;
+
+	constructor() {
+		super();
+		this.penState = "Z";
+		this.output = "";
+	}
+
+	rect(p1: Point, p2: Point, fill: Fill, width: number): void {
+		this.setCurrentLineWidth(width);
+		this.fill = fill;
+		this.moveTo(p1.x, p1.y);
+		this.lineTo(p1.x, p2.y);
+		this.lineTo(p2.x, p2.y);
+		this.lineTo(p2.x, p1.y);
+		this.finishTo(p1.x, p1.y);
+	}
+
+	circle(p: Point, dia: number, fill: Fill, width: number): void {
+		this.setCurrentLineWidth(width);
+		this.fill = fill;
+		this.output += `<circle cx="${p.x}" cy="${p.y}" r="${dia/2}" `;
+		if (this.fill === Fill.NO_FILL) {
+			this.output += ` style="stroke: #000000; fill: none; stroke-width: ${DEFAULT_LINE_WIDTH}"/>\n`;
+		} else {
+			this.output += ` style="stroke: #000000; fill: #000000; stroke-width: ${DEFAULT_LINE_WIDTH}"/>\n`;
+		}
+	}
+
+	arc(p: Point, startAngle: number, endAngle: number, radius: number, fill: Fill, width: number): void {
+		this.setCurrentLineWidth(width);
+		this.fill = fill;
+		// TODO
+	}
+
+	polyline(points: Array<Point>, fill: Fill, width: number): void {
+		this.setCurrentLineWidth(width);
+		this.fill = fill;
+		this.moveTo(points[0]);
+		for (var i = 1, len = points.length; i < len; i++) {
+			this.lineTo(points[i]);
+		}
+		this.finishPen();
+//		this.output += `<polyline points="`;
+//		for (var i = 1, len = points.length; i < len; i++) {
+//			this.output += `${points[i].x},${points[i].y}\n`;
+//		}
+//		this.output += `" style="stroke: #000000; fill: none; stroke-width: ${DEFAULT_LINE_WIDTH}"/>\n`;
+	}
+
+	text(
+		p: Point,
+		color: string,
+		text: string,
+		orientation: number,
+		size: number,
+		hjustfy: TextHjustify,
+		vjustify: TextVjustify,
+		width: number,
+		italic: boolean,
+		bold: boolean,
+		multiline?: boolean,
+	): void {
+		let textAnchor;
+		if (hjustfy === TextHjustify.LEFT) {
+			textAnchor = "start";
+		} else
+		if (hjustfy === TextHjustify.CENTER) {
+			textAnchor = "middle";
+		} else
+		if (hjustfy === TextHjustify.RIGHT) {
+			textAnchor = "end";
+		}
+		let dominantBaseline;
+		if (vjustify === TextVjustify.TOP) {
+			dominantBaseline = "text-before-edge";
+		} else
+		if (vjustify === TextVjustify.CENTER) {
+			dominantBaseline = "middle";
+		} else
+		if (vjustify === TextVjustify.BOTTOM) {
+			dominantBaseline = "text-after-edge";
+		}
+
+		const rotate = -orientation / 10;
+		this.output += `<text x="${p.x}" y="${p.y}"
+			text-anchor="${textAnchor}"
+			dominant-baseline="${dominantBaseline}"
+			font-family="monospace"
+			font-size="${size}"
+			fill="#000000"
+			transform="rotate(${rotate}, ${p.x}, ${p.y})">${text}</text>`;
+	}
+
+	/**
+	 * U = Pen is up
+	 * D = Pen is down
+	 * Z = Pen is outof canvas
+	 */
+	penTo(p: Point, s: "U"|"D"|"Z"): void {
+		if (s === "Z") {
+			if (this.penState !== "Z") {
+				if (this.fill === Fill.NO_FILL) {
+					this.output += `" style="stroke: #000000; fill: none; stroke-width: ${DEFAULT_LINE_WIDTH}"/>\n`;
+				} else {
+					this.output += `" style="stroke: #000000; fill: #000000; stroke-width: ${DEFAULT_LINE_WIDTH}"/>\n`;
+				}
+			} else {
+				throw "invalid pen state Z -> Z";
+			}
+			this.penState = "Z";
+			return;
+		}
+
+		// s is U | D
+
+		if (this.penState === "Z") {
+			this.output += `<path d="M${p.x} ${p.y}\n`;
+		} else {
+			if (s === "U") {
+				this.output += `M${p.x} ${p.y}\n`;
+			} else {
+				this.output += `L${p.x} ${p.y}\n`;
+			}
+		}
+
+		this.penState = s;
+	} 
+
+	setColor(c: string): void {
+	}
+
+	setCurrentLineWidth(w: number): void {
 	}
 }

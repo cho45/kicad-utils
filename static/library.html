@@ -9,8 +9,8 @@
 		<script src="https://unpkg.com/vue"></script>
 		<style>
 			canvas {
-				max-width: 20vw;
-				max-height: 20vh;
+				max-width: 250px;
+				max-height: 250px;
 			}
 
 			.list-component {
@@ -19,11 +19,14 @@
 			}
 
 			.component {
-				width: 20vw;
-				height: 20vh;
 				flex: 1;
 				background: #efefef;
 				border: 1px solid #999;
+				padding: 10px;
+			}
+			.form {
+				background: #efefef;
+				border: 1px solid #ccc;
 				padding: 10px;
 			}
 		</style>
@@ -31,8 +34,19 @@
 	<body>
 		<div id="app">
 			<h1>KiCAD library Viewer</h1>
-			<p>select .lib file</p>
-			<input type="file" v-on:change="fileSelected" ref="fileInput"> {{ status }}
+			<div class="form">
+				<h2>Load from file:</h2>
+				<p>Select .lib file</p>
+				<input type="file" v-on:change="fileSelected" ref="fileInput">
+
+				<h2>Load from url:</h2>
+				<p>Requesting url must be supports CORS header</p>
+				<form v-on:submit.prevent="onSubmit">
+					<input type="text" v-model="url" size="100">
+					<button type="submit">Load from url</button>
+				</form>
+			</div>
+			<p class="status">{{ status }}</p>
 			<div class="list-component">
 				<div class="component" v-for="component in components">
 					{{ component.name }}

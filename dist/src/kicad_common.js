@@ -45,6 +45,17 @@ function NORMALIZE_ANGLE_POS(angle) {
     return angle;
 }
 exports.NORMALIZE_ANGLE_POS = NORMALIZE_ANGLE_POS;
+/**
+ * KiCAD internal unit is mil (1/1000 inch)
+ */
+function MM2MIL(mm) {
+    return mm / 0.0254;
+}
+exports.MM2MIL = MM2MIL;
+function MIL2MM(mil) {
+    return mil * 0.0254;
+}
+exports.MIL2MM = MIL2MM;
 class Transform {
     constructor(x1 = 1, y1 = 0, x2 = 0, y2 = -1) {
         this.x1 = x1;
@@ -156,7 +167,7 @@ var TextHjustify;
 (function (TextHjustify) {
     TextHjustify["LEFT"] = "L";
     TextHjustify["CENTER"] = "C";
-    TextHjustify["RIGHT"] = " R";
+    TextHjustify["RIGHT"] = "R";
 })(TextHjustify = exports.TextHjustify || (exports.TextHjustify = {}));
 var TextVjustify;
 (function (TextVjustify) {
