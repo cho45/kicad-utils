@@ -27,6 +27,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
 
+/**
+ * KiCAD internal unit:
+ *	length: mil (1/1000 inch)
+ *	angles: decidegree (1/10 degrees)
+ */
+
 export const DEFAULT_LINE_WIDTH = 6;
 
 export function DECIDEG2RAD(deg: number): number {
@@ -43,9 +49,29 @@ export function NORMALIZE_ANGLE_POS(angle: number): number {
 	return angle;
 }
 
-/**
- * KiCAD internal unit is mil (1/1000 inch)
- */
+export function RotatePoint(p: Point, angle: number) {
+	angle = NORMALIZE_ANGLE_POS(angle);
+	if (angle === 0) {
+		return;
+	}
+	if ( angle === 900 ) {        /* sin = 1, cos = 0 */
+		[p.x, p.y] = [p.y, -p.x]
+	} else
+	if ( angle == 1800 ) {  /* sin = 0, cos = -1 */
+		[p.x, p.y] = [-p.x, -p.y]
+	} else
+	if ( angle == 2700 ) {  /* sin = -1, cos = 0 */
+		[p.x, p.y] = [-p.y, p.x]
+	} else {
+		const fangle = DECIDEG2RAD( angle );
+		const sinus = Math.sin( fangle );
+		const cosinus = Math.cos( fangle );
+		const rx = (p.y * sinus ) + (p.x * cosinus );
+		const ry = (p.y * cosinus ) - (p.x * sinus );
+		p.x = rx; p.y = ry;
+	}
+}
+
 export function MM2MIL(mm: number) {
 	return mm / 0.0254;
 }
@@ -237,3 +263,17 @@ export enum PinAttribute {
 	INVISIBLE       = "N",
 }
 
+export enum SheetSide {
+	RIGHT = "R",
+	TOP = "T",
+	BOTTOM = "B",
+	LEFT = "L",
+}
+
+export enum Net {
+	INPUT = "I",
+	OUTPUT = "O",
+	BIDI = "B",
+	TRISTATE = "T",
+	UNSPECIFIED = "U",
+}

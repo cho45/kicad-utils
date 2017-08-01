@@ -9,10 +9,16 @@ const babelOptions = {
 
 module.exports = {
 	entry: {
-		index: ['babel-polyfill', 'whatwg-fetch', './static/js/app.js']
+		index: ['babel-polyfill', 'whatwg-fetch', './static/js/app.js'],
 	},
+
 	output: {
-		filename: './static/js/bundle.js',
+		path: __dirname + "/static/js",
+		filename: '[name].bundle.js',
+	},
+
+	node: {
+		'fs': 'empty',
 	},
 
 	devtool: 'source-map',

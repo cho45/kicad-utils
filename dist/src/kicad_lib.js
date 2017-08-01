@@ -73,7 +73,7 @@ class Library {
     findByName(name) {
         const ret = this.components.find((i) => i.name === name);
         if (!ret) {
-            throw "Component notfound";
+            throw "Component not found:" + name;
         }
         return ret;
     }
@@ -132,9 +132,11 @@ class Field0 {
         this.posy = Number(params[2]);
         this.textSize = Number(params[3]);
         this.textOrientation = params[4] === 'H' ? kicad_common_1.TextAngle.HORIZ : kicad_common_1.TextAngle.VERT;
-        this.visibility = params[5];
-        this.htextJustify = params[6];
-        this.vtextJustify = params[7];
+        this.visibility = params[5] === 'V';
+        this.hjustify = params[6];
+        this.vjustify = params[7][0];
+        this.italic = params[7][1] === "I";
+        this.bold = params[7][2] === "B";
     }
 }
 exports.Field0 = Field0;
@@ -145,9 +147,11 @@ class FieldN {
         this.posy = Number(params[2]);
         this.textSize = Number(params[3]);
         this.textOrientation = params[4] === 'H' ? kicad_common_1.TextAngle.HORIZ : kicad_common_1.TextAngle.VERT;
-        this.visibility = params[5];
-        this.htextJustify = params[6];
-        this.vtextJustify = params[7];
+        this.visibility = params[5] === 'V';
+        this.hjustify = params[6];
+        this.vjustify = params[7][0];
+        this.italic = params[7][1] === "I";
+        this.bold = params[7][2] === "B";
         this.fieldname = params[8];
     }
 }
@@ -371,6 +375,7 @@ class DrawPin extends DrawObject {
         this.convert = Number(params[9]);
         this.pinType = params[10];
         this.attributes = (params[11] || '').split('');
+        this.visibility = this.attributes.every((i) => i !== 'N');
     }
     getBoundingBox() {
         // TODO

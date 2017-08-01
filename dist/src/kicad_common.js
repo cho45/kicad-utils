@@ -28,6 +28,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * KiCAD internal unit:
+ *	length: mil (1/1000 inch)
+ *	angles: decidegree (1/10 degrees)
+ */
 exports.DEFAULT_LINE_WIDTH = 6;
 function DECIDEG2RAD(deg) {
     return deg * Math.PI / 1800;
@@ -45,9 +50,31 @@ function NORMALIZE_ANGLE_POS(angle) {
     return angle;
 }
 exports.NORMALIZE_ANGLE_POS = NORMALIZE_ANGLE_POS;
-/**
- * KiCAD internal unit is mil (1/1000 inch)
- */
+function RotatePoint(p, angle) {
+    angle = NORMALIZE_ANGLE_POS(angle);
+    if (angle === 0) {
+        return;
+    }
+    if (angle === 900) {
+        [p.x, p.y] = [p.y, -p.x];
+    }
+    else if (angle == 1800) {
+        [p.x, p.y] = [-p.x, -p.y];
+    }
+    else if (angle == 2700) {
+        [p.x, p.y] = [-p.y, p.x];
+    }
+    else {
+        const fangle = DECIDEG2RAD(angle);
+        const sinus = Math.sin(fangle);
+        const cosinus = Math.cos(fangle);
+        const rx = (p.y * sinus) + (p.x * cosinus);
+        const ry = (p.y * cosinus) - (p.x * sinus);
+        p.x = rx;
+        p.y = ry;
+    }
+}
+exports.RotatePoint = RotatePoint;
 function MM2MIL(mm) {
     return mm / 0.0254;
 }
@@ -213,4 +240,19 @@ var PinAttribute;
     PinAttribute["NONLOGIC"] = "X";
     PinAttribute["INVISIBLE"] = "N";
 })(PinAttribute = exports.PinAttribute || (exports.PinAttribute = {}));
+var SheetSide;
+(function (SheetSide) {
+    SheetSide["RIGHT"] = "R";
+    SheetSide["TOP"] = "T";
+    SheetSide["BOTTOM"] = "B";
+    SheetSide["LEFT"] = "L";
+})(SheetSide = exports.SheetSide || (exports.SheetSide = {}));
+var Net;
+(function (Net) {
+    Net["INPUT"] = "I";
+    Net["OUTPUT"] = "O";
+    Net["BIDI"] = "B";
+    Net["TRISTATE"] = "T";
+    Net["UNSPECIFIED"] = "U";
+})(Net = exports.Net || (exports.Net = {}));
 //# sourceMappingURL=kicad_common.js.map

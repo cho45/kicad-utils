@@ -31,6 +31,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const kicad_common_1 = require("kicad_common");
 const kicad_lib_1 = require("kicad_lib");
 const kicad_sch_1 = require("kicad_sch");
+const TXT_MARGIN = 4;
+const PIN_TXT_MARGIN = 4;
 /**
  * similar to KiCAD Plotter
  *
@@ -69,13 +71,31 @@ class Plotter {
      * kicad-js implements plot methods to plotter instead of each library items for simplify parsing dependencies.
      */
     plotLibComponent(component, unit, convert, offset, transform, reference, name) {
-        if (component.field) {
+        if (component.field && component.field.visibility) {
             const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: component.field.posx, y: component.field.posy }), offset);
-            this.text(pos, "black", (typeof reference !== 'undefined') ? reference : component.field.reference, component.field.textOrientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
+            let orientation = component.field.textOrientation;
+            if (transform.y1) {
+                if (orientation === kicad_common_1.TextAngle.HORIZ) {
+                    orientation = kicad_common_1.TextAngle.VERT;
+                }
+                else {
+                    orientation = kicad_common_1.TextAngle.HORIZ;
+                }
+            }
+            this.text(pos, "black", (typeof reference !== 'undefined') ? reference : component.field.reference, orientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, component.field.italic, component.field.bold);
         }
-        if (component.fields[0]) {
+        if (component.fields[0] && component.fields[0].visibility) {
             const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy }), offset);
-            this.text(pos, "black", (typeof name !== 'undefined') ? name : component.fields[0].name, component.fields[0].textOrientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
+            let orientation = component.fields[0].textOrientation;
+            if (transform.y1) {
+                if (orientation === kicad_common_1.TextAngle.HORIZ) {
+                    orientation = kicad_common_1.TextAngle.VERT;
+                }
+                else {
+                    orientation = kicad_common_1.TextAngle.HORIZ;
+                }
+            }
+            this.text(pos, "black", (typeof name !== 'undefined') ? name : component.fields[0].name, orientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, component.fields[0].italic, component.fields[0].bold);
         }
         for (let draw of component.draw.objects) {
             if (draw.unit !== 0 && unit !== draw.unit) {
@@ -135,75 +155,88 @@ class Plotter {
         this.text(pos, "black", draw.text, component.field.textOrientation, draw.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, draw.italic, draw.bold);
     }
     plotDrawPin(draw, component, offset, transform) {
+        if (!draw.visibility)
+            return;
         this.plotDrawPinTexts(draw, component, offset, transform);
         this.plotDrawPinSymbol(draw, component, offset, transform);
     }
     plotDrawPinTexts(draw, component, offset, transform) {
+        let drawPinname = component.drawPinname;
+        let drawPinnumber = component.drawPinnumber;
+        if (draw.name === "" || draw.name === "~") {
+            drawPinname = false;
+        }
+        if (draw.num === "") {
+            drawPinnumber = false;
+        }
+        if (!drawPinname && !drawPinnumber)
+            return;
         const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+        const orientation = this.pinDrawOrientation(draw, transform);
         let x1 = pos.x, y1 = pos.y;
-        if (draw.orientation === kicad_common_1.PinOrientation.UP) {
+        if (orientation === kicad_common_1.PinOrientation.UP) {
             y1 -= draw.length;
         }
-        else if (draw.orientation === kicad_common_1.PinOrientation.DOWN) {
+        else if (orientation === kicad_common_1.PinOrientation.DOWN) {
             y1 += draw.length;
         }
-        else if (draw.orientation === kicad_common_1.PinOrientation.LEFT) {
+        else if (orientation === kicad_common_1.PinOrientation.LEFT) {
             x1 -= draw.length;
         }
-        else if (draw.orientation === kicad_common_1.PinOrientation.RIGHT) {
+        else if (orientation === kicad_common_1.PinOrientation.RIGHT) {
             x1 += draw.length;
         }
-        const nameOffset = 4;
-        const numOffset = 4;
+        const nameOffset = PIN_TXT_MARGIN + kicad_common_1.DEFAULT_LINE_WIDTH / 2;
+        const numOffset = PIN_TXT_MARGIN + kicad_common_1.DEFAULT_LINE_WIDTH / 2;
         const textInside = component.textOffset;
-        const isHorizontal = draw.orientation === kicad_common_1.PinOrientation.LEFT || draw.orientation === kicad_common_1.PinOrientation.RIGHT;
+        const isHorizontal = orientation === kicad_common_1.PinOrientation.LEFT || orientation === kicad_common_1.PinOrientation.RIGHT;
         if (textInside) {
             if (isHorizontal) {
-                if (component.drawPinname) {
-                    if (draw.orientation === kicad_common_1.PinOrientation.RIGHT) {
+                if (drawPinname) {
+                    if (orientation === kicad_common_1.PinOrientation.RIGHT) {
                         this.text({ x: x1 + textInside, y: y1 }, "black", draw.name, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
                     }
                     else {
                         this.text({ x: x1 - textInside, y: y1 }, "black", draw.name, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.RIGHT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
                     }
                 }
-                if (component.drawPinnumber) {
-                    this.text({ x: (x1 + pos.x) / 2, y: y1 + numOffset }, "black", draw.name, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
+                if (drawPinnumber) {
+                    this.text({ x: (x1 + pos.x) / 2, y: y1 + numOffset }, "black", draw.num, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
                 }
             }
             else {
-                if (draw.orientation === kicad_common_1.PinOrientation.DOWN) {
-                    if (component.drawPinname) {
+                if (orientation === kicad_common_1.PinOrientation.DOWN) {
+                    if (drawPinname) {
                         this.text({ x: x1, y: y1 + textInside }, "black", draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.RIGHT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
                     }
-                    if (component.drawPinnumber) {
-                        this.text({ x: x1 - numOffset, y: (y1 + pos.y) / 2 }, "black", draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.RIGHT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
+                    if (drawPinnumber) {
+                        this.text({ x: x1 - numOffset, y: (y1 + pos.y) / 2 }, "black", draw.num, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
                     }
                 }
                 else {
-                    if (component.drawPinname) {
+                    if (drawPinname) {
                         this.text({ x: x1, y: y1 - textInside }, "black", draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
                     }
-                    if (component.drawPinnumber) {
-                        this.text({ x: x1 - numOffset, y: (y1 + pos.y) / 2 }, "black", draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
+                    if (drawPinnumber) {
+                        this.text({ x: x1 - numOffset, y: (y1 + pos.y) / 2 }, "black", draw.num, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
                     }
                 }
             }
         }
         else {
             if (isHorizontal) {
-                if (component.drawPinname) {
+                if (drawPinname) {
                     this.text({ x: (x1 + pos.x) / 2, y: y1 - nameOffset }, "black", draw.name, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
                 }
-                if (component.drawPinnumber) {
+                if (drawPinnumber) {
                     this.text({ x: (x1 + pos.x) / 2, y: y1 + numOffset }, "black", draw.num, kicad_common_1.TextAngle.HORIZ, draw.numTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.TOP, 0, false, false);
                 }
             }
             else {
-                if (component.drawPinname) {
+                if (drawPinname) {
                     this.text({ x: x1 - nameOffset, y: (y1 + pos.y) / 2 }, "black", draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
                 }
-                if (component.drawPinnumber) {
+                if (drawPinnumber) {
                     this.text({ x: x1 + numOffset, y: (y1 + pos.y) / 2 }, "black", draw.num, kicad_common_1.TextAngle.VERT, draw.numTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.TOP, 0, false, false);
                 }
             }
@@ -315,13 +348,127 @@ class Plotter {
             else if (item instanceof kicad_sch_1.Bitmap) {
             }
             else if (item instanceof kicad_sch_1.Text) {
-                this.text({ x: item.posx, y: item.posy }, "black", item.text, item.orientation, item.size, item.hjustify, item.vjustify, 0, item.italic, item.bold);
                 if (item.name1 === 'GLabel') {
-                    // TODO global label style
-                    //					const x = item.text.length * item.size + DEFAULT_LINE_WIDTH;
-                    //					const y = item.size / 2 * 1.4 + DEFAULT_LINE_WIDTH + DEFAULT_LINE_WIDTH / 2;
-                    //					this.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
-                    //					this.fill = Fill.NO_FILL;
+                    {
+                        const halfSize = item.size / 2;
+                        const lineWidth = kicad_common_1.DEFAULT_LINE_WIDTH;
+                        const points = [];
+                        const symLen = item.text.length * item.size;
+                        const hasOverBar = /~[^~]/.test(item.text);
+                        const Y_CORRECTION = 1.40;
+                        const Y_OVERBAR_CORRECTION = 1.2;
+                        let x = symLen + lineWidth + 3;
+                        let y = halfSize * Y_CORRECTION;
+                        if (hasOverBar) {
+                            // TODO
+                        }
+                        y += lineWidth + lineWidth / 2;
+                        points.push(new kicad_common_1.Point(0, 0));
+                        points.push(new kicad_common_1.Point(0, -y)); // Up
+                        points.push(new kicad_common_1.Point(-x, -y)); // left
+                        points.push(new kicad_common_1.Point(-x, 0)); // Up left
+                        points.push(new kicad_common_1.Point(-x, y)); // left down
+                        points.push(new kicad_common_1.Point(0, y)); // down
+                        let xOffset = 0;
+                        if (item.shape === kicad_common_1.Net.INPUT) {
+                            xOffset -= halfSize;
+                            points[0].x += halfSize;
+                        }
+                        else if (item.shape === kicad_common_1.Net.OUTPUT) {
+                            points[3].x -= halfSize;
+                        }
+                        else if (item.shape === kicad_common_1.Net.BIDI ||
+                            item.shape === kicad_common_1.Net.TRISTATE) {
+                            xOffset = -halfSize;
+                            points[0].x += halfSize;
+                            points[3].x -= halfSize;
+                        }
+                        let angle = 0;
+                        if (item.orientationType === 0) {
+                            angle = 0;
+                        }
+                        else if (item.orientationType === 1) {
+                            angle = -900;
+                        }
+                        else if (item.orientationType === 2) {
+                            angle = 1800;
+                        }
+                        else if (item.orientationType === 3) {
+                            angle = 900;
+                        }
+                        for (let p of points) {
+                            p.x += xOffset;
+                            if (angle) {
+                                kicad_common_1.RotatePoint(p, angle);
+                            }
+                            p.x += item.posx;
+                            p.y += item.posy;
+                        }
+                        points.push(points[0]);
+                        this.polyline(points, kicad_common_1.Fill.NO_FILL, kicad_common_1.DEFAULT_LINE_WIDTH);
+                    }
+                    {
+                        let p = new kicad_common_1.Point(item.posx, item.posy);
+                        const width = kicad_common_1.DEFAULT_LINE_WIDTH;
+                        const halfSize = item.text.length * item.size / 2 * 0.5;
+                        let offset = width;
+                        if (item.shape === kicad_common_1.Net.INPUT ||
+                            item.shape === kicad_common_1.Net.BIDI ||
+                            item.shape === kicad_common_1.Net.TRISTATE) {
+                            offset += halfSize;
+                        }
+                        else if (item.shape === kicad_common_1.Net.OUTPUT ||
+                            item.shape === kicad_common_1.Net.UNSPECIFIED) {
+                            offset += (item.size * 2);
+                        }
+                        if (item.orientationType === 0) {
+                            p.x -= offset;
+                        }
+                        else if (item.orientationType === 1) {
+                            p.y -= offset;
+                        }
+                        else if (item.orientationType === 2) {
+                            p.x += offset;
+                        }
+                        else if (item.orientationType === 3) {
+                            p.y += offset;
+                        }
+                        this.text(p, "black", item.text, item.orientation, item.size, item.hjustify, item.vjustify, 0, item.italic, item.bold);
+                    }
+                }
+                else if (item.name1 === 'HLabel') {
+                    let p = new kicad_common_1.Point(item.posx, item.posy);
+                    const txtOffset = item.size * item.text.length + TXT_MARGIN + kicad_common_1.DEFAULT_LINE_WIDTH / 2;
+                    if (item.orientationType === 0) {
+                        p.x -= txtOffset;
+                    }
+                    else if (item.orientationType === 1) {
+                        p.y -= txtOffset;
+                    }
+                    else if (item.orientationType === 2) {
+                        p.x += txtOffset;
+                    }
+                    else if (item.orientationType === 3) {
+                        p.y += txtOffset;
+                    }
+                    this.text(p, "black", item.text, item.orientation, item.size, item.hjustify, item.vjustify, 0, item.italic, item.bold);
+                }
+                else {
+                    let p = new kicad_common_1.Point(item.posx, item.posy);
+                    const txtOffset = TXT_MARGIN + kicad_common_1.DEFAULT_LINE_WIDTH / 2;
+                    if (item.orientationType === 0) {
+                        p.y -= txtOffset;
+                    }
+                    else if (item.orientationType === 1) {
+                        p.x -= txtOffset;
+                    }
+                    else if (item.orientationType === 2) {
+                        p.y -= txtOffset;
+                    }
+                    else if (item.orientationType === 3) {
+                        p.x -= txtOffset;
+                    }
+                    this.text(p, "black", item.text, item.orientation, item.size, item.hjustify, item.vjustify, 0, item.italic, item.bold);
                 }
             }
             else if (item instanceof kicad_sch_1.Entry) {
@@ -509,9 +656,38 @@ class SVGPlotter extends Plotter {
         }
     }
     arc(p, startAngle, endAngle, radius, fill, width) {
+        if (radius <= 0)
+            return;
+        if (startAngle > endAngle) {
+            [startAngle, endAngle] = [endAngle, startAngle];
+        }
         this.setCurrentLineWidth(width);
         this.fill = fill;
-        // TODO
+        [startAngle, endAngle] = [-endAngle, -startAngle];
+        let start = new kicad_common_1.Point(radius, 0);
+        kicad_common_1.RotatePoint(start, startAngle);
+        let end = new kicad_common_1.Point(radius, 0);
+        kicad_common_1.RotatePoint(end, endAngle);
+        start = kicad_common_1.Point.add(start, p);
+        end = kicad_common_1.Point.add(end, p);
+        let theta1 = kicad_common_1.DECIDEG2RAD(startAngle);
+        if (theta1 < 0)
+            theta1 += Math.PI * 2;
+        let theta2 = kicad_common_1.DECIDEG2RAD(endAngle);
+        if (theta2 < 0)
+            theta2 += Math.PI * 2;
+        if (theta2 < theta1)
+            theta2 += Math.PI * 2;
+        const isLargeArc = Math.abs(theta2 - theta1) > Math.PI;
+        const isSweep = false;
+        // console.log('ARC', startAngle, endAngle, radius, start, end, radius, isLargeArc, isSweep);
+        this.output += `<path d="M${start.x} ${start.y} A${radius} ${radius} 0.0 ${isLargeArc ? 1 : 0} ${isSweep ? 1 : 0} ${end.x} ${end.y}"`;
+        if (this.fill === kicad_common_1.Fill.NO_FILL) {
+            this.output += ` style="stroke: #000000; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+        }
+        else {
+            this.output += ` style="stroke: #000000; fill: #000000; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+        }
     }
     polyline(points, fill, width) {
         this.setCurrentLineWidth(width);
@@ -608,6 +784,17 @@ class SVGPlotter extends Plotter {
             '&': '&amp;',
         };
         return s.replace(/[<>&]/g, (_) => map[_]);
+    }
+    plotSchematic(sch, libs) {
+        const width = sch.descr.width;
+        const height = sch.descr.height;
+        this.output = `<svg preserveAspectRatio="xMinYMin"
+			width="${width}"
+			height="${height}"
+			viewBox="0 0 ${sch.descr.width} ${sch.descr.height}"
+			xmlns="http://www.w3.org/2000/svg" version="1.1">`;
+        super.plotSchematic(sch, libs);
+        this.output += `</svg>`;
     }
 }
 exports.SVGPlotter = SVGPlotter;

@@ -5,7 +5,7 @@ import { CanvasPlotter, SVGPlotter } from "kicad_plotter";
 import { Library } from "kicad_lib";
 import { Schematic } from "kicad_sch";
 
-const fs = require('fs');
+import * as fs from "fs";
 
 {
 //	const lib = Library.load(fs.readFileSync('../keyboard-schematic/Root-cache.lib', 'utf-8'));
@@ -15,6 +15,7 @@ const fs = require('fs');
 	const lib = Library.load(fs.readFileSync('../keyboard-schematic/Root-cache.lib', 'utf-8'));
 	const sch = Schematic.load(fs.readFileSync('../keyboard-schematic/_keymodule_l.sch', 'utf-8'));
 	console.log(sch);
+	console.log(lib.findByName("GND"));
 
 	const MAX_WIDTH = 1920 * 2;
 	const MAX_HEIGHT = 1080 * 2;
@@ -33,6 +34,7 @@ const fs = require('fs');
 	ctx.scale(scale, scale);
 
 	const plotter = new CanvasPlotter(ctx);
+	// plotter.plotLibComponent(lib.findByName("RJ45"), 1, 1, { x: 500, y: 500 }, new Transform(0, 1, 1, 0));
 	plotter.plotSchematic(sch, [ lib ]);
 
 	const out = fs.createWriteStream(__dirname + '/text.png'), stream = canvas.pngStream();
@@ -52,14 +54,7 @@ const fs = require('fs');
 	// sch.descr.{width,height} is mil
 	// 1000mil = 1inch = 72dot
 
-	const width = 1920 * 2; // sch.descr.width;
-	const height = 1080 * 2; // sch.descr.height;
-
-	let output = '';
-	output += `<svg preserveAspectRatio="xMinYMin" width="${width}" height="${height}" viewBox="0 0 ${sch.descr.width} ${sch.descr.height}" xmlns="http://www.w3.org/2000/svg" version="1.1">`;
-	output += svgPlotter.output;
-	output += `</svg>`;
-	fs.writeFileSync("text.svg", output);
+	fs.writeFileSync("text.svg", svgPlotter.output);
 }
 
 /*

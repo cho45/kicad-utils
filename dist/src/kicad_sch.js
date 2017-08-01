@@ -146,8 +146,8 @@ class SheetPin extends SchItem {
     constructor(tokens) {
         super();
         this.name = tokens[0];
-        this.connectType = tokens[1];
-        this.sheetSide = tokens[2];
+        this.connectType = tokens[1][0];
+        this.sheetSide = tokens[2][0];
         this.posx = Number(tokens[3]);
         this.posy = Number(tokens[4]);
         this.textWidth = Number(tokens[5]);
@@ -344,10 +344,10 @@ class Text extends SchItem {
                 throw "invalid orientationType: " + orientationType;
             }
         }
-        else {
+        else if (this.name1 === 'HLabel') {
             if (orientationType === 0) {
                 this.orientation = kicad_common_1.TextAngle.HORIZ;
-                this.hjustify = kicad_common_1.TextHjustify.LEFT;
+                this.hjustify = kicad_common_1.TextHjustify.RIGHT;
                 this.vjustify = kicad_common_1.TextVjustify.CENTER;
             }
             else if (orientationType === 1) {
@@ -357,7 +357,7 @@ class Text extends SchItem {
             }
             else if (orientationType === 2) {
                 this.orientation = kicad_common_1.TextAngle.HORIZ;
-                this.hjustify = kicad_common_1.TextHjustify.RIGHT;
+                this.hjustify = kicad_common_1.TextHjustify.LEFT;
                 this.vjustify = kicad_common_1.TextVjustify.CENTER;
             }
             else if (orientationType === 3) {
@@ -369,9 +369,36 @@ class Text extends SchItem {
                 throw "invalid orientationType: " + orientationType;
             }
         }
+        else {
+            if (orientationType === 0) {
+                this.orientation = kicad_common_1.TextAngle.HORIZ;
+                this.hjustify = kicad_common_1.TextHjustify.LEFT;
+                this.vjustify = kicad_common_1.TextVjustify.BOTTOM;
+            }
+            else if (orientationType === 1) {
+                this.orientation = kicad_common_1.TextAngle.VERT;
+                this.hjustify = kicad_common_1.TextHjustify.LEFT;
+                this.vjustify = kicad_common_1.TextVjustify.BOTTOM;
+            }
+            else if (orientationType === 2) {
+                this.orientation = kicad_common_1.TextAngle.HORIZ;
+                this.hjustify = kicad_common_1.TextHjustify.RIGHT;
+                this.vjustify = kicad_common_1.TextVjustify.BOTTOM;
+            }
+            else if (orientationType === 3) {
+                this.orientation = kicad_common_1.TextAngle.VERT;
+                this.hjustify = kicad_common_1.TextHjustify.RIGHT;
+                this.vjustify = kicad_common_1.TextVjustify.BOTTOM;
+            }
+            else {
+                throw "invalid orientationType: " + orientationType;
+            }
+        }
+        this.orientationType = orientationType;
         this.size = Number(tokens[4]);
-        this.italic = tokens[5] === 'Italic';
-        this.bold = Number(tokens[6]) != 0;
+        this.shape = tokens[5][0];
+        this.italic = tokens[6] == "Italic";
+        this.bold = Number(tokens[7]) !== 0;
     }
     parse(lines) {
         const text = lines.shift();

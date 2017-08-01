@@ -32,6 +32,8 @@ import {
 	TextAngle,
 	TextHjustify,
 	TextVjustify,
+	SheetSide,
+	Net,
 } from "kicad_common";
 
 export class Schematic {
@@ -167,8 +169,8 @@ export class Sheet extends SchItem {
 export class SheetPin extends SchItem {
 	number: number;
 	name: string;
-	connectType: string;
-	sheetSide: string;
+	connectType: Net;
+	sheetSide: SheetSide;
 	posx: number;
 	posy: number;
 	textWidth: number;
@@ -176,8 +178,8 @@ export class SheetPin extends SchItem {
 	constructor(tokens: Array<string>) {
 		super();
 		this.name = tokens[0];
-		this.connectType = tokens[1];
-		this.sheetSide = tokens[2];
+		this.connectType = tokens[1][0] as Net;
+		this.sheetSide = tokens[2][0] as SheetSide;
 		this.posx = Number(tokens[3]);
 		this.posy = Number(tokens[4]);
 		this.textWidth = Number(tokens[5]);
@@ -391,11 +393,13 @@ export class Text extends SchItem {
 	name1: string;
 	posx: number;
 	posy: number;
+	orientationType: number;
 	orientation: number;
 	size: number;
 	bold: boolean;
 	italic: boolean;
 	text: string;
+	shape: Net;
 	hjustify: TextHjustify;
 	vjustify: TextVjustify;
 
@@ -428,10 +432,11 @@ export class Text extends SchItem {
 			} else {
 				throw "invalid orientationType: " + orientationType;
 			}
-		} else {
+		} else
+		if (this.name1 === 'HLabel') {
 			if (orientationType === 0) {
 				this.orientation = TextAngle.HORIZ;
-				this.hjustify = TextHjustify.LEFT;
+				this.hjustify = TextHjustify.RIGHT;
 				this.vjustify = TextVjustify.CENTER;
 			} else
 			if (orientationType === 1) {
@@ -441,7 +446,7 @@ export class Text extends SchItem {
 			} else
 			if (orientationType === 2) {
 				this.orientation = TextAngle.HORIZ;
-				this.hjustify = TextHjustify.RIGHT;
+				this.hjustify = TextHjustify.LEFT;
 				this.vjustify = TextVjustify.CENTER;
 			} else
 			if (orientationType === 3) {
@@ -451,10 +456,36 @@ export class Text extends SchItem {
 			} else {
 				throw "invalid orientationType: " + orientationType;
 			}
+		} else {
+			if (orientationType === 0) {
+				this.orientation = TextAngle.HORIZ;
+				this.hjustify = TextHjustify.LEFT;
+				this.vjustify = TextVjustify.BOTTOM;
+			} else
+			if (orientationType === 1) {
+				this.orientation = TextAngle.VERT;
+				this.hjustify = TextHjustify.LEFT;
+				this.vjustify = TextVjustify.BOTTOM;
+			} else
+			if (orientationType === 2) {
+				this.orientation = TextAngle.HORIZ;
+				this.hjustify = TextHjustify.RIGHT;
+				this.vjustify = TextVjustify.BOTTOM;
+			} else
+			if (orientationType === 3) {
+				this.orientation = TextAngle.VERT;
+				this.hjustify = TextHjustify.RIGHT;
+				this.vjustify = TextVjustify.BOTTOM;
+			} else {
+				throw "invalid orientationType: " + orientationType;
+			}
 		}
+		this.orientationType = orientationType;
 		this.size = Number(tokens[4]);
-		this.italic = tokens[5] === 'Italic';
-		this.bold = Number(tokens[6]) != 0;
+		this.shape = tokens[5][0] as Net;
+		this.italic = tokens[6] == "Italic";
+		this.bold  = Number(tokens[7]) !== 0;
+
 	}
 
 	parse(lines: Array<string>): this {

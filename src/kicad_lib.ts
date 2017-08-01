@@ -87,7 +87,7 @@ export class Library {
 	findByName(name: string) : Component {
 		const ret = this.components.find( (i) => i.name === name);
 		if (!ret) {
-			throw "Component notfound";
+			throw "Component not found:" + name;
 		}
 		return ret;
 	}
@@ -158,9 +158,11 @@ export class Field0 {
 	posy: number;
 	textSize: number;
 	textOrientation: number;
-	visibility: string;
-	htextJustify: string;
-	vtextJustify: string;
+	visibility: boolean;
+	hjustify: TextHjustify;
+	vjustify: TextVjustify;
+	italic: boolean;
+	bold: boolean;
 
 	constructor(params: Array<string>) {
 		this.reference = params[0].replace(/^"|"$/g, '');
@@ -168,9 +170,11 @@ export class Field0 {
 		this.posy = Number(params[2]);
 		this.textSize = Number(params[3]);
 		this.textOrientation = params[4] === 'H' ? TextAngle.HORIZ : TextAngle.VERT;
-		this.visibility = params[5];
-		this.htextJustify = params[6];
-		this.vtextJustify = params[7];
+		this.visibility = params[5] === 'V';
+		this.hjustify = params[6] as TextHjustify;
+		this.vjustify = params[7][0] as TextVjustify;
+		this.italic   = params[7][1] === "I";
+		this.bold     = params[7][2] === "B";
 	}
 }
 
@@ -180,10 +184,12 @@ export class FieldN {
 	posy: number;
 	textSize: number;
 	textOrientation: number;
-	visibility: string;
-	htextJustify: string;
-	vtextJustify: string;
+	visibility: boolean;
+	hjustify: TextHjustify;
+	vjustify: TextVjustify;
 	fieldname: string;
+	italic: boolean;
+	bold: boolean;
 
 	constructor(params: Array<string>) {
 		this.name = params[0].replace(/''/g, '"').replace(/~/g, ' ').replace(/^"|"$/g, '');
@@ -191,9 +197,11 @@ export class FieldN {
 		this.posy = Number(params[2]);
 		this.textSize = Number(params[3]);
 		this.textOrientation = params[4] === 'H' ? TextAngle.HORIZ : TextAngle.VERT;
-		this.visibility = params[5];
-		this.htextJustify = params[6];
-		this.vtextJustify = params[7];
+		this.visibility = params[5] === 'V';
+		this.hjustify = params[6] as TextHjustify;
+		this.vjustify = params[7][0] as TextVjustify;
+		this.italic   = params[7][1] === "I";
+		this.bold     = params[7][2] === "B";
 		this.fieldname = params[8];
 	}
 }
@@ -508,6 +516,7 @@ export class DrawPin extends DrawObject {
 	nameTextSize: number;
 	numTextSize: number;
 	pinType: PinType;
+	visibility: boolean;
 	attributes: Array<PinAttribute>;
 
 	constructor(params: Array<string>) {
@@ -524,6 +533,7 @@ export class DrawPin extends DrawObject {
 		this.convert = Number(params[9]);
 		this.pinType = params[10] as PinType;
 		this.attributes = (params[11] || '').split('') as Array<PinAttribute>;
+		this.visibility = this.attributes.every( (i) => i !== 'N');
 	}
 
 	getBoundingBox(): Rect {

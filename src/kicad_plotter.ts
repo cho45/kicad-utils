@@ -31,6 +31,7 @@ import {
 	DECIDEG2RAD,
 	MM2MIL,
 	DEFAULT_LINE_WIDTH,
+	RotatePoint,
 
 	Fill,
 	TextHjustify,
@@ -40,6 +41,7 @@ import {
 
 	Transform,
 	Point,
+	Net,
 } from "kicad_common";
 
 import {
@@ -66,6 +68,9 @@ import {
 	NoConn,
 	Component as SchComponent,
 } from "kicad_sch";
+
+const TXT_MARGIN = 4;
+const PIN_TXT_MARGIN = 4;
 
 
 /**
@@ -136,35 +141,51 @@ export abstract class Plotter {
 	 * kicad-js implements plot methods to plotter instead of each library items for simplify parsing dependencies.
 	 */
 	plotLibComponent(component: LibComponent, unit: number, convert: number, offset: Point, transform: Transform, reference?: string, name?: string): void {
-		if (component.field) {
+		if (component.field && component.field.visibility) {
 			const pos = Point.add(transform.transformCoordinate({ x: component.field.posx, y: component.field.posy}), offset);
+			let orientation = component.field.textOrientation;
+			if (transform.y1) {
+				if (orientation === TextAngle.HORIZ) {
+					orientation = TextAngle.VERT;
+				} else {
+					orientation = TextAngle.HORIZ;
+				}
+			}
 			this.text(
 				pos,
 				"black",
 				(typeof reference !== 'undefined') ? reference : component.field.reference,
-				component.field.textOrientation,
+				orientation,
 				component.field.textSize,
 				TextHjustify.CENTER,
 				TextVjustify.CENTER,
 				0,
-				false,
-				false
+				component.field.italic,
+				component.field.bold,
 			);
 		}
 
-		if (component.fields[0]) {
+		if (component.fields[0] && component.fields[0].visibility) {
 			const pos = Point.add(transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy}), offset);
+			let orientation = component.fields[0].textOrientation;
+			if (transform.y1) {
+				if (orientation === TextAngle.HORIZ) {
+					orientation = TextAngle.VERT;
+				} else {
+					orientation = TextAngle.HORIZ;
+				}
+			}
 			this.text(
 				pos,
 				"black",
 				(typeof name !== 'undefined') ? name : component.fields[0].name,
-				component.fields[0].textOrientation,
+				orientation,
 				component.fields[0].textSize,
 				TextHjustify.CENTER,
 				TextVjustify.CENTER,
 				0,
-				false,
-				false
+				component.fields[0].italic,
+				component.fields[0].bold
 			);
 		}
 
@@ -263,36 +284,50 @@ export abstract class Plotter {
 	}
 
 	plotDrawPin(draw: DrawPin, component: LibComponent, offset: Point, transform: Transform ):void {
+		if (!draw.visibility) return;
 		this.plotDrawPinTexts(draw, component, offset, transform);
 		this.plotDrawPinSymbol(draw, component, offset, transform);
 	}
 
 	plotDrawPinTexts(draw: DrawPin, component: LibComponent, offset: Point, transform: Transform ): void {
+		let drawPinname = component.drawPinname;
+		let drawPinnumber = component.drawPinnumber;
+		if (draw.name === "" || draw.name === "~") {
+			drawPinname = false;
+		}
+		if (draw.num === "") {
+			drawPinnumber = false;
+		}
+
+		if (!drawPinname && !drawPinnumber) return;
+
 		const pos = Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy}), offset);
+		const orientation = this.pinDrawOrientation(draw, transform);
+
 		let x1 = pos.x, y1 = pos.y;
-		if (draw.orientation === PinOrientation.UP) {
+		if (orientation === PinOrientation.UP) {
 			y1 -= draw.length;
 		} else
-		if (draw.orientation === PinOrientation.DOWN) {
+		if (orientation === PinOrientation.DOWN) {
 			y1 += draw.length;
 		} else
-		if (draw.orientation === PinOrientation.LEFT) {
+		if (orientation === PinOrientation.LEFT) {
 			x1 -= draw.length;
 		} else
-		if (draw.orientation === PinOrientation.RIGHT) {
+		if (orientation === PinOrientation.RIGHT) {
 			x1 += draw.length;
 		}
 
-		const nameOffset = 4;
-		const numOffset  = 4;
+		const nameOffset = PIN_TXT_MARGIN + DEFAULT_LINE_WIDTH / 2;
+		const numOffset  = PIN_TXT_MARGIN + DEFAULT_LINE_WIDTH / 2;
 		const textInside = component.textOffset;
 
-		const isHorizontal = draw.orientation === PinOrientation.LEFT || draw.orientation === PinOrientation.RIGHT;
+		const isHorizontal = orientation === PinOrientation.LEFT || orientation === PinOrientation.RIGHT;
 
 		if (textInside) {
 			if (isHorizontal) {
-				if (component.drawPinname) {
-					if (draw.orientation === PinOrientation.RIGHT) {
+				if (drawPinname) {
+					if (orientation === PinOrientation.RIGHT) {
 						this.text(
 							{x: x1 + textInside, y: y1},
 							"black",
@@ -321,11 +356,11 @@ export abstract class Plotter {
 					}
 				}
 
-				if (component.drawPinnumber) {
+				if (drawPinnumber) {
 					this.text(
 						{x: (x1 + pos.x) / 2, y: y1 + numOffset},
 						"black",
-						draw.name,
+						draw.num,
 						TextAngle.HORIZ,
 						draw.nameTextSize,
 						TextHjustify.CENTER,
@@ -336,8 +371,8 @@ export abstract class Plotter {
 					)
 				}
 			} else {
-				if (draw.orientation === PinOrientation.DOWN) {
-					if (component.drawPinname) {
+				if (orientation === PinOrientation.DOWN) {
+					if (drawPinname) {
 						this.text(
 							{x: x1, y: y1 + textInside },
 							"black",
@@ -351,22 +386,22 @@ export abstract class Plotter {
 							false
 						);
 					}
-					if (component.drawPinnumber) {
+					if (drawPinnumber) {
 						this.text(
 							{x: x1 - numOffset, y: (y1 + pos.y) / 2 },
 							"black",
-							draw.name,
+							draw.num,
 							TextAngle.VERT,
 							draw.nameTextSize,
-							TextHjustify.RIGHT,
-							TextVjustify.CENTER,
+							TextHjustify.CENTER,
+							TextVjustify.BOTTOM,
 							0,
 							false,
 							false
 						);
 					}
 				} else {
-					if (component.drawPinname) {
+					if (drawPinname) {
 						this.text(
 							{x: x1, y: y1 - textInside },
 							"black",
@@ -380,11 +415,11 @@ export abstract class Plotter {
 							false
 						);
 					}
-					if (component.drawPinnumber) {
+					if (drawPinnumber) {
 						this.text(
 							{x: x1 - numOffset, y: (y1 + pos.y) / 2 },
 							"black",
-							draw.name,
+							draw.num,
 							TextAngle.VERT,
 							draw.nameTextSize,
 							TextHjustify.CENTER,
@@ -398,7 +433,7 @@ export abstract class Plotter {
 			}
 		} else {
 			if (isHorizontal) {
-				if (component.drawPinname) {
+				if (drawPinname) {
 					this.text(
 						{ x: (x1 + pos.x) / 2, y: y1 - nameOffset },
 						"black",
@@ -413,7 +448,7 @@ export abstract class Plotter {
 					)
 				}
 
-				if (component.drawPinnumber) {
+				if (drawPinnumber) {
 					this.text(
 						{ x: (x1 + pos.x) / 2, y: y1 + numOffset },
 						"black",
@@ -428,7 +463,7 @@ export abstract class Plotter {
 					)
 				}
 			} else {
-				if (component.drawPinname) {
+				if (drawPinname) {
 					this.text(
 						{x: x1 - nameOffset, y: (y1 + pos.y) / 2},
 						"black",
@@ -443,7 +478,7 @@ export abstract class Plotter {
 					)
 				}
 
-				if (component.drawPinnumber) {
+				if (drawPinnumber) {
 					this.text(
 						{x: x1 + numOffset, y: (y1 + pos.y) / 2},
 						"black",
@@ -603,24 +638,172 @@ export abstract class Plotter {
 			if (item instanceof Bitmap) {
 			} else
 			if (item instanceof Text) {
-				this.text(
-					{x: item.posx, y: item.posy},
-					"black",
-					item.text,
-					item.orientation,
-					item.size,
-					item.hjustify,
-					item.vjustify,
-					0,
-					item.italic,
-					item.bold
-				);
 				if (item.name1 === 'GLabel') {
-					// TODO global label style
-//					const x = item.text.length * item.size + DEFAULT_LINE_WIDTH;
-//					const y = item.size / 2 * 1.4 + DEFAULT_LINE_WIDTH + DEFAULT_LINE_WIDTH / 2;
-//					this.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
-//					this.fill = Fill.NO_FILL;
+					{
+						const halfSize = item.size / 2;
+						const lineWidth = DEFAULT_LINE_WIDTH;
+						const points: Array<Point> = [];
+						const symLen = item.text.length * item.size;
+						const hasOverBar = /~[^~]/.test(item.text);
+
+						const Y_CORRECTION = 1.40;
+						const Y_OVERBAR_CORRECTION = 1.2;
+
+						let x = symLen + lineWidth + 3;
+						let y = halfSize * Y_CORRECTION;
+						if (hasOverBar) {
+							// TODO
+						}
+
+						y += lineWidth + lineWidth / 2;
+
+						points.push( new Point( 0, 0 ) );
+						points.push( new Point( 0, -y ) );     // Up
+						points.push( new Point( -x, -y ) );    // left
+						points.push( new Point( -x, 0 ) );     // Up left
+						points.push( new Point( -x, y ) );     // left down
+						points.push( new Point( 0, y ) );      // down
+
+						let xOffset = 0;
+
+						if (item.shape === Net.INPUT) {
+							xOffset -= halfSize;
+							points[0].x += halfSize;
+						} else
+						if (item.shape === Net.OUTPUT) {
+							points[3].x -= halfSize;
+						} else
+						if (item.shape === Net.BIDI ||
+							item.shape === Net.TRISTATE) {
+							xOffset = -halfSize;
+							points[0].x += halfSize;
+							points[3].x -= halfSize;
+						}
+
+						let angle = 0;
+						if (item.orientationType === 0) {
+							angle = 0;
+						} else
+						if (item.orientationType === 1) {
+							angle = -900;
+						} else
+						if (item.orientationType === 2) {
+							angle = 1800;
+						} else
+						if (item.orientationType === 3) {
+							angle = 900;
+						}
+
+						for (let p of points) {
+							p.x += xOffset;
+							if (angle) {
+								RotatePoint(p, angle);
+							}
+
+							p.x += item.posx;
+							p.y += item.posy;
+						}
+
+						points.push(points[0]);
+
+						this.polyline(points, Fill.NO_FILL, DEFAULT_LINE_WIDTH);
+					}
+
+					{
+						let p = new Point(item.posx, item.posy);
+						const width = DEFAULT_LINE_WIDTH;
+						const halfSize = item.text.length * item.size / 2 * 0.5;
+						let offset = width;
+						if (item.shape === Net.INPUT ||
+							item.shape === Net.BIDI ||
+							item.shape === Net.TRISTATE
+						) {
+							offset += halfSize;
+						} else
+						if (item.shape === Net.OUTPUT ||
+							item.shape === Net.UNSPECIFIED) {
+							offset += (item.size * 2);
+						}
+						if (item.orientationType === 0) {
+							p.x -= offset;
+						} else
+						if (item.orientationType === 1) {
+							p.y -= offset;
+						} else
+						if (item.orientationType === 2) {
+							p.x += offset;
+						} else
+						if (item.orientationType === 3) {
+							p.y += offset;
+						}
+						this.text(
+							p,
+							"black",
+							item.text,
+							item.orientation,
+							item.size,
+							item.hjustify,
+							item.vjustify,
+							0,
+							item.italic,
+							item.bold
+						);
+					}
+				} else
+				if (item.name1 === 'HLabel') {
+					let p = new Point(item.posx, item.posy);
+					const txtOffset = item.size * item.text.length + TXT_MARGIN + DEFAULT_LINE_WIDTH / 2;
+					if (item.orientationType === 0) {
+						p.x -= txtOffset;
+					} else
+					if (item.orientationType === 1) {
+						p.y -= txtOffset;
+					} else
+					if (item.orientationType === 2) {
+						p.x += txtOffset;
+					} else
+					if (item.orientationType === 3) {
+						p.y += txtOffset;
+					}
+					this.text(
+						p,
+						"black",
+						item.text,
+						item.orientation,
+						item.size,
+						item.hjustify,
+						item.vjustify,
+						0,
+						item.italic,
+						item.bold
+					);
+				} else {
+					let p = new Point(item.posx, item.posy);
+					const txtOffset = TXT_MARGIN + DEFAULT_LINE_WIDTH / 2;
+					if (item.orientationType === 0) {
+						p.y -= txtOffset;
+					} else
+					if (item.orientationType === 1) {
+						p.x -= txtOffset;
+					} else
+					if (item.orientationType === 2) {
+						p.y -= txtOffset;
+					} else
+					if (item.orientationType === 3) {
+						p.x -= txtOffset;
+					}
+					this.text(
+						p,
+						"black",
+						item.text,
+						item.orientation,
+						item.size,
+						item.hjustify,
+						item.vjustify,
+						0,
+						item.italic,
+						item.bold
+					);
 				}
 			} else
 			if (item instanceof Entry) {
@@ -835,9 +1018,39 @@ export class SVGPlotter extends Plotter {
 	}
 
 	arc(p: Point, startAngle: number, endAngle: number, radius: number, fill: Fill, width: number): void {
+		if (radius <= 0) return;
+		if (startAngle > endAngle) {
+			[startAngle, endAngle] = [endAngle, startAngle];
+		}
 		this.setCurrentLineWidth(width);
 		this.fill = fill;
-		// TODO
+
+		[startAngle, endAngle] = [-endAngle, -startAngle];
+
+		let start = new Point(radius, 0);
+		RotatePoint(start, startAngle);
+		let end = new Point(radius, 0);
+		RotatePoint(end, endAngle);
+		start = Point.add(start, p);
+		end   = Point.add(end, p);
+
+		let theta1 = DECIDEG2RAD(startAngle);
+		if (theta1 < 0) theta1 += Math.PI * 2;
+
+		let theta2 = DECIDEG2RAD(endAngle);
+		if (theta2 < 0) theta2 += Math.PI * 2;
+
+		if (theta2 < theta1) theta2 += Math.PI * 2;
+
+		const isLargeArc = Math.abs(theta2 - theta1) > Math.PI;
+		const isSweep = false;
+		// console.log('ARC', startAngle, endAngle, radius, start, end, radius, isLargeArc, isSweep);
+		this.output += `<path d="M${start.x} ${start.y} A${radius} ${radius} 0.0 ${isLargeArc ? 1 : 0} ${isSweep ? 1 : 0} ${end.x} ${end.y}"`;
+		if (this.fill === Fill.NO_FILL) {
+			this.output += ` style="stroke: #000000; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+		} else {
+			this.output += ` style="stroke: #000000; fill: #000000; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+		}
 	}
 
 	polyline(points: Array<Point>, fill: Fill, width: number): void {
@@ -953,5 +1166,17 @@ export class SVGPlotter extends Plotter {
 			'&': '&amp;',
 		};
 		return s.replace(/[<>&]/g, (_) => map[_] );
+	}
+
+	plotSchematic(sch: Schematic, libs: Array<Library>) {
+		const width = sch.descr.width;
+		const height =sch.descr.height;
+		this.output = `<svg preserveAspectRatio="xMinYMin"
+			width="${width}"
+			height="${height}"
+			viewBox="0 0 ${sch.descr.width} ${sch.descr.height}"
+			xmlns="http://www.w3.org/2000/svg" version="1.1">`;
+		super.plotSchematic(sch, libs);
+		this.output += `</svg>`;
 	}
 }
