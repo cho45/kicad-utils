@@ -331,7 +331,8 @@ class Plotter {
                         break;
                 }
                 if (!component) {
-                    throw "component " + item.name + " is not found in libraries";
+                    console.warn("component " + item.name + " is not found in libraries");
+                    continue;
                 }
                 this.plotLibComponent(component, item.unit, item.convert, { x: item.posx, y: item.posy }, item.transform, item.reference, item.name);
             }

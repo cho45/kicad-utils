@@ -73,7 +73,6 @@ class Library {
     findByName(name) {
         const ret = this.components.find((i) => i.name === name);
         if (!ret) {
-            console.log(this.components);
             return null;
         }
         return ret;

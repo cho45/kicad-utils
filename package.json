@@ -7,7 +7,6 @@
 		"@types/minimist": "^1.2.0",
 		"@types/node": "^8.0.17",
 		"babel-polyfill": "^6.23.0",
-		"canvas": "file:../../../ghq/github.com/Automattic/node-canvas",
 		"express": "^4.15.3",
 		"minimist": "^1.2.0",
 		"whatwg-fetch": "^2.0.3"
@@ -17,6 +16,7 @@
 		"babel-loader": "^7.1.1",
 		"babel-preset-env": "^1.6.0",
 		"babel-preset-es2015": "^6.24.1",
+		"canvas": "^1.6.6",
 		"ts-loader": "^2.3.2",
 		"webpack": "^3.4.1"
 	},
@@ -25,5 +25,5 @@
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"author": "cho45 <cho45@lowreal.net> (http://www.lowreal.net/)",
-	"license": "ISC"
+	"license": "GPL-2"
 }
