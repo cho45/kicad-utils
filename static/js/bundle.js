@@ -9781,7 +9781,6 @@ var Plotter = function () {
             }
             if (component.fields[0]) {
                 var _pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy }), offset);
-                console.log(component.fields);
                 this.text(_pos, "black", typeof name !== 'undefined' ? name : component.fields[0].name, component.fields[0].textOrientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
             }
             var _iteratorNormalCompletion = true;
@@ -9840,13 +9839,13 @@ var Plotter = function () {
                 startAngle = _transform$mapAngles2[0],
                 endAngle = _transform$mapAngles2[1];
 
-            this.arc(pos, startAngle, endAngle, draw.radius, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+            this.arc(pos, startAngle, endAngle, draw.radius, draw.fill, draw.lineWidth || kicad_common_1.DEFAULT_LINE_WIDTH);
         }
     }, {
         key: "plotDrawCircle",
         value: function plotDrawCircle(draw, component, offset, transform) {
             var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
-            this.circle(pos, draw.radius * 2, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+            this.circle(pos, draw.radius * 2, draw.fill, draw.lineWidth || kicad_common_1.DEFAULT_LINE_WIDTH);
         }
     }, {
         key: "plotDrawPolyline",
@@ -9856,20 +9855,20 @@ var Plotter = function () {
                 var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.points[i], y: draw.points[i + 1] }), offset);
                 points.push(pos);
             }
-            this.polyline(points, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+            this.polyline(points, draw.fill, draw.lineWidth || kicad_common_1.DEFAULT_LINE_WIDTH);
         }
     }, {
         key: "plotDrawSquare",
         value: function plotDrawSquare(draw, component, offset, transform) {
             var pos1 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.startx, y: draw.starty }), offset);
             var pos2 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.endx, y: draw.endy }), offset);
-            this.rect(pos1, pos2, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+            this.rect(pos1, pos2, draw.fill, draw.lineWidth || kicad_common_1.DEFAULT_LINE_WIDTH);
         }
     }, {
         key: "plotDrawText",
         value: function plotDrawText(draw, component, offset, transform) {
             var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
-            this.text(pos, "black", draw.text, component.field.textOrientation, draw.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
+            this.text(pos, "black", draw.text, component.field.textOrientation, draw.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, draw.italic, draw.bold);
         }
     }, {
         key: "plotDrawPin",
@@ -10072,7 +10071,6 @@ var Plotter = function () {
                         this.text({ x: item.posx, y: item.posy - 4 }, "black", item.sheetName, 0, item.sheetNameSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
                         this.text({ x: item.posx, y: item.posy + item.sizey + 4 }, "black", item.fileName, 0, item.fileNameSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.TOP, 0, false, false);
                     } else if (item instanceof kicad_sch_1.Bitmap) {} else if (item instanceof kicad_sch_1.Text) {
-                        console.log(item);
                         this.text({ x: item.posx, y: item.posy }, "black", item.text, item.orientation, item.size, item.hjustify, item.vjustify, 0, item.italic, item.bold);
                         if (item.name1 === 'GLabel') {
                             // TODO global label style
@@ -10173,15 +10171,12 @@ var CanvasPlotter = function (_Plotter) {
             this.fill = fill;
             this.ctx.beginPath();
             var anticlockwise = false;
-            //		this.ctx.save();
-            //		this.ctx.scale(1, -1);
             this.ctx.arc(p.x, p.y, radius, startAngle / 10 * Math.PI / 180, endAngle / 10 * Math.PI / 180, anticlockwise);
             if (fill === kicad_common_1.Fill.FILLED_SHAPE) {
                 this.ctx.fill();
             } else {
                 this.ctx.stroke();
             }
-            //		this.ctx.restore();
         }
     }, {
         key: "polyline",
@@ -10215,7 +10210,7 @@ var CanvasPlotter = function (_Plotter) {
             this.ctx.save();
             this.ctx.translate(p.x, p.y);
             this.ctx.rotate(-kicad_common_1.DECIDEG2RAD(orientation));
-            this.ctx.font = size + "px monospace";
+            this.ctx.font = (italic ? "italic " : "") + (bold ? "bold " : "") + size + "px monospace";
             // console.log('fillText', text, p.x, p.y, hjustfy, vjustify);
             this.ctx.fillText(_text, 0, 0);
             this.ctx.restore();
@@ -10285,6 +10280,7 @@ var SVGPlotter = function (_Plotter2) {
 
         _this2.penState = "Z";
         _this2.output = "";
+        _this2.lineWidth = kicad_common_1.DEFAULT_LINE_WIDTH;
         return _this2;
     }
 
@@ -10306,9 +10302,9 @@ var SVGPlotter = function (_Plotter2) {
             this.fill = fill;
             this.output += "<circle cx=\"" + p.x + "\" cy=\"" + p.y + "\" r=\"" + dia / 2 + "\" ";
             if (this.fill === kicad_common_1.Fill.NO_FILL) {
-                this.output += " style=\"stroke: #000000; fill: none; stroke-width: " + kicad_common_1.DEFAULT_LINE_WIDTH + "\"/>\n";
+                this.output += " style=\"stroke: #000000; fill: none; stroke-width: " + this.lineWidth + "\" stroke-linecap=\"round\"/>\n";
             } else {
-                this.output += " style=\"stroke: #000000; fill: #000000; stroke-width: " + kicad_common_1.DEFAULT_LINE_WIDTH + "\"/>\n";
+                this.output += " style=\"stroke: #000000; fill: #000000; stroke-width: " + this.lineWidth + "\" stroke-linecap=\"round\"/>\n";
             }
         }
     }, {
@@ -10328,11 +10324,6 @@ var SVGPlotter = function (_Plotter2) {
                 this.lineTo(points[i]);
             }
             this.finishPen();
-            //		this.output += `<polyline points="`;
-            //		for (var i = 1, len = points.length; i < len; i++) {
-            //			this.output += `${points[i].x},${points[i].y}\n`;
-            //		}
-            //		this.output += `" style="stroke: #000000; fill: none; stroke-width: ${DEFAULT_LINE_WIDTH}"/>\n`;
         }
     }, {
         key: "text",
@@ -10353,12 +10344,14 @@ var SVGPlotter = function (_Plotter2) {
             } else if (vjustify === kicad_common_1.TextVjustify.BOTTOM) {
                 dominantBaseline = "text-after-edge";
             }
+            var fontWeight = bold ? "bold" : "normal";
+            var fontStyle = italic ? "italic" : "normal";
             var rotate = -orientation / 10;
             var h = this.htmlentities;
             var lines = _text2.split(/\n/);
             for (var i = 0, len = lines.length; i < len; i++) {
                 var y = p.y + i * size * 1.2;
-                this.output += "<text x=\"" + p.x + "\" y=\"" + y + "\"\n\t\t\t\ttext-anchor=\"" + textAnchor + "\"\n\t\t\t\tdominant-baseline=\"" + dominantBaseline + "\"\n\t\t\t\tfont-family=\"monospace\"\n\t\t\t\tfont-size=\"" + size + "\"\n\t\t\t\tfill=\"#000000\"\n\t\t\t\ttransform=\"rotate(" + rotate + ", " + p.x + ", " + p.y + ")\">" + h(lines[i]) + "</text>";
+                this.output += "<text x=\"" + p.x + "\" y=\"" + y + "\"\n\t\t\t\ttext-anchor=\"" + textAnchor + "\"\n\t\t\t\tdominant-baseline=\"" + dominantBaseline + "\"\n\t\t\t\tfont-family=\"monospace\"\n\t\t\t\tfont-size=\"" + size + "\"\n\t\t\t\tfont-weight=\"" + fontWeight + "\"\n\t\t\t\tfont-style=\"" + fontStyle + "\"\n\t\t\t\tfill=\"#000000\"\n\t\t\t\ttransform=\"rotate(" + rotate + ", " + p.x + ", " + p.y + ")\">" + h(lines[i]) + "</text>";
             }
         }
         /**
@@ -10373,9 +10366,9 @@ var SVGPlotter = function (_Plotter2) {
             if (s === "Z") {
                 if (this.penState !== "Z") {
                     if (this.fill === kicad_common_1.Fill.NO_FILL) {
-                        this.output += "\" style=\"stroke: #000000; fill: none; stroke-width: " + kicad_common_1.DEFAULT_LINE_WIDTH + "\"/>\n";
+                        this.output += "\" style=\"stroke: #000000; fill: none; stroke-width: " + this.lineWidth + "\" stroke-linecap=\"round\"/>\n";
                     } else {
-                        this.output += "\" style=\"stroke: #000000; fill: #000000; stroke-width: " + kicad_common_1.DEFAULT_LINE_WIDTH + "\"/>\n";
+                        this.output += "\" style=\"stroke: #000000; fill: #000000; stroke-width: " + this.lineWidth + "\" stroke-linecap=\"round\"/>\n";
                     }
                 } else {
                     throw "invalid pen state Z -> Z";
@@ -10400,7 +10393,9 @@ var SVGPlotter = function (_Plotter2) {
         value: function setColor(c) {}
     }, {
         key: "setCurrentLineWidth",
-        value: function setCurrentLineWidth(w) {}
+        value: function setCurrentLineWidth(w) {
+            this.lineWidth = w;
+        }
     }, {
         key: "htmlentities",
         value: function htmlentities(s) {

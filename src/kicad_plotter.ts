@@ -154,7 +154,6 @@ export abstract class Plotter {
 
 		if (component.fields[0]) {
 			const pos = Point.add(transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy}), offset);
-			console.log(component.fields);
 			this.text(
 				pos,
 				"black",
@@ -209,7 +208,7 @@ export abstract class Plotter {
 			endAngle,
 			draw.radius,
 			draw.fill,
-			DEFAULT_LINE_WIDTH
+			draw.lineWidth || DEFAULT_LINE_WIDTH
 		);
 	}
 
@@ -219,7 +218,7 @@ export abstract class Plotter {
 			pos,
 			draw.radius * 2,
 			draw.fill,
-			DEFAULT_LINE_WIDTH
+			draw.lineWidth || DEFAULT_LINE_WIDTH
 		);
 	}
 
@@ -232,7 +231,7 @@ export abstract class Plotter {
 		this.polyline(
 			points,
 			draw.fill,
-			DEFAULT_LINE_WIDTH
+			draw.lineWidth || DEFAULT_LINE_WIDTH
 		);
 	}
 
@@ -243,7 +242,7 @@ export abstract class Plotter {
 			pos1,
 			pos2,
 			draw.fill,
-			DEFAULT_LINE_WIDTH
+			draw.lineWidth || DEFAULT_LINE_WIDTH
 		);
 	}
 	
@@ -258,8 +257,8 @@ export abstract class Plotter {
 			TextHjustify.CENTER,
 			TextVjustify.CENTER,
 			0,
-			false,
-			false
+			draw.italic,
+			draw.bold
 		);
 	}
 
@@ -604,7 +603,6 @@ export abstract class Plotter {
 			if (item instanceof Bitmap) {
 			} else
 			if (item instanceof Text) {
-				console.log(item);
 				this.text(
 					{x: item.posx, y: item.posy},
 					"black",
@@ -696,15 +694,12 @@ export class CanvasPlotter extends Plotter {
 		this.fill = fill;
 		this.ctx.beginPath();
 		const anticlockwise = false;
-//		this.ctx.save();
-//		this.ctx.scale(1, -1);
 		this.ctx.arc(p.x, p.y, radius, startAngle / 10 * Math.PI / 180, endAngle / 10 * Math.PI / 180, anticlockwise);
 		if (fill === Fill.FILLED_SHAPE) {
 			this.ctx.fill();
 		} else {
 			this.ctx.stroke();
 		}
-//		this.ctx.restore();
 	}
 
 	polyline(points: Array<Point>, fill: Fill, width: number): void {
@@ -752,7 +747,7 @@ export class CanvasPlotter extends Plotter {
 		this.ctx.save();
 		this.ctx.translate(p.x, p.y);
 		this.ctx.rotate(-DECIDEG2RAD(orientation));
-		this.ctx.font = size + "px monospace";
+		this.ctx.font = (italic ? "italic " : "") + (bold ? "bold " : "") + size + "px monospace";
 		// console.log('fillText', text, p.x, p.y, hjustfy, vjustify);
 		this.ctx.fillText(text, 0, 0);
 		this.ctx.restore();
@@ -808,12 +803,14 @@ export class CanvasPlotter extends Plotter {
 
 export class SVGPlotter extends Plotter {
 	penState: "U"|"D"|"Z";
+	lineWidth: number;
 	output: string;
 
 	constructor() {
 		super();
 		this.penState = "Z";
 		this.output = "";
+		this.lineWidth = DEFAULT_LINE_WIDTH;
 	}
 
 	rect(p1: Point, p2: Point, fill: Fill, width: number): void {
@@ -831,9 +828,9 @@ export class SVGPlotter extends Plotter {
 		this.fill = fill;
 		this.output += `<circle cx="${p.x}" cy="${p.y}" r="${dia/2}" `;
 		if (this.fill === Fill.NO_FILL) {
-			this.output += ` style="stroke: #000000; fill: none; stroke-width: ${DEFAULT_LINE_WIDTH}"/>\n`;
+			this.output += ` style="stroke: #000000; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
 		} else {
-			this.output += ` style="stroke: #000000; fill: #000000; stroke-width: ${DEFAULT_LINE_WIDTH}"/>\n`;
+			this.output += ` style="stroke: #000000; fill: #000000; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
 		}
 	}
 
@@ -851,11 +848,6 @@ export class SVGPlotter extends Plotter {
 			this.lineTo(points[i]);
 		}
 		this.finishPen();
-//		this.output += `<polyline points="`;
-//		for (var i = 1, len = points.length; i < len; i++) {
-//			this.output += `${points[i].x},${points[i].y}\n`;
-//		}
-//		this.output += `" style="stroke: #000000; fill: none; stroke-width: ${DEFAULT_LINE_WIDTH}"/>\n`;
 	}
 
 	text(
@@ -892,6 +884,9 @@ export class SVGPlotter extends Plotter {
 			dominantBaseline = "text-after-edge";
 		}
 
+		const fontWeight = bold ? "bold" : "normal";
+		const fontStyle = italic ? "italic" : "normal";
+
 		const rotate = -orientation / 10;
 		const h = this.htmlentities;
 		const lines = text.split(/\n/);
@@ -902,6 +897,8 @@ export class SVGPlotter extends Plotter {
 				dominant-baseline="${dominantBaseline}"
 				font-family="monospace"
 				font-size="${size}"
+				font-weight="${fontWeight}"
+				font-style="${fontStyle}"
 				fill="#000000"
 				transform="rotate(${rotate}, ${p.x}, ${p.y})">${h(lines[i])}</text>`;
 		}
@@ -916,9 +913,9 @@ export class SVGPlotter extends Plotter {
 		if (s === "Z") {
 			if (this.penState !== "Z") {
 				if (this.fill === Fill.NO_FILL) {
-					this.output += `" style="stroke: #000000; fill: none; stroke-width: ${DEFAULT_LINE_WIDTH}"/>\n`;
+					this.output += `" style="stroke: #000000; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
 				} else {
-					this.output += `" style="stroke: #000000; fill: #000000; stroke-width: ${DEFAULT_LINE_WIDTH}"/>\n`;
+					this.output += `" style="stroke: #000000; fill: #000000; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
 				}
 			} else {
 				throw "invalid pen state Z -> Z";
@@ -946,6 +943,7 @@ export class SVGPlotter extends Plotter {
 	}
 
 	setCurrentLineWidth(w: number): void {
+		this.lineWidth = w;
 	}
 
 	htmlentities(s: string): string {

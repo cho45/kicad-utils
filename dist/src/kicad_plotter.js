@@ -75,7 +75,6 @@ class Plotter {
         }
         if (component.fields[0]) {
             const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy }), offset);
-            console.log(component.fields);
             this.text(pos, "black", (typeof name !== 'undefined') ? name : component.fields[0].name, component.fields[0].textOrientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
         }
         for (let draw of component.draw.objects) {
@@ -112,11 +111,11 @@ class Plotter {
     plotDrawArc(draw, component, offset, transform) {
         const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
         const [startAngle, endAngle] = transform.mapAngles(draw.startAngle, draw.endAngle);
-        this.arc(pos, startAngle, endAngle, draw.radius, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+        this.arc(pos, startAngle, endAngle, draw.radius, draw.fill, draw.lineWidth || kicad_common_1.DEFAULT_LINE_WIDTH);
     }
     plotDrawCircle(draw, component, offset, transform) {
         const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
-        this.circle(pos, draw.radius * 2, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+        this.circle(pos, draw.radius * 2, draw.fill, draw.lineWidth || kicad_common_1.DEFAULT_LINE_WIDTH);
     }
     plotDrawPolyline(draw, component, offset, transform) {
         const points = [];
@@ -124,16 +123,16 @@ class Plotter {
             const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.points[i], y: draw.points[i + 1] }), offset);
             points.push(pos);
         }
-        this.polyline(points, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+        this.polyline(points, draw.fill, draw.lineWidth || kicad_common_1.DEFAULT_LINE_WIDTH);
     }
     plotDrawSquare(draw, component, offset, transform) {
         const pos1 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.startx, y: draw.starty }), offset);
         const pos2 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.endx, y: draw.endy }), offset);
-        this.rect(pos1, pos2, draw.fill, kicad_common_1.DEFAULT_LINE_WIDTH);
+        this.rect(pos1, pos2, draw.fill, draw.lineWidth || kicad_common_1.DEFAULT_LINE_WIDTH);
     }
     plotDrawText(draw, component, offset, transform) {
         const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
-        this.text(pos, "black", draw.text, component.field.textOrientation, draw.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, false, false);
+        this.text(pos, "black", draw.text, component.field.textOrientation, draw.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, draw.italic, draw.bold);
     }
     plotDrawPin(draw, component, offset, transform) {
         this.plotDrawPinTexts(draw, component, offset, transform);
@@ -316,7 +315,6 @@ class Plotter {
             else if (item instanceof kicad_sch_1.Bitmap) {
             }
             else if (item instanceof kicad_sch_1.Text) {
-                console.log(item);
                 this.text({ x: item.posx, y: item.posy }, "black", item.text, item.orientation, item.size, item.hjustify, item.vjustify, 0, item.italic, item.bold);
                 if (item.name1 === 'GLabel') {
                     // TODO global label style
@@ -392,8 +390,6 @@ class CanvasPlotter extends Plotter {
         this.fill = fill;
         this.ctx.beginPath();
         const anticlockwise = false;
-        //		this.ctx.save();
-        //		this.ctx.scale(1, -1);
         this.ctx.arc(p.x, p.y, radius, startAngle / 10 * Math.PI / 180, endAngle / 10 * Math.PI / 180, anticlockwise);
         if (fill === kicad_common_1.Fill.FILLED_SHAPE) {
             this.ctx.fill();
@@ -401,7 +397,6 @@ class CanvasPlotter extends Plotter {
         else {
             this.ctx.stroke();
         }
-        //		this.ctx.restore();
     }
     polyline(points, fill, width) {
         this.setCurrentLineWidth(width);
@@ -435,7 +430,7 @@ class CanvasPlotter extends Plotter {
         this.ctx.save();
         this.ctx.translate(p.x, p.y);
         this.ctx.rotate(-kicad_common_1.DECIDEG2RAD(orientation));
-        this.ctx.font = size + "px monospace";
+        this.ctx.font = (italic ? "italic " : "") + (bold ? "bold " : "") + size + "px monospace";
         // console.log('fillText', text, p.x, p.y, hjustfy, vjustify);
         this.ctx.fillText(text, 0, 0);
         this.ctx.restore();
@@ -491,6 +486,7 @@ class SVGPlotter extends Plotter {
         super();
         this.penState = "Z";
         this.output = "";
+        this.lineWidth = kicad_common_1.DEFAULT_LINE_WIDTH;
     }
     rect(p1, p2, fill, width) {
         this.setCurrentLineWidth(width);
@@ -506,10 +502,10 @@ class SVGPlotter extends Plotter {
         this.fill = fill;
         this.output += `<circle cx="${p.x}" cy="${p.y}" r="${dia / 2}" `;
         if (this.fill === kicad_common_1.Fill.NO_FILL) {
-            this.output += ` style="stroke: #000000; fill: none; stroke-width: ${kicad_common_1.DEFAULT_LINE_WIDTH}"/>\n`;
+            this.output += ` style="stroke: #000000; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
         }
         else {
-            this.output += ` style="stroke: #000000; fill: #000000; stroke-width: ${kicad_common_1.DEFAULT_LINE_WIDTH}"/>\n`;
+            this.output += ` style="stroke: #000000; fill: #000000; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
         }
     }
     arc(p, startAngle, endAngle, radius, fill, width) {
@@ -525,11 +521,6 @@ class SVGPlotter extends Plotter {
             this.lineTo(points[i]);
         }
         this.finishPen();
-        //		this.output += `<polyline points="`;
-        //		for (var i = 1, len = points.length; i < len; i++) {
-        //			this.output += `${points[i].x},${points[i].y}\n`;
-        //		}
-        //		this.output += `" style="stroke: #000000; fill: none; stroke-width: ${DEFAULT_LINE_WIDTH}"/>\n`;
     }
     text(p, color, text, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
         let textAnchor;
@@ -552,6 +543,8 @@ class SVGPlotter extends Plotter {
         else if (vjustify === kicad_common_1.TextVjustify.BOTTOM) {
             dominantBaseline = "text-after-edge";
         }
+        const fontWeight = bold ? "bold" : "normal";
+        const fontStyle = italic ? "italic" : "normal";
         const rotate = -orientation / 10;
         const h = this.htmlentities;
         const lines = text.split(/\n/);
@@ -562,6 +555,8 @@ class SVGPlotter extends Plotter {
 				dominant-baseline="${dominantBaseline}"
 				font-family="monospace"
 				font-size="${size}"
+				font-weight="${fontWeight}"
+				font-style="${fontStyle}"
 				fill="#000000"
 				transform="rotate(${rotate}, ${p.x}, ${p.y})">${h(lines[i])}</text>`;
         }
@@ -575,10 +570,10 @@ class SVGPlotter extends Plotter {
         if (s === "Z") {
             if (this.penState !== "Z") {
                 if (this.fill === kicad_common_1.Fill.NO_FILL) {
-                    this.output += `" style="stroke: #000000; fill: none; stroke-width: ${kicad_common_1.DEFAULT_LINE_WIDTH}"/>\n`;
+                    this.output += `" style="stroke: #000000; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
                 }
                 else {
-                    this.output += `" style="stroke: #000000; fill: #000000; stroke-width: ${kicad_common_1.DEFAULT_LINE_WIDTH}"/>\n`;
+                    this.output += `" style="stroke: #000000; fill: #000000; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
                 }
             }
             else {
@@ -604,6 +599,7 @@ class SVGPlotter extends Plotter {
     setColor(c) {
     }
     setCurrentLineWidth(w) {
+        this.lineWidth = w;
     }
     htmlentities(s) {
         const map = {
