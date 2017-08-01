@@ -12,7 +12,13 @@ DEMO
 =================================
 
 ```
-npx kicad-js sch2svg path/to/file.sch
+npx -p kicad-utils sch2svg path/to/file.sch
+```
+
+or latest from github:
+
+```
+npx -p github:cho45/kicad-utils sch2svg
 ```
 
 Development
