@@ -1,6 +1,8 @@
 #!/bin/sh
 
-cd "$(dirname "$0")/.."
+link=$(readlink "$0")
+cd "$(dirname "$0")"
+cd "$(dirname "$link")/.."
 root=$PWD
 
 export NODE_PATH=dist/src
