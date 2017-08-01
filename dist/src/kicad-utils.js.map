@@ -1,0 +1,1 @@
+{"version":3,"file":"kicad-utils.js","sourceRoot":"","sources":["../../src/kicad-utils.ts"],"names":[],"mappings":";;AACA,uCAAuC;AACvC,yCAAyC;AACzC,iCAAiC;AACjC,iCAAiC;AAEjC,MAAM,CAAC,OAAO,GAAG;IAChB,MAAM,EAAE,MAAM;IACd,OAAO,EAAE,OAAO;IAChB,GAAG,EAAE,GAAG;IACR,GAAG,EAAE,GAAG;CACR,CAAC"}

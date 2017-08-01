@@ -1,8 +1,8 @@
 {
-	"name": "kicad-js",
-	"version": "1.0.0",
+	"name": "kicad-utils",
+	"version": "0.0.5",
 	"description": "",
-	"main": "kicad.js",
+	"main": "dist/src/kicad-utils.js",
 	"dependencies": {
 		"@types/minimist": "^1.2.0",
 		"@types/node": "^8.0.17",
@@ -24,6 +24,7 @@
 		"sch2svg": "bin/sch2svg",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
+	"repository": "cho45/kicad-utils",
 	"author": "cho45 <cho45@lowreal.net> (http://www.lowreal.net/)",
 	"license": "GPL-2"
 }
