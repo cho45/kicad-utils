@@ -324,6 +324,8 @@ class Plotter {
             if (item instanceof kicad_sch_1.Component) {
                 let component;
                 for (let lib of libs) {
+                    if (!lib)
+                        continue;
                     component = lib.findByName(item.name);
                     if (component)
                         break;
@@ -345,7 +347,11 @@ class Plotter {
                 this.text({ x: item.posx, y: item.posy - 4 }, "black", item.sheetName, 0, item.sheetNameSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
                 this.text({ x: item.posx, y: item.posy + item.sizey + 4 }, "black", item.fileName, 0, item.fileNameSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.TOP, 0, false, false);
             }
+            else if (item instanceof kicad_sch_1.SheetPin) {
+                // TODO
+            }
             else if (item instanceof kicad_sch_1.Bitmap) {
+                // TODO
             }
             else if (item instanceof kicad_sch_1.Text) {
                 if (item.name1 === 'GLabel') {

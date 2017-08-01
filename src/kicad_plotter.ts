@@ -593,6 +593,7 @@ export abstract class Plotter {
 			if (item instanceof SchComponent) {
 				let component;
 				for (let lib of libs) {
+					if (!lib) continue;
 					component = lib.findByName(item.name);
 					if (component) break;
 				}
@@ -635,7 +636,11 @@ export abstract class Plotter {
 					false
 				);
 			} else
+			if (item instanceof SheetPin) {
+				// TODO
+			} else
 			if (item instanceof Bitmap) {
+				// TODO
 			} else
 			if (item instanceof Text) {
 				if (item.name1 === 'GLabel') {

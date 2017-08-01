@@ -84,10 +84,11 @@ export class Library {
 		}
 	}
 
-	findByName(name: string) : Component {
+	findByName(name: string) : Component | null {
 		const ret = this.components.find( (i) => i.name === name);
 		if (!ret) {
-			throw "Component not found:" + name;
+			console.log(this.components);
+			return null;
 		}
 		return ret;
 	}
@@ -147,6 +148,11 @@ export class Component {
 			} else {
 				throw 'unknown token ' + tokens[0];
 			}
+		}
+
+		if (this.name[0] === "~") {
+			this.name = this.name.slice(1);
+			this.field.visibility = false;
 		}
 		return this;
 	}
