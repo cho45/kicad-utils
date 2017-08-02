@@ -32,8 +32,8 @@
 				<p>Input space delimited URLs</p>
 				<p>Requesting url must be supports CORS header</p>
 				<form v-on:submit.prevent="onSubmit">
-					<input type="text" v-model="url" size="100">
-					<button type="submit">Load from url</button>
+					<textarea v-model="url" rows="10" cols="150"></textarea>
+					<button type="submit">Load from URLs</button>
 				</form>
 			</div>
 			<p class="status">{{ status }}</p>

@@ -9,7 +9,10 @@ const {
 const app = new Vue({
 	el: '#app',
 	data: {
-		url: "https://raw.githubusercontent.com/cho45/Keble/master/Root-cache.lib https://raw.githubusercontent.com/cho45/Keble/master/_keymodule_l.sch",
+		url: [
+			"https://raw.githubusercontent.com/cho45/Keble/master/Root-cache.lib",
+			"https://raw.githubusercontent.com/cho45/Keble/master/_keymodule_l.sch"
+		].join("\n"),
 		status: "init",
 		lib: {},
 		components: [],
@@ -32,7 +35,7 @@ const app = new Vue({
 		},
 
 		onSubmit: function () {
-			const urls = this.url.split(/\s+/).map( (u) => ({ name: u, url: u }));
+			const urls = this.url.replace(/^\s+|\s+$/g, '').split(/\s+/).map( (u) => ({ name: u, url: u }));
 			if (!urls.length) {
 				this.status = "url is required";
 				return;

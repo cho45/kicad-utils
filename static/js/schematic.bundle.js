@@ -11184,7 +11184,7 @@ var _require = __webpack_require__(301),
 var app = new Vue({
 	el: '#app',
 	data: {
-		url: "https://raw.githubusercontent.com/cho45/Keble/master/Root-cache.lib https://raw.githubusercontent.com/cho45/Keble/master/_keymodule_l.sch",
+		url: ["https://raw.githubusercontent.com/cho45/Keble/master/Root-cache.lib", "https://raw.githubusercontent.com/cho45/Keble/master/_keymodule_l.sch"].join("\n"),
 		status: "init",
 		lib: {},
 		components: []
@@ -11208,7 +11208,7 @@ var app = new Vue({
 		},
 
 		onSubmit: function onSubmit() {
-			var urls = this.url.split(/\s+/).map(function (u) {
+			var urls = this.url.replace(/^\s+|\s+$/g, '').split(/\s+/).map(function (u) {
 				return { name: u, url: u };
 			});
 			if (!urls.length) {
