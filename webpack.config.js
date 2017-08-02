@@ -9,7 +9,8 @@ const babelOptions = {
 
 module.exports = {
 	entry: {
-		index: ['babel-polyfill', 'whatwg-fetch', './static/js/app.js'],
+		library: ['babel-polyfill', 'whatwg-fetch', './static/js/library.js'],
+		schematic: ['babel-polyfill', 'whatwg-fetch', './static/js/schematic.js'],
 	},
 
 	output: {

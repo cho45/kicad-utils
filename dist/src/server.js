@@ -21,8 +21,8 @@ const server = http.createServer(function (req, res) {
         base += "index.html";
     const ext = path.extname(base).slice(1);
     const target = path.join(root, base);
-    const mimeType = mimeTypes[ext];
-    console.log('serving', root, target, ext, mimeType);
+    const contentType = mimeTypes[ext] || 'application/octet-stream';
+    console.log('serving', root, target, ext, contentType);
     fs.readFile(target, function (e, content) {
         if (e) {
             if (e.code === 'ENOENT') {
@@ -35,7 +35,7 @@ const server = http.createServer(function (req, res) {
             }
             return;
         }
-        res.writeHead(200, { 'Content-Type': mimeType });
+        res.writeHead(200, { 'Content-Type': contentType });
         res.end(content, 'utf-8');
     });
 });

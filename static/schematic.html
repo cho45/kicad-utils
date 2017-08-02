@@ -4,26 +4,15 @@
 		<meta charset="utf-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 
-		<title>KiCAD library Viewer</title>
+		<title>KiCAD Schematic Viewer</title>
 
 		<script src="https://unpkg.com/vue"></script>
 		<style>
-			canvas {
-				max-width: 250px;
-				max-height: 250px;
+			img {
+				max-width: 100vw;
+				max-height: 100vh;
 			}
 
-			.list-component {
-				display: flex;
-				flex-wrap: wrap;
-			}
-
-			.component {
-				flex: 1;
-				background: #efefef;
-				border: 1px solid #999;
-				padding: 10px;
-			}
 			.form {
 				background: #efefef;
 				border: 1px solid #ccc;
@@ -33,13 +22,14 @@
 	</head>
 	<body>
 		<div id="app">
-			<h1>KiCAD library Viewer</h1>
+			<h1>KiCAD Schematic Viewer</h1>
 			<div class="form">
 				<h2>Load from file:</h2>
-				<p>Select .lib file</p>
-				<input type="file" v-on:change="fileSelected" ref="fileInput">
+				<p>Select .sch and .lib files (Typically select target .sch and -cache.lib)</p>
+				<input type="file" v-on:change="fileSelected" ref="fileInput" multiple>
 
-				<h2>Load from url:</h2>
+				<h2>Load from URLs:</h2>
+				<p>Input space delimited URLs</p>
 				<p>Requesting url must be supports CORS header</p>
 				<form v-on:submit.prevent="onSubmit">
 					<input type="text" v-model="url" size="100">
@@ -47,14 +37,11 @@
 				</form>
 			</div>
 			<p class="status">{{ status }}</p>
-			<div class="list-component">
-				<div class="component" v-for="component in components">
-					{{ component.name }}
-					<canvas ref="canvas" :data-name="component.name"></canvas>
-				</div>
+			<div class="result">
+				<img ref="img">
 			</div>
 		</div>
-		<script src="./js/library.bundle.js"></script>
+		<script src="./js/schematic.bundle.js"></script>
 		<hr />
 		<a href="https://github.com/cho45/kicad-js">source code</a>
 	</body>
