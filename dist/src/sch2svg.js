@@ -1,8 +1,11 @@
+#!/usr/bin/env node
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const kicad_plotter_1 = require("kicad_plotter");
-const kicad_lib_1 = require("kicad_lib");
-const kicad_sch_1 = require("kicad_sch");
+const kicad_utils_1 = require("./kicad-utils");
+//import { Transform } from "./kicad_common";
+//import { CanvasPlotter, SVGPlotter } from "./kicad_plotter";
+//import { Library } from "./kicad_lib";
+//import { Schematic } from "./kicad_sch";
 const fs = require("fs");
 const path = require("path");
 const minimist = require("minimist");
@@ -52,7 +55,7 @@ function lib(path) {
         v("Loading LIB", path);
         try {
             const content = fs.readFileSync(path, 'utf-8');
-            _libs[path] = kicad_lib_1.Library.load(content);
+            _libs[path] = kicad_utils_1.Library.load(content);
         }
         catch (e) {
             console.warn(e);
@@ -92,7 +95,7 @@ for (let schFile of schFiles) {
         }
     }
     v("Loading SCH", schFile);
-    const sch = kicad_sch_1.Schematic.load(fs.readFileSync(schFile, 'utf-8'));
+    const sch = kicad_utils_1.Schematic.load(fs.readFileSync(schFile, 'utf-8'));
     if (argv.png) {
         const MAX_WIDTH = 1920 * 2;
         const MAX_HEIGHT = 1080 * 2;
@@ -104,7 +107,7 @@ for (let schFile of schFiles) {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.translate(0, 0);
         ctx.scale(scale, scale);
-        const plotter = new kicad_plotter_1.CanvasPlotter(ctx);
+        const plotter = new kicad_utils_1.CanvasPlotter(ctx);
         plotter.plotSchematic(sch, libs);
         const out = fs.createWriteStream(outFile), stream = canvas.pngStream();
         stream.on('data', function (chunk) {
@@ -115,7 +118,7 @@ for (let schFile of schFiles) {
         });
     }
     else {
-        const svgPlotter = new kicad_plotter_1.SVGPlotter();
+        const svgPlotter = new kicad_utils_1.SVGPlotter();
         svgPlotter.plotSchematic(sch, libs);
         fs.writeFileSync(outFile, svgPlotter.output);
     }

@@ -1,7 +1,7 @@
-kicad-js
+kicad-utils
 ========
 
-KiCAD library parser and plotter with JavaScript
+KiCAD library / schematic parser and plotter written in TypeScript (JavaScript)
 
 DEMO
 ====

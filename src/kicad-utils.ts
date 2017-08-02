@@ -1,12 +1,6 @@
 
-import * as Common from "kicad_common";
-import * as Plotter from "kicad_plotter";
-import * as Lib from "kicad_lib";
-import * as Sch from "kicad_sch";
+export * from "./kicad_common";
+export * from "./kicad_plotter";
+export * from "./kicad_lib";
+export * from "./kicad_sch";
 
-module.exports = {
-	Common: Common,
-	Plotter: Plotter,
-	Lib: Lib,
-	Sch: Sch,
-};

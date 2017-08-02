@@ -1,14 +1,9 @@
 
-const { Transform } = require("kicad_common");
-const { CanvasPlotter } = require("kicad_plotter");
-const { Library } = require("kicad_lib");
-//import { Trasform } from "../../kicad_common";
-//import { CanvasPlotter } from "../../kicad_plotter";
-//import { Library } from "../../kicad_lib";
-
-//const lib = Library.load("foobar");
-//console.log(lib);
-
+const {
+	Transform,
+	CanvasPlotter,
+	Library,
+} = require("kicad-utils");
 
 const app = new Vue({
 	el: '#app',

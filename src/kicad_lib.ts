@@ -49,10 +49,12 @@ import {
 	Rect,
 	Point,
 	Transform,
-} from "kicad_common";
+	ReadDelimitedText,
+} from "./kicad_common";
 
 export class Library {
-	components: Array<Component>;
+	version: number;
+	components: Array<LibComponent>;
 
 	static load(content: string): Library {
 		const lines = content.split(/\n/);
@@ -67,8 +69,15 @@ export class Library {
 
 	parse(lines: Array<string>): void {
 		const version = lines.shift();
-		if (!version || version.indexOf('EESchema-LIBRARY Version 2.3') !== 0) {
+		const LIBRARY_HEADER = "EESchema-LIBRARY Version ";
+		const SUPPORTED_VERSION = 2.3;
+		if (!version || version.indexOf(LIBRARY_HEADER) !== 0) {
 			throw "unknwon library format";
+		}
+		this.version = Number(version.slice(LIBRARY_HEADER.length));
+		if (this.version > SUPPORTED_VERSION) {
+			throw "library format version is greater than supported version: " +
+				this.version + '>' + SUPPORTED_VERSION;
 		}
 
 		let line;
@@ -77,14 +86,14 @@ export class Library {
 			if (line === "") continue;
 			const tokens = line.split(/ +/);
 			if (tokens[0] === 'DEF') {
-				this.components.push(new Component(tokens.slice(1)).parse(lines));
+				this.components.push(new LibComponent(tokens.slice(1)).parse(lines));
 			} else {
 				throw 'unknown token ' + tokens[0];
 			}
 		}
 	}
 
-	findByName(name: string) : Component | null {
+	findByName(name: string) : LibComponent | null {
 		const ret = this.components.find( (i) => i.name === name);
 		if (!ret) {
 			return null;
@@ -93,7 +102,7 @@ export class Library {
 	}
 }
 
-export class Component {
+export class LibComponent {
 	draw: Draw;
 	fplist: Array<string>;
 	aliases: Array<string>;
@@ -170,7 +179,7 @@ export class Field0 {
 	bold: boolean;
 
 	constructor(params: Array<string>) {
-		this.reference = params[0].replace(/^"|"$/g, '');
+		this.reference = ReadDelimitedText(params[0]);
 		this.posx = Number(params[1]);
 		this.posy = Number(params[2]);
 		this.textSize = Number(params[3]);
@@ -197,7 +206,8 @@ export class FieldN {
 	bold: boolean;
 
 	constructor(params: Array<string>) {
-		this.name = params[0].replace(/''/g, '"').replace(/~/g, ' ').replace(/^"|"$/g, '');
+		this.name = ReadDelimitedText(params[0]);
+		if (this.name === "~") this.name = "";
 		this.posx = Number(params[1]);
 		this.posy = Number(params[2]);
 		this.textSize = Number(params[3]);
@@ -493,7 +503,13 @@ export class DrawText extends DrawObject {
 		this.textType = Number(params[4]);
 		this.unit = Number(params[5]);
 		this.convert = Number(params[6]);
-		this.text = params[7].replace(/''/g, '"').replace(/~/g, ' ').replace(/^"|"$/g, '');
+		if (params[7][0] === '"') {
+			// quoted
+			this.text = params[7].slice(1, -1).replace(/''/g, '"');
+		} else {
+			// not quoted
+			this.text = params[7].replace(/~/g, ' ');
+		}
 		this.italic = params[8] === 'Italic';
 		this.bold = Number(params[9]) > 0;
 		this.hjustify = params[10] as TextHjustify;

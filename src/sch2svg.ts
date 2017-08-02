@@ -1,8 +1,17 @@
+#!/usr/bin/env node
 //#!tsc && NODE_PATH=dist/src node dist/src/sch2svg.js --vvv --force -o ./text.svg ../keyboard-schematic/_keymodule_l.sch
-import { Transform } from "kicad_common";
-import { CanvasPlotter, SVGPlotter } from "kicad_plotter";
-import { Library } from "kicad_lib";
-import { Schematic } from "kicad_sch";
+
+import {
+	Transform,
+	CanvasPlotter, SVGPlotter,
+	Library,
+	Schematic
+} from "./kicad-utils";
+
+//import { Transform } from "./kicad_common";
+//import { CanvasPlotter, SVGPlotter } from "./kicad_plotter";
+//import { Library } from "./kicad_lib";
+//import { Schematic } from "./kicad_sch";
 
 import * as fs from "fs";
 import * as path from "path";

@@ -49,10 +49,10 @@ export function NORMALIZE_ANGLE_POS(angle: number): number {
 	return angle;
 }
 
-export function RotatePoint(p: Point, angle: number) {
+export function RotatePoint(p: Point, angle: number): Point {
 	angle = NORMALIZE_ANGLE_POS(angle);
 	if (angle === 0) {
-		return;
+		return p;
 	}
 	if ( angle === 900 ) {        /* sin = 1, cos = 0 */
 		[p.x, p.y] = [p.y, -p.x]
@@ -70,6 +70,7 @@ export function RotatePoint(p: Point, angle: number) {
 		const ry = (p.y * cosinus ) - (p.x * sinus );
 		p.x = rx; p.y = ry;
 	}
+	return p;
 }
 
 export function MM2MIL(mm: number) {
@@ -78,6 +79,13 @@ export function MM2MIL(mm: number) {
 
 export function MIL2MM(mil: number) {
 	return mil * 0.0254;
+}
+
+export function ReadDelimitedText(s: string): string {
+	const match = s.match(/"((?:\\"|[^"])+)"/);
+	if (!match) return "";
+	const inner = match[1];
+	return inner.replace(/\\([\\"])/g, (_, c) => c);
 }
 
 export class Transform {
@@ -149,7 +157,7 @@ export class Point {
 	x: number;
 	y: number;
 
-	constructor(x: number, y: number) {
+	constructor(x: number = 0, y: number = 0) {
 		this.x = x;
 		this.y = y;
 	}
@@ -239,17 +247,17 @@ export enum TextAngle {
 }
 
 export enum PinType {
-	PIN_INPUT = "I",
-	PIN_OUTPUT = "O",
-	PIN_BIDI = "B",
-	PIN_TRISTATE = "T",
-	PIN_PASSIVE = "P",
-	PIN_UNSPECIFIED = "U",
-	PIN_POWER_IN = "W",
-	PIN_POWER_OUT = "w",
-	PIN_OPENCOLLECTOR = "C",
-	PIN_OPENEMITTER = "E",
-	PIN_NC = "N",
+	INPUT = "I",
+	OUTPUT = "O",
+	BIDI = "B",
+	TRISTATE = "T",
+	PASSIVE = "P",
+	UNSPECIFIED = "U",
+	POWER_IN = "W",
+	POWER_OUT = "w",
+	OPENCOLLECTOR = "C",
+	OPENEMITTER = "E",
+	NC = "N",
 };
 
 export enum PinAttribute {

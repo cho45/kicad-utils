@@ -53,7 +53,7 @@ exports.NORMALIZE_ANGLE_POS = NORMALIZE_ANGLE_POS;
 function RotatePoint(p, angle) {
     angle = NORMALIZE_ANGLE_POS(angle);
     if (angle === 0) {
-        return;
+        return p;
     }
     if (angle === 900) {
         [p.x, p.y] = [p.y, -p.x];
@@ -73,6 +73,7 @@ function RotatePoint(p, angle) {
         p.x = rx;
         p.y = ry;
     }
+    return p;
 }
 exports.RotatePoint = RotatePoint;
 function MM2MIL(mm) {
@@ -83,6 +84,14 @@ function MIL2MM(mil) {
     return mil * 0.0254;
 }
 exports.MIL2MM = MIL2MM;
+function ReadDelimitedText(s) {
+    const match = s.match(/"((?:\\"|[^"])+)"/);
+    if (!match)
+        return "";
+    const inner = match[1];
+    return inner.replace(/\\([\\"])/g, (_, c) => c);
+}
+exports.ReadDelimitedText = ReadDelimitedText;
 class Transform {
     constructor(x1 = 1, y1 = 0, x2 = 0, y2 = -1) {
         this.x1 = x1;
@@ -140,7 +149,7 @@ class Transform {
 }
 exports.Transform = Transform;
 class Point {
-    constructor(x, y) {
+    constructor(x = 0, y = 0) {
         this.x = x;
         this.y = y;
     }
@@ -216,17 +225,17 @@ var TextAngle;
 })(TextAngle = exports.TextAngle || (exports.TextAngle = {}));
 var PinType;
 (function (PinType) {
-    PinType["PIN_INPUT"] = "I";
-    PinType["PIN_OUTPUT"] = "O";
-    PinType["PIN_BIDI"] = "B";
-    PinType["PIN_TRISTATE"] = "T";
-    PinType["PIN_PASSIVE"] = "P";
-    PinType["PIN_UNSPECIFIED"] = "U";
-    PinType["PIN_POWER_IN"] = "W";
-    PinType["PIN_POWER_OUT"] = "w";
-    PinType["PIN_OPENCOLLECTOR"] = "C";
-    PinType["PIN_OPENEMITTER"] = "E";
-    PinType["PIN_NC"] = "N";
+    PinType["INPUT"] = "I";
+    PinType["OUTPUT"] = "O";
+    PinType["BIDI"] = "B";
+    PinType["TRISTATE"] = "T";
+    PinType["PASSIVE"] = "P";
+    PinType["UNSPECIFIED"] = "U";
+    PinType["POWER_IN"] = "W";
+    PinType["POWER_OUT"] = "w";
+    PinType["OPENCOLLECTOR"] = "C";
+    PinType["OPENEMITTER"] = "E";
+    PinType["NC"] = "N";
 })(PinType = exports.PinType || (exports.PinType = {}));
 ;
 var PinAttribute;

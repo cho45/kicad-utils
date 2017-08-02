@@ -34,13 +34,15 @@ import {
 	TextVjustify,
 	SheetSide,
 	Net,
-} from "kicad_common";
+	ReadDelimitedText,
+} from "./kicad_common";
 
 export class Schematic {
 	libs: Array<string>;
 	descr: Descr;
 	items: Array<SchItem>;
 	parsed: boolean;
+	version: number;
 
 	static load(content: string): Schematic {
 		const lines = content.split(/\n/);
@@ -50,14 +52,22 @@ export class Schematic {
 	}
 
 	constructor() {
+		this.libs = [];
 		this.items = [];
 		this.parsed = false;
 	}
 
 	parse(lines: Array<string>): void {
 		const version = lines.shift();
-		if (!version || version.indexOf('EESchema Schematic File Version 2') !== 0) {
+		const SCHEMATIC_HEADER = "EESchema Schematic File Version ";
+		const SUPPORTED_VERSION = 2;
+		if (!version || version.indexOf(SCHEMATIC_HEADER) !== 0) {
 			throw "unknwon library format";
+		}
+		this.version = Number(version.slice(SCHEMATIC_HEADER.length));
+		if (this.version > SUPPORTED_VERSION) {
+			throw "schematic format version is greater than supported version: " +
+				this.version + '>' + SUPPORTED_VERSION;
 		}
 
 		let line;
@@ -65,7 +75,8 @@ export class Schematic {
 			if (line[0] === '#') continue;
 			if (!line) continue;
 			if (line.indexOf("LIBS:") === 0) {
-				// skip this section
+				// should be skipped and see .pro file but it is parsed.
+				this.libs.push(line.slice(5));
 				continue;
 			}
 
@@ -80,7 +91,7 @@ export class Schematic {
 				this.descr = new Descr(tokens.slice(1)).parse(lines);
 			} else
 			if (tokens[0] === '$Comp') {
-				this.items.push(new Component().parse(lines));
+				this.items.push(new SchComponent().parse(lines));
 			} else
 			if (tokens[0] === '$Sheet') {
 				this.items.push(new Sheet().parse(lines));
@@ -151,11 +162,11 @@ export class Sheet extends SchItem {
 			if (tokens[0].match(/F(\d)/)) {
 				const n = Number(RegExp.$1);
 				if (n === 0) {
-					this.sheetName = tokens[1];
+					this.sheetName = ReadDelimitedText(tokens[1]);
 					this.sheetNameSize = Number(tokens[2]);
 				} else
 				if (n === 1) {
-					this.fileName = tokens[1];
+					this.fileName = ReadDelimitedText(tokens[1]);
 					this.fileNameSize = Number(tokens[2]);
 				} else {
 					this.sheetPins.push(new SheetPin(tokens.slice(1)).parse(lines));
@@ -190,7 +201,7 @@ export class SheetPin extends SchItem {
 	}
 }
 
-export class Component extends SchItem {
+export class SchComponent extends SchItem {
 	reference: string;
 	name: string;
 	unit: number;
@@ -220,8 +231,9 @@ export class Component extends SchItem {
 
 			const tokens = line.split(/\s+/);
 			if (tokens[0] === 'L') {
-				this.name = tokens[1].replace(/''/g, '"').replace(/~/g, ' ').replace(/^"|"$/g, '');
-				this.reference = tokens[2];
+				this.name = tokens[1].replace(/~/g, ' ');
+				this.reference = tokens[2].replace(/~/g, ' ').replace(/^\s+|\s+$/g, '');
+				if (!this.reference) this.reference = "U";
 			} else
 			if (tokens[0] === 'U') {
 				this.unit = Number(tokens[1]);
@@ -260,31 +272,35 @@ export class Component extends SchItem {
 export class Field extends SchItem {
 	number: number;
 	text: string;
-	angle: string;
+	name: string;
+	angle: TextAngle;
 	posx: number;
 	posy: number;
 	width: number;
-	visible: boolean;
-	hjustify: string;
-	vjustify: string;
+	visibility: boolean;
+	hjustify: TextHjustify;
+	vjustify: TextVjustify;
 	italic: boolean;
 	bold: boolean;
-	name: string;
 
 	constructor(tokens: Array<string>) {
 		super();
-		this.number = Number(tokens[0]);
-		this.text = tokens[1];
-		this.angle = tokens[2];
-		this.posx = Number(tokens[3]);
-		this.posy = Number(tokens[4]);
-		this.width = Number(tokens[5]);
-		this.visible = Number(tokens[6]) == 0;
-		this.hjustify = tokens[7];
-		this.vjustify = tokens[8];
-		this.italic = tokens[9] === 'I';
-		this.bold = tokens[10] === 'B';
-		this.name = tokens[11];
+		let i = 0;
+		this.number = Number(tokens[i++]);
+		this.text = ReadDelimitedText(tokens[i++]);
+		if (tokens[i+1][0] === '"') {
+			this.name = ReadDelimitedText(tokens[i++]);
+		}
+		this.angle = tokens[i++] === 'V' ? TextAngle.VERT : TextAngle.HORIZ;
+		this.posx = Number(tokens[i++]);
+		this.posy = Number(tokens[i++]);
+		this.width = Number(tokens[i++]);
+		this.visibility = Number(tokens[i++]) !== 0;
+		this.hjustify = tokens[i++] as TextHjustify;
+		let char3 = tokens[i++];
+		this.vjustify = char3[0] as TextVjustify;
+		this.italic = char3[1] === 'I';
+		this.bold = char3[2] === 'B';
 	}
 }
 

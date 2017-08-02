@@ -28,9 +28,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-const kicad_common_1 = require("kicad_common");
-const kicad_lib_1 = require("kicad_lib");
-const kicad_sch_1 = require("kicad_sch");
+const kicad_common_1 = require("./kicad_common");
+const kicad_lib_1 = require("./kicad_lib");
+const kicad_sch_1 = require("./kicad_sch");
 const TXT_MARGIN = 4;
 const PIN_TXT_MARGIN = 4;
 /**
@@ -321,7 +321,7 @@ class Plotter {
         this.moveTo(sch.descr.width - MARGIN - OFFSET, sch.descr.height / 2);
         this.finishTo(sch.descr.width - MARGIN, sch.descr.height / 2);
         for (let item of sch.items) {
-            if (item instanceof kicad_sch_1.Component) {
+            if (item instanceof kicad_sch_1.SchComponent) {
                 let component;
                 for (let lib of libs) {
                     if (!lib)
@@ -334,7 +334,7 @@ class Plotter {
                     console.warn("component " + item.name + " is not found in libraries");
                     continue;
                 }
-                this.plotLibComponent(component, item.unit, item.convert, { x: item.posx, y: item.posy }, item.transform, item.reference, item.name);
+                this.plotLibComponent(component, item.unit, item.convert, { x: item.posx, y: item.posy }, item.transform, item.fields[0].text, item.fields[1].text);
             }
             else if (item instanceof kicad_sch_1.Sheet) {
                 this.setColor("black");
@@ -654,12 +654,12 @@ class SVGPlotter extends Plotter {
     circle(p, dia, fill, width) {
         this.setCurrentLineWidth(width);
         this.fill = fill;
-        this.output += `<circle cx="${p.x}" cy="${p.y}" r="${dia / 2}" `;
+        this.output += this.xmlTag `<circle cx="${p.x}" cy="${p.y}" r="${dia / 2}" `;
         if (this.fill === kicad_common_1.Fill.NO_FILL) {
-            this.output += ` style="stroke: #000000; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+            this.output += this.xmlTag ` style="stroke: #000000; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
         }
         else {
-            this.output += ` style="stroke: #000000; fill: #000000; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+            this.output += this.xmlTag ` style="stroke: #000000; fill: #000000; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
         }
     }
     arc(p, startAngle, endAngle, radius, fill, width) {
@@ -688,12 +688,13 @@ class SVGPlotter extends Plotter {
         const isLargeArc = Math.abs(theta2 - theta1) > Math.PI;
         const isSweep = false;
         // console.log('ARC', startAngle, endAngle, radius, start, end, radius, isLargeArc, isSweep);
-        this.output += `<path d="M${start.x} ${start.y} A${radius} ${radius} 0.0 ${isLargeArc ? 1 : 0} ${isSweep ? 1 : 0} ${end.x} ${end.y}"`;
+        const x = this.xmlTag;
+        this.output += this.xmlTag `<path d="M${start.x} ${start.y} A${radius} ${radius} 0.0 ${isLargeArc ? 1 : 0} ${isSweep ? 1 : 0} ${end.x} ${end.y}"`;
         if (this.fill === kicad_common_1.Fill.NO_FILL) {
-            this.output += ` style="stroke: #000000; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+            this.output += this.xmlTag ` style="stroke: #000000; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
         }
         else {
-            this.output += ` style="stroke: #000000; fill: #000000; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+            this.output += this.xmlTag ` style="stroke: #000000; fill: #000000; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
         }
     }
     polyline(points, fill, width) {
@@ -729,11 +730,11 @@ class SVGPlotter extends Plotter {
         const fontWeight = bold ? "bold" : "normal";
         const fontStyle = italic ? "italic" : "normal";
         const rotate = -orientation / 10;
-        const h = this.htmlentities;
+        const x = this.xmlTag;
         const lines = text.split(/\n/);
         for (var i = 0, len = lines.length; i < len; i++) {
             const y = p.y + (i * size * 1.2);
-            this.output += `<text x="${p.x}" y="${y}"
+            this.output += this.xmlTag `<text x="${p.x}" y="${y}"
 				text-anchor="${textAnchor}"
 				dominant-baseline="${dominantBaseline}"
 				font-family="monospace"
@@ -741,7 +742,7 @@ class SVGPlotter extends Plotter {
 				font-weight="${fontWeight}"
 				font-style="${fontStyle}"
 				fill="#000000"
-				transform="rotate(${rotate}, ${p.x}, ${p.y})">${h(lines[i])}</text>`;
+				transform="rotate(${rotate}, ${p.x}, ${p.y})">${lines[i]}</text>`;
         }
     }
     /**
@@ -750,13 +751,14 @@ class SVGPlotter extends Plotter {
      * Z = Pen is outof canvas
      */
     penTo(p, s) {
+        const x = this.xmlTag;
         if (s === "Z") {
             if (this.penState !== "Z") {
                 if (this.fill === kicad_common_1.Fill.NO_FILL) {
-                    this.output += `" style="stroke: #000000; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+                    this.output += this.xmlTag `" style="stroke: #000000; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
                 }
                 else {
-                    this.output += `" style="stroke: #000000; fill: #000000; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+                    this.output += this.xmlTag `" style="stroke: #000000; fill: #000000; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
                 }
             }
             else {
@@ -767,14 +769,14 @@ class SVGPlotter extends Plotter {
         }
         // s is U | D
         if (this.penState === "Z") {
-            this.output += `<path d="M${p.x} ${p.y}\n`;
+            this.output += this.xmlTag `<path d="M${p.x} ${p.y}\n`;
         }
         else {
             if (s === "U") {
-                this.output += `M${p.x} ${p.y}\n`;
+                this.output += this.xmlTag `M${p.x} ${p.y}\n`;
             }
             else {
-                this.output += `L${p.x} ${p.y}\n`;
+                this.output += this.xmlTag `L${p.x} ${p.y}\n`;
             }
         }
         this.penState = s;
@@ -784,24 +786,36 @@ class SVGPlotter extends Plotter {
     setCurrentLineWidth(w) {
         this.lineWidth = w;
     }
-    htmlentities(s) {
-        const map = {
-            '<': '&lt;',
-            '>': '&gt;',
-            '&': '&amp;',
-        };
-        return s.replace(/[<>&]/g, (_) => map[_]);
-    }
     plotSchematic(sch, libs) {
         const width = sch.descr.width;
         const height = sch.descr.height;
-        this.output = `<svg preserveAspectRatio="xMinYMin"
+        const x = this.xmlTag;
+        this.output = this.xmlTag `<svg preserveAspectRatio="xMinYMin"
 			width="${width}"
 			height="${height}"
 			viewBox="0 0 ${sch.descr.width} ${sch.descr.height}"
 			xmlns="http://www.w3.org/2000/svg" version="1.1">`;
         super.plotSchematic(sch, libs);
         this.output += `</svg>`;
+    }
+    xmlTag(literals, ...placeholders) {
+        let result = "";
+        for (let i = 0; i < placeholders.length; i++) {
+            result += literals[i];
+            result += this.xmlentities(placeholders[i]);
+        }
+        result += literals[literals.length - 1];
+        return result;
+    }
+    xmlentities(s) {
+        if (typeof s === "number")
+            return String(s);
+        const map = {
+            '<': '&lt;',
+            '>': '&gt;',
+            '&': '&amp;',
+        };
+        return String(s).replace(/[<>&]/g, (_) => map[_]);
     }
 }
 exports.SVGPlotter = SVGPlotter;

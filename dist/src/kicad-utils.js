@@ -1,13 +1,10 @@
 "use strict";
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
 Object.defineProperty(exports, "__esModule", { value: true });
-const Common = require("kicad_common");
-const Plotter = require("kicad_plotter");
-const Lib = require("kicad_lib");
-const Sch = require("kicad_sch");
-module.exports = {
-    Common: Common,
-    Plotter: Plotter,
-    Lib: Lib,
-    Sch: Sch,
-};
+__export(require("./kicad_common"));
+__export(require("./kicad_plotter"));
+__export(require("./kicad_lib"));
+__export(require("./kicad_sch"));
 //# sourceMappingURL=kicad-utils.js.map

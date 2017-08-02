@@ -39,7 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * eeschema/lib_circle.cpp
  * eeschema/lib_arc.cpp
  */
-const kicad_common_1 = require("kicad_common");
+const kicad_common_1 = require("./kicad_common");
 class Library {
     static load(content) {
         const lines = content.split(/\n/);
@@ -52,8 +52,15 @@ class Library {
     }
     parse(lines) {
         const version = lines.shift();
-        if (!version || version.indexOf('EESchema-LIBRARY Version 2.3') !== 0) {
+        const LIBRARY_HEADER = "EESchema-LIBRARY Version ";
+        const SUPPORTED_VERSION = 2.3;
+        if (!version || version.indexOf(LIBRARY_HEADER) !== 0) {
             throw "unknwon library format";
+        }
+        this.version = Number(version.slice(LIBRARY_HEADER.length));
+        if (this.version > SUPPORTED_VERSION) {
+            throw "library format version is greater than supported version: " +
+                this.version + '>' + SUPPORTED_VERSION;
         }
         let line;
         while ((line = lines.shift()) !== undefined) {
@@ -63,7 +70,7 @@ class Library {
                 continue;
             const tokens = line.split(/ +/);
             if (tokens[0] === 'DEF') {
-                this.components.push(new Component(tokens.slice(1)).parse(lines));
+                this.components.push(new LibComponent(tokens.slice(1)).parse(lines));
             }
             else {
                 throw 'unknown token ' + tokens[0];
@@ -79,7 +86,7 @@ class Library {
     }
 }
 exports.Library = Library;
-class Component {
+class LibComponent {
     constructor(params) {
         this.name = params[0];
         this.reference = params[1];
@@ -128,10 +135,10 @@ class Component {
         return this;
     }
 }
-exports.Component = Component;
+exports.LibComponent = LibComponent;
 class Field0 {
     constructor(params) {
-        this.reference = params[0].replace(/^"|"$/g, '');
+        this.reference = kicad_common_1.ReadDelimitedText(params[0]);
         this.posx = Number(params[1]);
         this.posy = Number(params[2]);
         this.textSize = Number(params[3]);
@@ -146,7 +153,9 @@ class Field0 {
 exports.Field0 = Field0;
 class FieldN {
     constructor(params) {
-        this.name = params[0].replace(/''/g, '"').replace(/~/g, ' ').replace(/^"|"$/g, '');
+        this.name = kicad_common_1.ReadDelimitedText(params[0]);
+        if (this.name === "~")
+            this.name = "";
         this.posx = Number(params[1]);
         this.posy = Number(params[2]);
         this.textSize = Number(params[3]);
@@ -352,7 +361,14 @@ class DrawText extends DrawObject {
         this.textType = Number(params[4]);
         this.unit = Number(params[5]);
         this.convert = Number(params[6]);
-        this.text = params[7].replace(/''/g, '"').replace(/~/g, ' ').replace(/^"|"$/g, '');
+        if (params[7][0] === '"') {
+            // quoted
+            this.text = params[7].slice(1, -1).replace(/''/g, '"');
+        }
+        else {
+            // not quoted
+            this.text = params[7].replace(/~/g, ' ');
+        }
         this.italic = params[8] === 'Italic';
         this.bold = Number(params[9]) > 0;
         this.hjustify = params[10];

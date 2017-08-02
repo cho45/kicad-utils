@@ -28,7 +28,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-const kicad_common_1 = require("kicad_common");
+const kicad_common_1 = require("./kicad_common");
 class Schematic {
     static load(content) {
         const lines = content.split(/\n/);
@@ -37,13 +37,21 @@ class Schematic {
         return sch;
     }
     constructor() {
+        this.libs = [];
         this.items = [];
         this.parsed = false;
     }
     parse(lines) {
         const version = lines.shift();
-        if (!version || version.indexOf('EESchema Schematic File Version 2') !== 0) {
+        const SCHEMATIC_HEADER = "EESchema Schematic File Version ";
+        const SUPPORTED_VERSION = 2;
+        if (!version || version.indexOf(SCHEMATIC_HEADER) !== 0) {
             throw "unknwon library format";
+        }
+        this.version = Number(version.slice(SCHEMATIC_HEADER.length));
+        if (this.version > SUPPORTED_VERSION) {
+            throw "schematic format version is greater than supported version: " +
+                this.version + '>' + SUPPORTED_VERSION;
         }
         let line;
         while ((line = lines.shift()) !== undefined) {
@@ -52,7 +60,8 @@ class Schematic {
             if (!line)
                 continue;
             if (line.indexOf("LIBS:") === 0) {
-                // skip this section
+                // should be skipped and see .pro file but it is parsed.
+                this.libs.push(line.slice(5));
                 continue;
             }
             const tokens = line.split(/ +/);
@@ -67,7 +76,7 @@ class Schematic {
                 this.descr = new Descr(tokens.slice(1)).parse(lines);
             }
             else if (tokens[0] === '$Comp') {
-                this.items.push(new Component().parse(lines));
+                this.items.push(new SchComponent().parse(lines));
             }
             else if (tokens[0] === '$Sheet') {
                 this.items.push(new Sheet().parse(lines));
@@ -126,11 +135,11 @@ class Sheet extends SchItem {
             else if (tokens[0].match(/F(\d)/)) {
                 const n = Number(RegExp.$1);
                 if (n === 0) {
-                    this.sheetName = tokens[1];
+                    this.sheetName = kicad_common_1.ReadDelimitedText(tokens[1]);
                     this.sheetNameSize = Number(tokens[2]);
                 }
                 else if (n === 1) {
-                    this.fileName = tokens[1];
+                    this.fileName = kicad_common_1.ReadDelimitedText(tokens[1]);
                     this.fileNameSize = Number(tokens[2]);
                 }
                 else {
@@ -157,7 +166,7 @@ class SheetPin extends SchItem {
     }
 }
 exports.SheetPin = SheetPin;
-class Component extends SchItem {
+class SchComponent extends SchItem {
     constructor() {
         super();
         this.ar = {};
@@ -175,8 +184,10 @@ class Component extends SchItem {
             }
             const tokens = line.split(/\s+/);
             if (tokens[0] === 'L') {
-                this.name = tokens[1].replace(/''/g, '"').replace(/~/g, ' ').replace(/^"|"$/g, '');
-                this.reference = tokens[2];
+                this.name = tokens[1].replace(/~/g, ' ');
+                this.reference = tokens[2].replace(/~/g, ' ').replace(/^\s+|\s+$/g, '');
+                if (!this.reference)
+                    this.reference = "U";
             }
             else if (tokens[0] === 'U') {
                 this.unit = Number(tokens[1]);
@@ -210,22 +221,26 @@ class Component extends SchItem {
         return this;
     }
 }
-exports.Component = Component;
+exports.SchComponent = SchComponent;
 class Field extends SchItem {
     constructor(tokens) {
         super();
-        this.number = Number(tokens[0]);
-        this.text = tokens[1];
-        this.angle = tokens[2];
-        this.posx = Number(tokens[3]);
-        this.posy = Number(tokens[4]);
-        this.width = Number(tokens[5]);
-        this.visible = Number(tokens[6]) == 0;
-        this.hjustify = tokens[7];
-        this.vjustify = tokens[8];
-        this.italic = tokens[9] === 'I';
-        this.bold = tokens[10] === 'B';
-        this.name = tokens[11];
+        let i = 0;
+        this.number = Number(tokens[i++]);
+        this.text = kicad_common_1.ReadDelimitedText(tokens[i++]);
+        if (tokens[i + 1][0] === '"') {
+            this.name = kicad_common_1.ReadDelimitedText(tokens[i++]);
+        }
+        this.angle = tokens[i++] === 'V' ? kicad_common_1.TextAngle.VERT : kicad_common_1.TextAngle.HORIZ;
+        this.posx = Number(tokens[i++]);
+        this.posy = Number(tokens[i++]);
+        this.width = Number(tokens[i++]);
+        this.visibility = Number(tokens[i++]) !== 0;
+        this.hjustify = tokens[i++];
+        let char3 = tokens[i++];
+        this.vjustify = char3[0];
+        this.italic = char3[1] === 'I';
+        this.bold = char3[2] === 'B';
     }
 }
 exports.Field = Field;
