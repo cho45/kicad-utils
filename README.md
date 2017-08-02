@@ -26,14 +26,21 @@ Development
 
 Edit .ts files.
 
-## For web assets (static/)
+## start foreman
+
+```
+npm install
+./node_modules/.bin/nf start
+```
+
+## For only web assets (static/)
 
 ```
 npm install
 ./node_modules/.bin/webpack --watch
 ```
 
-## For CUI assets (bin/)
+## For only CUI assets (bin/)
 ```
 npm install
 tsc --watch
