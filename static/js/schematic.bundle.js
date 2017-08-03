@@ -11528,9 +11528,7 @@ var app = new Vue({
 
 	mounted: function mounted() {
 		console.log(this.$refs);
-		if (location.search) {
-			this.loadLibrary(location.search.substring(1) || '/lib/device.lib');
-		}
+		this.onSubmit();
 	},
 
 	methods: {
