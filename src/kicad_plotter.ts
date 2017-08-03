@@ -222,10 +222,15 @@ export abstract class Plotter {
 					orientation = TextAngle.HORIZ;
 				}
 			}
+
+			let text  = (typeof reference !== 'undefined') ? reference : component.field.reference;
+			const width = text.length * component.field.textSize * 0.5;
+			const height = text.length;
+
 			this.text(
-				pos,
+				Point.add({ x: width, y: height }, pos),
 				SCH_COLORS.LAYER_REFERENCEPART,
-				(typeof reference !== 'undefined') ? reference : component.field.reference,
+				text,
 				orientation,
 				component.field.textSize,
 				TextHjustify.CENTER,
@@ -246,10 +251,13 @@ export abstract class Plotter {
 					orientation = TextAngle.HORIZ;
 				}
 			}
+			let text  = (typeof name !== 'undefined') ? name : component.fields[0].name;
+			const width = text.length * component.fields[0].textSize * 0.5;
+			const height = text.length;
 			this.text(
-				pos,
+				Point.add({ x: width, y: height }, pos),
 				SCH_COLORS.LAYER_VALUEPART,
-				(typeof name !== 'undefined') ? name : component.fields[0].name,
+				text,
 				orientation,
 				component.fields[0].textSize,
 				TextHjustify.CENTER,

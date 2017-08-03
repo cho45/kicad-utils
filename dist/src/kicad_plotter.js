@@ -147,7 +147,10 @@ class Plotter {
                     orientation = kicad_common_1.TextAngle.HORIZ;
                 }
             }
-            this.text(pos, SCH_COLORS.LAYER_REFERENCEPART, (typeof reference !== 'undefined') ? reference : component.field.reference, orientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, component.field.italic, component.field.bold);
+            let text = (typeof reference !== 'undefined') ? reference : component.field.reference;
+            const width = text.length * component.field.textSize * 0.5;
+            const height = text.length;
+            this.text(kicad_common_1.Point.add({ x: width, y: height }, pos), SCH_COLORS.LAYER_REFERENCEPART, text, orientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, component.field.italic, component.field.bold);
         }
         if (component.fields[0] && component.fields[0].visibility) {
             const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy }), offset);
@@ -160,7 +163,10 @@ class Plotter {
                     orientation = kicad_common_1.TextAngle.HORIZ;
                 }
             }
-            this.text(pos, SCH_COLORS.LAYER_VALUEPART, (typeof name !== 'undefined') ? name : component.fields[0].name, orientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, component.fields[0].italic, component.fields[0].bold);
+            let text = (typeof name !== 'undefined') ? name : component.fields[0].name;
+            const width = text.length * component.fields[0].textSize * 0.5;
+            const height = text.length;
+            this.text(kicad_common_1.Point.add({ x: width, y: height }, pos), SCH_COLORS.LAYER_VALUEPART, text, orientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, component.fields[0].italic, component.fields[0].bold);
         }
         this.setColor(SCH_COLORS.LAYER_DEVICE);
         for (let draw of component.draw.objects) {

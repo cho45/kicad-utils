@@ -347,4 +347,43 @@ describe("Library.load", () => {
 		assert.deepEqual((c.draw.objects[1] as DrawPolyline).points, [-50, 70, -50, 110]);
 		assert((c.draw.objects[1] as DrawPolyline).fill === Fill.NO_FILL);
 	});
+
+	it("can treat field correctly", () => {
+		const lib = Library.load(indent `
+			EESchema-LIBRARY Version 2.3
+			DEF Battery BT 0 0 N Y 1 F N
+			F0 "BT" 100 50 50 H V L CNN
+			F1 "Battery" 100 -50 50 H V L CNN
+			F2 "" 0 40 50 V V C CNN
+			F3 "" 0 40 50 V V C CNN
+			DRAW
+			S -90 -7 90 -17 0 1 0 F
+			S -90 50 90 40 0 1 0 F
+			S -62 -30 58 -50 0 1 0 F
+			S -62 27 58 7 0 1 0 F
+			P 2 0 1 10  20 95  60 95 N
+			P 2 0 1 10  40 115  40 75 N
+			X ~ 1 0 150 100 D 50 50 1 1 P
+			X ~ 2 0 -150 100 U 50 50 1 1 P
+			ENDDRAW
+			ENDDEF
+			#
+			#End Library
+		`);
+		assert(lib.components.length === 1);
+		assert(lib.findByName('Battery') instanceof LibComponent);
+
+		const c = lib.findByName('Battery');
+		if (!c) throw "component is not found";
+		assert(c.field.reference === 'BT');
+		assert(c.field.posx === 100);
+		assert(c.field.posy === 50);
+		assert(c.field.textSize === 50);
+		assert(c.field.textOrientation === 0);
+		assert(c.field.visibility === true);
+		assert(c.field.hjustify === TextHjustify.LEFT);
+		assert(c.field.vjustify === TextVjustify.CENTER);
+		assert(c.field.italic === false);
+		assert(c.field.bold === false);
+	});
 });

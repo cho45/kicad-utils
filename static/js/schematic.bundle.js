@@ -10555,7 +10555,10 @@ var Plotter = function () {
                         orientation = kicad_common_1.TextAngle.HORIZ;
                     }
                 }
-                this.text(pos, SCH_COLORS.LAYER_REFERENCEPART, typeof reference !== 'undefined' ? reference : component.field.reference, orientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, component.field.italic, component.field.bold);
+                var text = typeof reference !== 'undefined' ? reference : component.field.reference;
+                var width = text.length * component.field.textSize * 0.5;
+                var height = text.length;
+                this.text(kicad_common_1.Point.add({ x: width, y: height }, pos), SCH_COLORS.LAYER_REFERENCEPART, text, orientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, component.field.italic, component.field.bold);
             }
             if (component.fields[0] && component.fields[0].visibility) {
                 var _pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy }), offset);
@@ -10567,7 +10570,10 @@ var Plotter = function () {
                         _orientation = kicad_common_1.TextAngle.HORIZ;
                     }
                 }
-                this.text(_pos, SCH_COLORS.LAYER_VALUEPART, typeof name !== 'undefined' ? name : component.fields[0].name, _orientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, component.fields[0].italic, component.fields[0].bold);
+                var _text = typeof name !== 'undefined' ? name : component.fields[0].name;
+                var _width = _text.length * component.fields[0].textSize * 0.5;
+                var _height = _text.length;
+                this.text(kicad_common_1.Point.add({ x: _width, y: _height }, _pos), SCH_COLORS.LAYER_VALUEPART, _text, _orientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, component.fields[0].italic, component.fields[0].bold);
             }
             this.setColor(SCH_COLORS.LAYER_DEVICE);
             var _iteratorNormalCompletion = true;
@@ -11184,7 +11190,7 @@ var CanvasPlotter = function (_Plotter) {
         }
     }, {
         key: "text",
-        value: function text(p, color, _text, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
+        value: function text(p, color, _text2, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
             this.setColor(color);
             if (hjustfy === kicad_common_1.TextHjustify.LEFT) {
                 this.ctx.textAlign = "left";
@@ -11206,7 +11212,7 @@ var CanvasPlotter = function (_Plotter) {
             this.ctx.rotate(-kicad_common_1.DECIDEG2RAD(orientation));
             this.ctx.font = (italic ? "italic " : "") + (bold ? "bold " : "") + size + "px monospace";
             // console.log('fillText', text, p.x, p.y, hjustfy, vjustify);
-            this.ctx.fillText(_text, 0, 0);
+            this.ctx.fillText(_text2, 0, 0);
             this.ctx.restore();
         }
         /**
@@ -11360,7 +11366,7 @@ var SVGPlotter = function (_Plotter2) {
         }
     }, {
         key: "text",
-        value: function text(p, color, _text2, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
+        value: function text(p, color, _text3, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
             this.setColor(color);
             var textAnchor = void 0;
             if (hjustfy === kicad_common_1.TextHjustify.LEFT) {
@@ -11382,7 +11388,7 @@ var SVGPlotter = function (_Plotter2) {
             var fontStyle = italic ? "italic" : "normal";
             var rotate = -orientation / 10;
             var x = this.xmlTag;
-            var lines = _text2.split(/\n/);
+            var lines = _text3.split(/\n/);
             for (var i = 0, len = lines.length; i < len; i++) {
                 var y = p.y + i * size * 1.2;
                 this.output += this.xmlTag(_templateObject5, p.x, y, textAnchor, dominantBaseline, size, fontWeight, fontStyle, this.color.toCSSColor(), rotate, p.x, p.y, lines[i]);

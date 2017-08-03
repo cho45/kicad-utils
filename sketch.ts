@@ -7,7 +7,12 @@ import { Schematic } from "kicad_sch";
 
 import * as fs from "fs";
 
-{
+function ensure<T>(arg: T | null | undefined): T {
+	if (!arg) throw "arg is falsy";
+	return arg;
+}
+
+{ // do sch
 //	const lib = Library.load(fs.readFileSync('../keyboard-schematic/Root-cache.lib', 'utf-8'));
 //	const sch = Schematic.load(fs.readFileSync('../keyboard-schematic/Root.sch', 'utf-8'));
 //	const lib = Library.load(fs.readFileSync('../keyboard-schematic/KeyModule-L-cache.lib', 'utf-8'));
@@ -61,15 +66,6 @@ import * as fs from "fs";
 }
 
 /*
-// const content = fs.readFileSync('../project/keyboard-schematic/Root-cache.lib', 'utf-8')
-{
-	const content = fs.readFileSync('/Library/Application Support/kicad/library/device.lib', 'utf-8')
-	const lib = Library.load(content);
-	const component = lib.findByName("CP1");
-	console.log(component);
-	console.log(component.draw);
-}
-
 //{
 //	const content = fs.readFileSync('/Library/Application Support/kicad/library/74xx.lib', 'utf-8')
 //	const lib = Library.load(content);
@@ -82,7 +78,7 @@ const Canvas = require('canvas');
 const canvas = new Canvas(2000, 2000);
 
 const ctx = canvas.getContext('2d');
-const content = fs.readFileSync('/Library/Application Support/kicad/library/device.lib', 'utf-8')
+const content = fs.readFileSync('../keyboard-schematic/Root-cache.lib', 'utf-8')
 const lib = Library.load(content);
 
 // const component = lib.findByName("INDUCTOR");
@@ -91,12 +87,9 @@ const lib = Library.load(content);
 // const component = lib.findByName("Led_x2");
 
 const plotter = new CanvasPlotter(ctx);
-plotter.plotLibComponent(lib.findByName("Coded_Switch"), 1, 1, { x: 500, y: 500 }, new Transform());
-plotter.plotLibComponent(lib.findByName("LED_RGB"), 1, 1, { x: 1500, y: 500 }, new Transform());
-plotter.plotLibComponent(lib.findByName("ZENER"), 1, 1, { x: 500, y: 1500 }, new Transform());
-plotter.plotLibComponent(lib.findByName("TVS"), 1, 1, { x: 1500, y: 1500 }, new Transform());
+plotter.plotLibComponent(ensure(lib.findByName("Battery")), 1, 1, { x: 500, y: 500 }, new Transform());
 
-const out = fs.createWriteStream(__dirname + '/text.png'), stream = canvas.pngStream();
+const out = fs.createWriteStream('text.png'), stream = canvas.pngStream();
 
 stream.on('data', function (chunk: any) {
 	out.write(chunk);
