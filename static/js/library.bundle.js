@@ -1731,6 +1731,10 @@ module.exports = __webpack_require__(32)|| !__webpack_require__(3)(function(){
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -1739,7 +1743,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
  *	length: mil (1/1000 inch)
  *	angles: decidegree (1/10 degrees)
  */
-exports.DEFAULT_LINE_WIDTH = 6;
 function DECIDEG2RAD(deg) {
     return deg * Math.PI / 1800;
 }
@@ -1954,6 +1957,108 @@ var Rect = function () {
 }();
 
 exports.Rect = Rect;
+
+var Color = function () {
+    // max 255 int
+    function Color(r, g, b) {
+        _classCallCheck(this, Color);
+
+        this.r = r;
+        this.g = g;
+        this.b = b;
+    }
+
+    _createClass(Color, [{
+        key: "toCSSColor",
+        value: function toCSSColor() {
+            return "rgb(" + this.r + ", " + this.g + ", " + this.b + ")";
+        }
+    }]);
+
+    return Color;
+}();
+// common/colors.cpp 
+
+
+Color.BLACK = new Color(0, 0, 0);
+Color.DARKDARKGRAY = new Color(72, 72, 72);
+Color.DARKGRAY = new Color(132, 132, 132);
+Color.LIGHTGRAY = new Color(194, 194, 194);
+Color.WHITE = new Color(255, 255, 255);
+Color.LIGHTYELLOW = new Color(255, 255, 194);
+Color.DARKBLUE = new Color(0, 0, 72);
+Color.DARKGREEN = new Color(0, 72, 0);
+Color.DARKCYAN = new Color(0, 72, 72);
+Color.DARKRED = new Color(72, 0, 0);
+Color.DARKMAGENTA = new Color(72, 0, 72);
+Color.DARKBROWN = new Color(72, 72, 0);
+Color.BLUE = new Color(0, 0, 132);
+Color.GREEN = new Color(0, 132, 0);
+Color.CYAN = new Color(0, 132, 132);
+Color.RED = new Color(132, 0, 0);
+Color.MAGENTA = new Color(132, 0, 132);
+Color.BROWN = new Color(132, 132, 0);
+Color.LIGHTBLUE = new Color(0, 0, 194);
+Color.LIGHTGREEN = new Color(0, 194, 0);
+Color.LIGHTCYAN = new Color(0, 194, 194);
+Color.LIGHTRED = new Color(194, 0, 0);
+Color.LIGHTMAGENTA = new Color(194, 0, 194);
+Color.YELLOW = new Color(194, 194, 0);
+Color.PUREBLUE = new Color(0, 0, 255);
+Color.PUREGREEN = new Color(0, 255, 0);
+Color.PURECYAN = new Color(0, 255, 255);
+Color.PURERED = new Color(255, 0, 0);
+Color.PUREMAGENTA = new Color(255, 0, 255);
+Color.PUREYELLOW = new Color(255, 255, 0);
+exports.Color = Color;
+
+var ColorDefinition = function (_Color) {
+    _inherits(ColorDefinition, _Color);
+
+    function ColorDefinition(c, name, light) {
+        _classCallCheck(this, ColorDefinition);
+
+        var _this = _possibleConstructorReturn(this, (ColorDefinition.__proto__ || Object.getPrototypeOf(ColorDefinition)).call(this, c.r, c.g, c.b));
+
+        _this.name = name;
+        _this.light = light;
+        return _this;
+    }
+
+    return ColorDefinition;
+}(Color);
+
+ColorDefinition.BLACK = new ColorDefinition(Color.BLACK, "Black", Color.DARKDARKGRAY);
+ColorDefinition.DARKDARKGRAY = new ColorDefinition(Color.DARKDARKGRAY, "Gray 1", Color.DARKGRAY);
+ColorDefinition.DARKGRAY = new ColorDefinition(Color.DARKGRAY, "Gray 2", Color.LIGHTGRAY);
+ColorDefinition.LIGHTGRAY = new ColorDefinition(Color.LIGHTGRAY, "Gray 3", Color.WHITE);
+ColorDefinition.WHITE = new ColorDefinition(Color.WHITE, "White", Color.WHITE);
+ColorDefinition.LIGHTYELLOW = new ColorDefinition(Color.LIGHTYELLOW, "L.Yellow", Color.WHITE);
+ColorDefinition.DARKBLUE = new ColorDefinition(Color.DARKBLUE, "Blue 1", Color.BLUE);
+ColorDefinition.DARKGREEN = new ColorDefinition(Color.DARKGREEN, "Green 1", Color.GREEN);
+ColorDefinition.DARKCYAN = new ColorDefinition(Color.DARKCYAN, "Cyan 1", Color.CYAN);
+ColorDefinition.DARKRED = new ColorDefinition(Color.DARKRED, "Red 1", Color.RED);
+ColorDefinition.DARKMAGENTA = new ColorDefinition(Color.DARKMAGENTA, "Magenta 1", Color.MAGENTA);
+ColorDefinition.DARKBROWN = new ColorDefinition(Color.DARKBROWN, "Brown 1", Color.BROWN);
+ColorDefinition.BLUE = new ColorDefinition(Color.BLUE, "Blue 2", Color.LIGHTBLUE);
+ColorDefinition.GREEN = new ColorDefinition(Color.GREEN, "Green 2", Color.LIGHTGREEN);
+ColorDefinition.CYAN = new ColorDefinition(Color.CYAN, "Cyan 2", Color.LIGHTCYAN);
+ColorDefinition.RED = new ColorDefinition(Color.RED, "Red 2", Color.LIGHTRED);
+ColorDefinition.MAGENTA = new ColorDefinition(Color.MAGENTA, "Magenta 2", Color.LIGHTMAGENTA);
+ColorDefinition.BROWN = new ColorDefinition(Color.BROWN, "Brown 2", Color.YELLOW);
+ColorDefinition.LIGHTBLUE = new ColorDefinition(Color.LIGHTBLUE, "Blue 3", Color.PUREBLUE);
+ColorDefinition.LIGHTGREEN = new ColorDefinition(Color.LIGHTGREEN, "Green 3", Color.PUREGREEN);
+ColorDefinition.LIGHTCYAN = new ColorDefinition(Color.LIGHTCYAN, "Cyan 3", Color.PURECYAN);
+ColorDefinition.LIGHTRED = new ColorDefinition(Color.LIGHTRED, "Red 3", Color.PURERED);
+ColorDefinition.LIGHTMAGENTA = new ColorDefinition(Color.LIGHTMAGENTA, "Magenta 3", Color.PUREMAGENTA);
+ColorDefinition.YELLOW = new ColorDefinition(Color.YELLOW, "Yellow 3", Color.PUREYELLOW);
+ColorDefinition.PUREBLUE = new ColorDefinition(Color.PUREBLUE, "Blue 4", Color.WHITE);
+ColorDefinition.PUREGREEN = new ColorDefinition(Color.PUREGREEN, "Green 4", Color.WHITE);
+ColorDefinition.PURECYAN = new ColorDefinition(Color.PURECYAN, "Cyan 4", Color.WHITE);
+ColorDefinition.PURERED = new ColorDefinition(Color.PURERED, "Red 4", Color.WHITE);
+ColorDefinition.PUREMAGENTA = new ColorDefinition(Color.PUREMAGENTA, "Magenta 4", Color.WHITE);
+ColorDefinition.PUREYELLOW = new ColorDefinition(Color.PUREYELLOW, "Yellow 4", Color.WHITE);
+exports.ColorDefinition = ColorDefinition;
 var Fill;
 (function (Fill) {
     Fill["NO_FILL"] = "N";
@@ -4250,6 +4355,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var kicad_common_1 = __webpack_require__(59);
+var TextOrientationType;
+(function (TextOrientationType) {
+    TextOrientationType[TextOrientationType["HORIZ_LEFT"] = 0] = "HORIZ_LEFT";
+    TextOrientationType[TextOrientationType["UP"] = 1] = "UP";
+    TextOrientationType[TextOrientationType["HORIZ_RIGHT"] = 2] = "HORIZ_RIGHT";
+    TextOrientationType[TextOrientationType["BOTTOM"] = 3] = "BOTTOM";
+})(TextOrientationType = exports.TextOrientationType || (exports.TextOrientationType = {}));
+;
 
 var Schematic = function () {
     _createClass(Schematic, null, [{
@@ -4371,7 +4484,7 @@ var Sheet = function (_SchItem) {
                         this.fileName = kicad_common_1.ReadDelimitedText(tokens[1]);
                         this.fileNameSize = Number(tokens[2]);
                     } else {
-                        this.sheetPins.push(new SheetPin(tokens.slice(1)).parse(lines));
+                        this.sheetPins.push(new SheetPin(n, tokens.slice(1)).parse(lines));
                     }
                 }
             }
@@ -4384,46 +4497,17 @@ var Sheet = function (_SchItem) {
 
 exports.Sheet = Sheet;
 
-var SheetPin = function (_SchItem2) {
-    _inherits(SheetPin, _SchItem2);
-
-    function SheetPin(tokens) {
-        _classCallCheck(this, SheetPin);
-
-        var _this2 = _possibleConstructorReturn(this, (SheetPin.__proto__ || Object.getPrototypeOf(SheetPin)).call(this));
-
-        _this2.name = tokens[0];
-        _this2.connectType = tokens[1][0];
-        _this2.sheetSide = tokens[2][0];
-        _this2.posx = Number(tokens[3]);
-        _this2.posy = Number(tokens[4]);
-        _this2.textWidth = Number(tokens[5]);
-        return _this2;
-    }
-
-    _createClass(SheetPin, [{
-        key: "parse",
-        value: function parse(lines) {
-            return this;
-        }
-    }]);
-
-    return SheetPin;
-}(SchItem);
-
-exports.SheetPin = SheetPin;
-
-var SchComponent = function (_SchItem3) {
-    _inherits(SchComponent, _SchItem3);
+var SchComponent = function (_SchItem2) {
+    _inherits(SchComponent, _SchItem2);
 
     function SchComponent() {
         _classCallCheck(this, SchComponent);
 
-        var _this3 = _possibleConstructorReturn(this, (SchComponent.__proto__ || Object.getPrototypeOf(SchComponent)).call(this));
+        var _this2 = _possibleConstructorReturn(this, (SchComponent.__proto__ || Object.getPrototypeOf(SchComponent)).call(this));
 
-        _this3.ar = {};
-        _this3.fields = [];
-        return _this3;
+        _this2.ar = {};
+        _this2.fields = [];
+        return _this2;
     }
 
     _createClass(SchComponent, [{
@@ -4483,31 +4567,31 @@ var SchComponent = function (_SchItem3) {
 
 exports.SchComponent = SchComponent;
 
-var Field = function (_SchItem4) {
-    _inherits(Field, _SchItem4);
+var Field = function (_SchItem3) {
+    _inherits(Field, _SchItem3);
 
     function Field(tokens) {
         _classCallCheck(this, Field);
 
-        var _this4 = _possibleConstructorReturn(this, (Field.__proto__ || Object.getPrototypeOf(Field)).call(this));
+        var _this3 = _possibleConstructorReturn(this, (Field.__proto__ || Object.getPrototypeOf(Field)).call(this));
 
         var i = 0;
-        _this4.number = Number(tokens[i++]);
-        _this4.text = kicad_common_1.ReadDelimitedText(tokens[i++]);
+        _this3.number = Number(tokens[i++]);
+        _this3.text = kicad_common_1.ReadDelimitedText(tokens[i++]);
         if (tokens[i + 1][0] === '"') {
-            _this4.name = kicad_common_1.ReadDelimitedText(tokens[i++]);
+            _this3.name = kicad_common_1.ReadDelimitedText(tokens[i++]);
         }
-        _this4.angle = tokens[i++] === 'V' ? kicad_common_1.TextAngle.VERT : kicad_common_1.TextAngle.HORIZ;
-        _this4.posx = Number(tokens[i++]);
-        _this4.posy = Number(tokens[i++]);
-        _this4.width = Number(tokens[i++]);
-        _this4.visibility = Number(tokens[i++]) !== 0;
-        _this4.hjustify = tokens[i++];
+        _this3.angle = tokens[i++] === 'V' ? kicad_common_1.TextAngle.VERT : kicad_common_1.TextAngle.HORIZ;
+        _this3.posx = Number(tokens[i++]);
+        _this3.posy = Number(tokens[i++]);
+        _this3.width = Number(tokens[i++]);
+        _this3.visibility = Number(tokens[i++]) !== 0;
+        _this3.hjustify = tokens[i++];
         var char3 = tokens[i++];
-        _this4.vjustify = char3[0];
-        _this4.italic = char3[1] === 'I';
-        _this4.bold = char3[2] === 'B';
-        return _this4;
+        _this3.vjustify = char3[0];
+        _this3.italic = char3[1] === 'I';
+        _this3.bold = char3[2] === 'B';
+        return _this3;
     }
 
     return Field;
@@ -4564,8 +4648,8 @@ var Descr = function () {
 
 exports.Descr = Descr;
 
-var Bitmap = function (_SchItem5) {
-    _inherits(Bitmap, _SchItem5);
+var Bitmap = function (_SchItem4) {
+    _inherits(Bitmap, _SchItem4);
 
     function Bitmap() {
         _classCallCheck(this, Bitmap);
@@ -4586,11 +4670,42 @@ var Bitmap = function (_SchItem5) {
                 } else if (tokens[0] === 'Scale') {
                     this.scale = Number(tokens[1]);
                 } else if (tokens[0] === 'Data') {
-                    this.data = '';
+                    var chunks = [];
                     while ((line = lines.shift()) !== undefined) {
                         if (line === 'EndData') break;
-                        // raw hex data
-                        this.data += line;
+                        chunks.push(Uint8Array.from(line.replace(/^\s+|\s+$/g, '').split(/\s+/).map(function (hex) {
+                            return parseInt(hex, 16);
+                        })));
+                    }
+                    var size = chunks.reduce(function (r, i) {
+                        return r + i.length;
+                    }, 0);
+                    this.data = new Uint8Array(size);
+                    var offset = 0;
+                    var _iteratorNormalCompletion = true;
+                    var _didIteratorError = false;
+                    var _iteratorError = undefined;
+
+                    try {
+                        for (var _iterator = chunks[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                            var chunk = _step.value;
+
+                            this.data.set(chunk, offset);
+                            offset += chunk.length;
+                        }
+                    } catch (err) {
+                        _didIteratorError = true;
+                        _iteratorError = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion && _iterator.return) {
+                                _iterator.return();
+                            }
+                        } finally {
+                            if (_didIteratorError) {
+                                throw _iteratorError;
+                            }
+                        }
                     }
                 } else {
                     throw "unexpected token " + tokens[0];
@@ -4598,95 +4713,125 @@ var Bitmap = function (_SchItem5) {
             }
             return this;
         }
+    }, {
+        key: "parseIHDR",
+
+        // we need to parse png file to know image dimension
+        value: function parseIHDR() {
+            if (!this.isValidPNG) {
+                throw "this is not a valid png file: invalid signature";
+            }
+            var IHDR = new DataView(this.data.buffer, Bitmap.PNG_SIGNATURE.length, 25);
+            var size = IHDR.getUint32(0);
+            var name = String.fromCharCode(IHDR.getUint8(4), IHDR.getUint8(5), IHDR.getUint8(6), IHDR.getUint8(7));
+            if (name !== 'IHDR' || size !== 13) {
+                throw "this is not a valid png file: invalid IHDR";
+            }
+            this.width = IHDR.getUint32(0x08);
+            this.height = IHDR.getUint32(0x0c);
+        }
+    }, {
+        key: "isValidPNG",
+        get: function get() {
+            var signature = String.fromCharCode.apply(String, _toConsumableArray(this.data.slice(0, Bitmap.PNG_SIGNATURE.length)));
+            return signature === Bitmap.PNG_SIGNATURE;
+        }
     }]);
 
     return Bitmap;
 }(SchItem);
 
+Bitmap.PNG_SIGNATURE = "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A";
 exports.Bitmap = Bitmap;
 
-var Text = function (_SchItem6) {
-    _inherits(Text, _SchItem6);
+var Text = function (_SchItem5) {
+    _inherits(Text, _SchItem5);
 
     function Text(tokens) {
         _classCallCheck(this, Text);
 
-        var _this6 = _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this));
+        var _this5 = _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this));
 
-        _this6.name1 = tokens[0];
-        _this6.posx = Number(tokens[1]);
-        _this6.posy = Number(tokens[2]);
+        if (!tokens) return _possibleConstructorReturn(_this5);
+        _this5.name1 = tokens[0];
+        _this5.posx = Number(tokens[1]);
+        _this5.posy = Number(tokens[2]);
         var orientationType = Number(tokens[3]);
-        if (_this6.name1 === "GLabel") {
-            if (orientationType === 0) {
-                _this6.orientation = kicad_common_1.TextAngle.HORIZ;
-                _this6.hjustify = kicad_common_1.TextHjustify.RIGHT;
-                _this6.vjustify = kicad_common_1.TextVjustify.CENTER;
-            } else if (orientationType === 1) {
-                _this6.orientation = kicad_common_1.TextAngle.VERT;
-                _this6.hjustify = kicad_common_1.TextHjustify.LEFT;
-                _this6.vjustify = kicad_common_1.TextVjustify.CENTER;
-            } else if (orientationType === 2) {
-                _this6.orientation = kicad_common_1.TextAngle.HORIZ;
-                _this6.hjustify = kicad_common_1.TextHjustify.LEFT;
-                _this6.vjustify = kicad_common_1.TextVjustify.CENTER;
-            } else if (orientationType === 3) {
-                _this6.orientation = kicad_common_1.TextAngle.VERT;
-                _this6.hjustify = kicad_common_1.TextHjustify.RIGHT;
-                _this6.vjustify = kicad_common_1.TextVjustify.CENTER;
-            } else {
-                throw "invalid orientationType: " + orientationType;
-            }
-        } else if (_this6.name1 === 'HLabel') {
-            if (orientationType === 0) {
-                _this6.orientation = kicad_common_1.TextAngle.HORIZ;
-                _this6.hjustify = kicad_common_1.TextHjustify.RIGHT;
-                _this6.vjustify = kicad_common_1.TextVjustify.CENTER;
-            } else if (orientationType === 1) {
-                _this6.orientation = kicad_common_1.TextAngle.VERT;
-                _this6.hjustify = kicad_common_1.TextHjustify.LEFT;
-                _this6.vjustify = kicad_common_1.TextVjustify.CENTER;
-            } else if (orientationType === 2) {
-                _this6.orientation = kicad_common_1.TextAngle.HORIZ;
-                _this6.hjustify = kicad_common_1.TextHjustify.LEFT;
-                _this6.vjustify = kicad_common_1.TextVjustify.CENTER;
-            } else if (orientationType === 3) {
-                _this6.orientation = kicad_common_1.TextAngle.VERT;
-                _this6.hjustify = kicad_common_1.TextHjustify.RIGHT;
-                _this6.vjustify = kicad_common_1.TextVjustify.CENTER;
-            } else {
-                throw "invalid orientationType: " + orientationType;
-            }
-        } else {
-            if (orientationType === 0) {
-                _this6.orientation = kicad_common_1.TextAngle.HORIZ;
-                _this6.hjustify = kicad_common_1.TextHjustify.LEFT;
-                _this6.vjustify = kicad_common_1.TextVjustify.BOTTOM;
-            } else if (orientationType === 1) {
-                _this6.orientation = kicad_common_1.TextAngle.VERT;
-                _this6.hjustify = kicad_common_1.TextHjustify.LEFT;
-                _this6.vjustify = kicad_common_1.TextVjustify.BOTTOM;
-            } else if (orientationType === 2) {
-                _this6.orientation = kicad_common_1.TextAngle.HORIZ;
-                _this6.hjustify = kicad_common_1.TextHjustify.RIGHT;
-                _this6.vjustify = kicad_common_1.TextVjustify.BOTTOM;
-            } else if (orientationType === 3) {
-                _this6.orientation = kicad_common_1.TextAngle.VERT;
-                _this6.hjustify = kicad_common_1.TextHjustify.RIGHT;
-                _this6.vjustify = kicad_common_1.TextVjustify.BOTTOM;
-            } else {
-                throw "invalid orientationType: " + orientationType;
-            }
-        }
-        _this6.orientationType = orientationType;
-        _this6.size = Number(tokens[4]);
-        _this6.shape = tokens[5][0];
-        _this6.italic = tokens[6] == "Italic";
-        _this6.bold = Number(tokens[7]) !== 0;
-        return _this6;
+        _this5.setOrientationType(orientationType);
+        _this5.size = Number(tokens[4]);
+        _this5.shape = tokens[5][0];
+        _this5.italic = tokens[6] == "Italic";
+        _this5.bold = Number(tokens[7]) !== 0;
+        return _this5;
     }
 
     _createClass(Text, [{
+        key: "setOrientationType",
+        value: function setOrientationType(orientationType) {
+            this.orientationType = orientationType;
+            if (this.name1 === "GLabel") {
+                if (orientationType === TextOrientationType.HORIZ_LEFT) {
+                    this.orientation = kicad_common_1.TextAngle.HORIZ;
+                    this.hjustify = kicad_common_1.TextHjustify.RIGHT;
+                    this.vjustify = kicad_common_1.TextVjustify.CENTER;
+                } else if (orientationType === TextOrientationType.UP) {
+                    this.orientation = kicad_common_1.TextAngle.VERT;
+                    this.hjustify = kicad_common_1.TextHjustify.LEFT;
+                    this.vjustify = kicad_common_1.TextVjustify.CENTER;
+                } else if (orientationType === TextOrientationType.HORIZ_RIGHT) {
+                    this.orientation = kicad_common_1.TextAngle.HORIZ;
+                    this.hjustify = kicad_common_1.TextHjustify.LEFT;
+                    this.vjustify = kicad_common_1.TextVjustify.CENTER;
+                } else if (orientationType === TextOrientationType.BOTTOM) {
+                    this.orientation = kicad_common_1.TextAngle.VERT;
+                    this.hjustify = kicad_common_1.TextHjustify.RIGHT;
+                    this.vjustify = kicad_common_1.TextVjustify.CENTER;
+                } else {
+                    throw "invalid orientationType: " + orientationType;
+                }
+            } else if (this.name1 === 'HLabel') {
+                if (orientationType === TextOrientationType.HORIZ_LEFT) {
+                    this.orientation = kicad_common_1.TextAngle.HORIZ;
+                    this.hjustify = kicad_common_1.TextHjustify.RIGHT;
+                    this.vjustify = kicad_common_1.TextVjustify.CENTER;
+                } else if (orientationType === TextOrientationType.UP) {
+                    this.orientation = kicad_common_1.TextAngle.VERT;
+                    this.hjustify = kicad_common_1.TextHjustify.LEFT;
+                    this.vjustify = kicad_common_1.TextVjustify.CENTER;
+                } else if (orientationType === TextOrientationType.HORIZ_RIGHT) {
+                    this.orientation = kicad_common_1.TextAngle.HORIZ;
+                    this.hjustify = kicad_common_1.TextHjustify.LEFT;
+                    this.vjustify = kicad_common_1.TextVjustify.CENTER;
+                } else if (orientationType === TextOrientationType.BOTTOM) {
+                    this.orientation = kicad_common_1.TextAngle.VERT;
+                    this.hjustify = kicad_common_1.TextHjustify.RIGHT;
+                    this.vjustify = kicad_common_1.TextVjustify.CENTER;
+                } else {
+                    throw "invalid orientationType: " + orientationType;
+                }
+            } else {
+                if (orientationType === TextOrientationType.HORIZ_LEFT) {
+                    this.orientation = kicad_common_1.TextAngle.HORIZ;
+                    this.hjustify = kicad_common_1.TextHjustify.LEFT;
+                    this.vjustify = kicad_common_1.TextVjustify.BOTTOM;
+                } else if (orientationType === TextOrientationType.UP) {
+                    this.orientation = kicad_common_1.TextAngle.VERT;
+                    this.hjustify = kicad_common_1.TextHjustify.LEFT;
+                    this.vjustify = kicad_common_1.TextVjustify.BOTTOM;
+                } else if (orientationType === TextOrientationType.HORIZ_RIGHT) {
+                    this.orientation = kicad_common_1.TextAngle.HORIZ;
+                    this.hjustify = kicad_common_1.TextHjustify.RIGHT;
+                    this.vjustify = kicad_common_1.TextVjustify.BOTTOM;
+                } else if (orientationType === TextOrientationType.BOTTOM) {
+                    this.orientation = kicad_common_1.TextAngle.VERT;
+                    this.hjustify = kicad_common_1.TextHjustify.RIGHT;
+                    this.vjustify = kicad_common_1.TextVjustify.BOTTOM;
+                } else {
+                    throw "invalid orientationType: " + orientationType;
+                }
+            }
+        }
+    }, {
         key: "parse",
         value: function parse(lines) {
             var text = lines.shift();
@@ -4701,17 +4846,17 @@ var Text = function (_SchItem6) {
 
 exports.Text = Text;
 
-var Wire = function (_SchItem7) {
-    _inherits(Wire, _SchItem7);
+var Wire = function (_SchItem6) {
+    _inherits(Wire, _SchItem6);
 
     function Wire(tokens) {
         _classCallCheck(this, Wire);
 
-        var _this7 = _possibleConstructorReturn(this, (Wire.__proto__ || Object.getPrototypeOf(Wire)).call(this));
+        var _this6 = _possibleConstructorReturn(this, (Wire.__proto__ || Object.getPrototypeOf(Wire)).call(this));
 
-        _this7.name1 = tokens[0];
-        _this7.name2 = tokens[1];
-        return _this7;
+        _this6.name1 = tokens[0];
+        _this6.name2 = tokens[1];
+        return _this6;
     }
 
     _createClass(Wire, [{
@@ -4733,6 +4878,11 @@ var Wire = function (_SchItem7) {
 
             return this;
         }
+    }, {
+        key: "isBus",
+        get: function get() {
+            return this.name1[0] === 'B';
+        }
     }]);
 
     return Wire;
@@ -4740,37 +4890,44 @@ var Wire = function (_SchItem7) {
 
 exports.Wire = Wire;
 
-var Entry = function (_SchItem8) {
-    _inherits(Entry, _SchItem8);
+var Entry = function (_SchItem7) {
+    _inherits(Entry, _SchItem7);
 
     function Entry(tokens) {
         _classCallCheck(this, Entry);
 
-        var _this8 = _possibleConstructorReturn(this, (Entry.__proto__ || Object.getPrototypeOf(Entry)).call(this));
+        var _this7 = _possibleConstructorReturn(this, (Entry.__proto__ || Object.getPrototypeOf(Entry)).call(this));
 
-        _this8.name1 = tokens[0];
-        _this8.name2 = tokens[1];
-        return _this8;
+        _this7.name1 = tokens[0];
+        _this7.name2 = tokens[1];
+        return _this7;
     }
 
     _createClass(Entry, [{
         key: "parse",
         value: function parse(lines) {
             var entry = lines.shift();
-            if (!entry) throw "expected text wire but not";
+            if (!entry) throw "expected text entry but not";
 
-            var _entry$split$map = entry.split(/\s+/).map(function (i) {
+            var _entry$substring$spli = entry.substring(1).split(/\s+/).map(function (i) {
                 return Number(i);
             });
 
-            var _entry$split$map2 = _slicedToArray(_entry$split$map, 4);
+            var _entry$substring$spli2 = _slicedToArray(_entry$substring$spli, 4);
 
-            this.posx = _entry$split$map2[0];
-            this.posy = _entry$split$map2[1];
-            this.sizex = _entry$split$map2[2];
-            this.sizey = _entry$split$map2[3];
+            this.posx = _entry$substring$spli2[0];
+            this.posy = _entry$substring$spli2[1];
+            this.sizex = _entry$substring$spli2[2];
+            this.sizey = _entry$substring$spli2[3];
 
+            this.sizex -= this.posx;
+            this.sizey -= this.posy;
             return this;
+        }
+    }, {
+        key: "isBus",
+        get: function get() {
+            return this.name1[0] === 'B';
         }
     }]);
 
@@ -4779,18 +4936,18 @@ var Entry = function (_SchItem8) {
 
 exports.Entry = Entry;
 
-var Connection = function (_SchItem9) {
-    _inherits(Connection, _SchItem9);
+var Connection = function (_SchItem8) {
+    _inherits(Connection, _SchItem8);
 
     function Connection(tokens) {
         _classCallCheck(this, Connection);
 
-        var _this9 = _possibleConstructorReturn(this, (Connection.__proto__ || Object.getPrototypeOf(Connection)).call(this));
+        var _this8 = _possibleConstructorReturn(this, (Connection.__proto__ || Object.getPrototypeOf(Connection)).call(this));
 
-        _this9.name1 = tokens[0];
-        _this9.posx = Number(tokens[1]);
-        _this9.posy = Number(tokens[2]);
-        return _this9;
+        _this8.name1 = tokens[0];
+        _this8.posx = Number(tokens[1]);
+        _this8.posy = Number(tokens[2]);
+        return _this8;
     }
 
     _createClass(Connection, [{
@@ -4805,18 +4962,18 @@ var Connection = function (_SchItem9) {
 
 exports.Connection = Connection;
 
-var NoConn = function (_SchItem10) {
-    _inherits(NoConn, _SchItem10);
+var NoConn = function (_SchItem9) {
+    _inherits(NoConn, _SchItem9);
 
     function NoConn(tokens) {
         _classCallCheck(this, NoConn);
 
-        var _this10 = _possibleConstructorReturn(this, (NoConn.__proto__ || Object.getPrototypeOf(NoConn)).call(this));
+        var _this9 = _possibleConstructorReturn(this, (NoConn.__proto__ || Object.getPrototypeOf(NoConn)).call(this));
 
-        _this10.name1 = tokens[0];
-        _this10.posx = Number(tokens[1]);
-        _this10.posy = Number(tokens[2]);
-        return _this10;
+        _this9.name1 = tokens[0];
+        _this9.posx = Number(tokens[1]);
+        _this9.posy = Number(tokens[2]);
+        return _this9;
     }
 
     _createClass(NoConn, [{
@@ -4830,6 +4987,45 @@ var NoConn = function (_SchItem10) {
 }(SchItem);
 
 exports.NoConn = NoConn;
+
+var SheetPin = function (_Text) {
+    _inherits(SheetPin, _Text);
+
+    function SheetPin(n, tokens) {
+        _classCallCheck(this, SheetPin);
+
+        var _this10 = _possibleConstructorReturn(this, (SheetPin.__proto__ || Object.getPrototypeOf(SheetPin)).call(this));
+
+        _this10.number = n;
+        _this10.text = kicad_common_1.ReadDelimitedText(tokens[0]);
+        _this10.shape = tokens[1][0];
+        _this10.sheetSide = tokens[2][0];
+        _this10.posx = Number(tokens[3]);
+        _this10.posy = Number(tokens[4]);
+        _this10.size = Number(tokens[5]);
+        if (_this10.sheetSide === kicad_common_1.SheetSide.LEFT) {
+            _this10.setOrientationType(TextOrientationType.HORIZ_RIGHT);
+        } else if (_this10.sheetSide === kicad_common_1.SheetSide.RIGHT) {
+            _this10.setOrientationType(TextOrientationType.HORIZ_LEFT);
+        } else if (_this10.sheetSide === kicad_common_1.SheetSide.TOP) {
+            _this10.setOrientationType(TextOrientationType.BOTTOM);
+        } else if (_this10.sheetSide === kicad_common_1.SheetSide.BOTTOM) {
+            _this10.setOrientationType(TextOrientationType.UP);
+        }
+        return _this10;
+    }
+
+    _createClass(SheetPin, [{
+        key: "parse",
+        value: function parse(lines) {
+            return this;
+        }
+    }]);
+
+    return SheetPin;
+}(Text);
+
+exports.SheetPin = SheetPin;
 
 /***/ }),
 /* 117 */
@@ -10231,17 +10427,20 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _kicad_common_1$Net$I, _kicad_common_1$Net$O, _kicad_common_1$Net$U, _kicad_common_1$Net$B, _kicad_common_1$Net$T, _TEMPLATE_SHAPES;
+
 var _templateObject = _taggedTemplateLiteral(["<circle cx=\"", "\" cy=\"", "\" r=\"", "\" "], ["<circle cx=\"", "\" cy=\"", "\" r=\"", "\" "]),
-    _templateObject2 = _taggedTemplateLiteral([" style=\"stroke: #000000; fill: none; stroke-width: ", "\" stroke-linecap=\"round\"/>\n"], [" style=\"stroke: #000000; fill: none; stroke-width: ", "\" stroke-linecap=\"round\"/>\\n"]),
-    _templateObject3 = _taggedTemplateLiteral([" style=\"stroke: #000000; fill: #000000; stroke-width: ", "\" stroke-linecap=\"round\"/>\n"], [" style=\"stroke: #000000; fill: #000000; stroke-width: ", "\" stroke-linecap=\"round\"/>\\n"]),
+    _templateObject2 = _taggedTemplateLiteral([" style=\"stroke: ", "; fill: none; stroke-width: ", "\" stroke-linecap=\"round\"/>\n"], [" style=\"stroke: ", "; fill: none; stroke-width: ", "\" stroke-linecap=\"round\"/>\\n"]),
+    _templateObject3 = _taggedTemplateLiteral([" style=\"stroke: ", "; fill: ", "; stroke-width: ", "\" stroke-linecap=\"round\"/>\n"], [" style=\"stroke: ", "; fill: ", "; stroke-width: ", "\" stroke-linecap=\"round\"/>\\n"]),
     _templateObject4 = _taggedTemplateLiteral(["<path d=\"M", " ", " A", " ", " 0.0 ", " ", " ", " ", "\""], ["<path d=\"M", " ", " A", " ", " 0.0 ", " ", " ", " ", "\""]),
-    _templateObject5 = _taggedTemplateLiteral(["<text x=\"", "\" y=\"", "\"\n\t\t\t\ttext-anchor=\"", "\"\n\t\t\t\tdominant-baseline=\"", "\"\n\t\t\t\tfont-family=\"monospace\"\n\t\t\t\tfont-size=\"", "\"\n\t\t\t\tfont-weight=\"", "\"\n\t\t\t\tfont-style=\"", "\"\n\t\t\t\tfill=\"#000000\"\n\t\t\t\ttransform=\"rotate(", ", ", ", ", ")\">", "</text>"], ["<text x=\"", "\" y=\"", "\"\n\t\t\t\ttext-anchor=\"", "\"\n\t\t\t\tdominant-baseline=\"", "\"\n\t\t\t\tfont-family=\"monospace\"\n\t\t\t\tfont-size=\"", "\"\n\t\t\t\tfont-weight=\"", "\"\n\t\t\t\tfont-style=\"", "\"\n\t\t\t\tfill=\"#000000\"\n\t\t\t\ttransform=\"rotate(", ", ", ", ", ")\">", "</text>"]),
-    _templateObject6 = _taggedTemplateLiteral(["\" style=\"stroke: #000000; fill: none; stroke-width: ", "\" stroke-linecap=\"round\"/>\n"], ["\" style=\"stroke: #000000; fill: none; stroke-width: ", "\" stroke-linecap=\"round\"/>\\n"]),
-    _templateObject7 = _taggedTemplateLiteral(["\" style=\"stroke: #000000; fill: #000000; stroke-width: ", "\" stroke-linecap=\"round\"/>\n"], ["\" style=\"stroke: #000000; fill: #000000; stroke-width: ", "\" stroke-linecap=\"round\"/>\\n"]),
+    _templateObject5 = _taggedTemplateLiteral(["<text x=\"", "\" y=\"", "\"\n\t\t\t\ttext-anchor=\"", "\"\n\t\t\t\tdominant-baseline=\"", "\"\n\t\t\t\tfont-family=\"monospace\"\n\t\t\t\tfont-size=\"", "\"\n\t\t\t\tfont-weight=\"", "\"\n\t\t\t\tfont-style=\"", "\"\n\t\t\t\tstroke=\"none\"\n\t\t\t\tfill=\"", "\"\n\t\t\t\ttransform=\"rotate(", ", ", ", ", ")\">", "</text>"], ["<text x=\"", "\" y=\"", "\"\n\t\t\t\ttext-anchor=\"", "\"\n\t\t\t\tdominant-baseline=\"", "\"\n\t\t\t\tfont-family=\"monospace\"\n\t\t\t\tfont-size=\"", "\"\n\t\t\t\tfont-weight=\"", "\"\n\t\t\t\tfont-style=\"", "\"\n\t\t\t\tstroke=\"none\"\n\t\t\t\tfill=\"", "\"\n\t\t\t\ttransform=\"rotate(", ", ", ", ", ")\">", "</text>"]),
+    _templateObject6 = _taggedTemplateLiteral(["\" style=\"stroke: ", "; fill: none; stroke-width: ", "\" stroke-linecap=\"round\"/>\n"], ["\" style=\"stroke: ", "; fill: none; stroke-width: ", "\" stroke-linecap=\"round\"/>\\n"]),
+    _templateObject7 = _taggedTemplateLiteral(["\" style=\"stroke: ", "; fill: ", "; stroke-width: ", "\" stroke-linecap=\"round\"/>\n"], ["\" style=\"stroke: ", "; fill: ", "; stroke-width: ", "\" stroke-linecap=\"round\"/>\\n"]),
     _templateObject8 = _taggedTemplateLiteral(["<path d=\"M", " ", "\n"], ["<path d=\"M", " ", "\\n"]),
     _templateObject9 = _taggedTemplateLiteral(["M", " ", "\n"], ["M", " ", "\\n"]),
     _templateObject10 = _taggedTemplateLiteral(["L", " ", "\n"], ["L", " ", "\\n"]),
-    _templateObject11 = _taggedTemplateLiteral(["<svg preserveAspectRatio=\"xMinYMin\"\n\t\t\twidth=\"", "\"\n\t\t\theight=\"", "\"\n\t\t\tviewBox=\"0 0 ", " ", "\"\n\t\t\txmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">"], ["<svg preserveAspectRatio=\"xMinYMin\"\n\t\t\twidth=\"", "\"\n\t\t\theight=\"", "\"\n\t\t\tviewBox=\"0 0 ", " ", "\"\n\t\t\txmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">"]);
+    _templateObject11 = _taggedTemplateLiteral(["<image\n\t\t\txlink:href=\"", "\"\n\t\t\tx=\"", "\"\n\t\t\ty=\"", "\"\n\t\t\twidth=\"", "\"\n\t\t\theight=\"", "\"\n\t\t\t/>"], ["<image\n\t\t\txlink:href=\"", "\"\n\t\t\tx=\"", "\"\n\t\t\ty=\"", "\"\n\t\t\twidth=\"", "\"\n\t\t\theight=\"", "\"\n\t\t\t/>"]),
+    _templateObject12 = _taggedTemplateLiteral(["<svg preserveAspectRatio=\"xMinYMin\"\n\t\t\twidth=\"", "\"\n\t\t\theight=\"", "\"\n\t\t\tviewBox=\"0 0 ", " ", "\"\n\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\txmlns:xlink=\"http://www.w3.org/1999/xlink\"\n\t\t\tversion=\"1.1\">"], ["<svg preserveAspectRatio=\"xMinYMin\"\n\t\t\twidth=\"", "\"\n\t\t\theight=\"", "\"\n\t\t\tviewBox=\"0 0 ", " ", "\"\n\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\txmlns:xlink=\"http://www.w3.org/1999/xlink\"\n\t\t\tversion=\"1.1\">"]);
 
 function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
@@ -10251,12 +10450,45 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 Object.defineProperty(exports, "__esModule", { value: true });
 var kicad_common_1 = __webpack_require__(59);
 var kicad_lib_1 = __webpack_require__(115);
 var kicad_sch_1 = __webpack_require__(116);
 var TXT_MARGIN = 4;
 var PIN_TXT_MARGIN = 4;
+var DEFAULT_LINE_WIDTH = 6;
+var DEFAULT_LINE_WIDTH_BUS = 12;
+var SCH_COLORS = {
+    LAYER_WIRE: kicad_common_1.Color.GREEN,
+    LAYER_BUS: kicad_common_1.Color.BLUE,
+    LAYER_JUNCTION: kicad_common_1.Color.GREEN,
+    LAYER_LOCLABEL: kicad_common_1.Color.BLACK,
+    LAYER_HIERLABEL: kicad_common_1.Color.BROWN,
+    LAYER_GLOBLABEL: kicad_common_1.Color.RED,
+    LAYER_PINNUM: kicad_common_1.Color.RED,
+    LAYER_PINNAM: kicad_common_1.Color.CYAN,
+    LAYER_FIELDS: kicad_common_1.Color.MAGENTA,
+    LAYER_REFERENCEPART: kicad_common_1.Color.CYAN,
+    LAYER_VALUEPART: kicad_common_1.Color.CYAN,
+    LAYER_NOTES: kicad_common_1.Color.LIGHTBLUE,
+    LAYER_DEVICE: kicad_common_1.Color.RED,
+    LAYER_DEVICE_BACKGROUND: kicad_common_1.Color.LIGHTYELLOW,
+    LAYER_NETNAM: kicad_common_1.Color.DARKGRAY,
+    LAYER_PIN: kicad_common_1.Color.RED,
+    LAYER_SHEET: kicad_common_1.Color.MAGENTA,
+    LAYER_SHEETFILENAME: kicad_common_1.Color.BROWN,
+    LAYER_SHEETNAME: kicad_common_1.Color.CYAN,
+    LAYER_SHEETLABEL: kicad_common_1.Color.BROWN,
+    LAYER_NOCONNECT: kicad_common_1.Color.BLUE,
+    LAYER_ERC_WARN: kicad_common_1.Color.GREEN,
+    LAYER_ERC_ERR: kicad_common_1.Color.RED,
+    LAYER_SCHEMATIC_GRID: kicad_common_1.Color.DARKGRAY,
+    LAYER_SCHEMATIC_BACKGROUND: kicad_common_1.Color.WHITE,
+    LAYER_BRIGHTENED: kicad_common_1.Color.PUREMAGENTA
+};
+var TEMPLATE_SHAPES = (_TEMPLATE_SHAPES = {}, _defineProperty(_TEMPLATE_SHAPES, kicad_common_1.Net.INPUT, (_kicad_common_1$Net$I = {}, _defineProperty(_kicad_common_1$Net$I, kicad_sch_1.TextOrientationType.HORIZ_LEFT, [6, 0, 0, -1, -1, -2, -1, -2, 1, -1, 1, 0, 0]), _defineProperty(_kicad_common_1$Net$I, kicad_sch_1.TextOrientationType.UP, [6, 0, 0, 1, -1, 1, -2, -1, -2, -1, -1, 0, 0]), _defineProperty(_kicad_common_1$Net$I, kicad_sch_1.TextOrientationType.HORIZ_RIGHT, [6, 0, 0, 1, 1, 2, 1, 2, -1, 1, -1, 0, 0]), _defineProperty(_kicad_common_1$Net$I, kicad_sch_1.TextOrientationType.BOTTOM, [6, 0, 0, 1, 1, 1, 2, -1, 2, -1, 1, 0, 0]), _kicad_common_1$Net$I)), _defineProperty(_TEMPLATE_SHAPES, kicad_common_1.Net.OUTPUT, (_kicad_common_1$Net$O = {}, _defineProperty(_kicad_common_1$Net$O, kicad_sch_1.TextOrientationType.HORIZ_LEFT, [6, -2, 0, -1, 1, 0, 1, 0, -1, -1, -1, -2, 0]), _defineProperty(_kicad_common_1$Net$O, kicad_sch_1.TextOrientationType.HORIZ_RIGHT, [6, 2, 0, 1, -1, 0, -1, 0, 1, 1, 1, 2, 0]), _defineProperty(_kicad_common_1$Net$O, kicad_sch_1.TextOrientationType.UP, [6, 0, -2, 1, -1, 1, 0, -1, 0, -1, -1, 0, -2]), _defineProperty(_kicad_common_1$Net$O, kicad_sch_1.TextOrientationType.BOTTOM, [6, 0, 2, 1, 1, 1, 0, -1, 0, -1, 1, 0, 2]), _kicad_common_1$Net$O)), _defineProperty(_TEMPLATE_SHAPES, kicad_common_1.Net.UNSPECIFIED, (_kicad_common_1$Net$U = {}, _defineProperty(_kicad_common_1$Net$U, kicad_sch_1.TextOrientationType.HORIZ_LEFT, [5, 0, -1, -2, -1, -2, 1, 0, 1, 0, -1]), _defineProperty(_kicad_common_1$Net$U, kicad_sch_1.TextOrientationType.HORIZ_RIGHT, [5, 0, -1, 2, -1, 2, 1, 0, 1, 0, -1]), _defineProperty(_kicad_common_1$Net$U, kicad_sch_1.TextOrientationType.UP, [5, 1, 0, 1, -2, -1, -2, -1, 0, 1, 0]), _defineProperty(_kicad_common_1$Net$U, kicad_sch_1.TextOrientationType.BOTTOM, [5, 1, 0, 1, 2, -1, 2, -1, 0, 1, 0]), _kicad_common_1$Net$U)), _defineProperty(_TEMPLATE_SHAPES, kicad_common_1.Net.BIDI, (_kicad_common_1$Net$B = {}, _defineProperty(_kicad_common_1$Net$B, kicad_sch_1.TextOrientationType.HORIZ_LEFT, [5, 0, 0, -1, -1, -2, 0, -1, 1, 0, 0]), _defineProperty(_kicad_common_1$Net$B, kicad_sch_1.TextOrientationType.HORIZ_RIGHT, [5, 0, 0, 1, -1, 2, 0, 1, 1, 0, 0]), _defineProperty(_kicad_common_1$Net$B, kicad_sch_1.TextOrientationType.UP, [5, 0, 0, -1, -1, 0, -2, 1, -1, 0, 0]), _defineProperty(_kicad_common_1$Net$B, kicad_sch_1.TextOrientationType.BOTTOM, [5, 0, 0, -1, 1, 0, 2, 1, 1, 0, 0]), _kicad_common_1$Net$B)), _defineProperty(_TEMPLATE_SHAPES, kicad_common_1.Net.TRISTATE, (_kicad_common_1$Net$T = {}, _defineProperty(_kicad_common_1$Net$T, kicad_sch_1.TextOrientationType.HORIZ_LEFT, [5, 0, 0, -1, -1, -2, 0, -1, 1, 0, 0]), _defineProperty(_kicad_common_1$Net$T, kicad_sch_1.TextOrientationType.HORIZ_RIGHT, [5, 0, 0, 1, -1, 2, 0, 1, 1, 0, 0]), _defineProperty(_kicad_common_1$Net$T, kicad_sch_1.TextOrientationType.UP, [5, 0, 0, -1, -1, 0, -2, 1, -1, 0, 0]), _defineProperty(_kicad_common_1$Net$T, kicad_sch_1.TextOrientationType.BOTTOM, [5, 0, 0, -1, 1, 0, 2, 1, 1, 0, 0]), _kicad_common_1$Net$T)), _TEMPLATE_SHAPES);
 /**
  * similar to KiCAD Plotter
  *
@@ -10268,6 +10500,11 @@ var Plotter = function () {
     }
 
     _createClass(Plotter, [{
+        key: "setColor",
+        value: function setColor(c) {
+            this.color = c;
+        }
+    }, {
         key: "moveTo",
         value: function moveTo(x, y) {
             if (typeof y === 'number') {
@@ -10318,7 +10555,7 @@ var Plotter = function () {
                         orientation = kicad_common_1.TextAngle.HORIZ;
                     }
                 }
-                this.text(pos, "black", typeof reference !== 'undefined' ? reference : component.field.reference, orientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, component.field.italic, component.field.bold);
+                this.text(pos, SCH_COLORS.LAYER_REFERENCEPART, typeof reference !== 'undefined' ? reference : component.field.reference, orientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, component.field.italic, component.field.bold);
             }
             if (component.fields[0] && component.fields[0].visibility) {
                 var _pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy }), offset);
@@ -10330,8 +10567,9 @@ var Plotter = function () {
                         _orientation = kicad_common_1.TextAngle.HORIZ;
                     }
                 }
-                this.text(_pos, "black", typeof name !== 'undefined' ? name : component.fields[0].name, _orientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, component.fields[0].italic, component.fields[0].bold);
+                this.text(_pos, SCH_COLORS.LAYER_VALUEPART, typeof name !== 'undefined' ? name : component.fields[0].name, _orientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, component.fields[0].italic, component.fields[0].bold);
             }
+            this.setColor(SCH_COLORS.LAYER_DEVICE);
             var _iteratorNormalCompletion = true;
             var _didIteratorError = false;
             var _iteratorError = undefined;
@@ -10388,13 +10626,13 @@ var Plotter = function () {
                 startAngle = _transform$mapAngles2[0],
                 endAngle = _transform$mapAngles2[1];
 
-            this.arc(pos, startAngle, endAngle, draw.radius, draw.fill, draw.lineWidth || kicad_common_1.DEFAULT_LINE_WIDTH);
+            this.arc(pos, startAngle, endAngle, draw.radius, draw.fill, draw.lineWidth || DEFAULT_LINE_WIDTH);
         }
     }, {
         key: "plotDrawCircle",
         value: function plotDrawCircle(draw, component, offset, transform) {
             var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
-            this.circle(pos, draw.radius * 2, draw.fill, draw.lineWidth || kicad_common_1.DEFAULT_LINE_WIDTH);
+            this.circle(pos, draw.radius * 2, draw.fill, draw.lineWidth || DEFAULT_LINE_WIDTH);
         }
     }, {
         key: "plotDrawPolyline",
@@ -10404,20 +10642,20 @@ var Plotter = function () {
                 var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.points[i], y: draw.points[i + 1] }), offset);
                 points.push(pos);
             }
-            this.polyline(points, draw.fill, draw.lineWidth || kicad_common_1.DEFAULT_LINE_WIDTH);
+            this.polyline(points, draw.fill, draw.lineWidth || DEFAULT_LINE_WIDTH);
         }
     }, {
         key: "plotDrawSquare",
         value: function plotDrawSquare(draw, component, offset, transform) {
             var pos1 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.startx, y: draw.starty }), offset);
             var pos2 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.endx, y: draw.endy }), offset);
-            this.rect(pos1, pos2, draw.fill, draw.lineWidth || kicad_common_1.DEFAULT_LINE_WIDTH);
+            this.rect(pos1, pos2, draw.fill, draw.lineWidth || DEFAULT_LINE_WIDTH);
         }
     }, {
         key: "plotDrawText",
         value: function plotDrawText(draw, component, offset, transform) {
             var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
-            this.text(pos, "black", draw.text, component.field.textOrientation, draw.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, draw.italic, draw.bold);
+            this.text(pos, this.color, draw.text, component.field.textOrientation, draw.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, draw.italic, draw.bold);
         }
     }, {
         key: "plotDrawPin",
@@ -10451,53 +10689,53 @@ var Plotter = function () {
             } else if (orientation === kicad_common_1.PinOrientation.RIGHT) {
                 x1 += draw.length;
             }
-            var nameOffset = PIN_TXT_MARGIN + kicad_common_1.DEFAULT_LINE_WIDTH / 2;
-            var numOffset = PIN_TXT_MARGIN + kicad_common_1.DEFAULT_LINE_WIDTH / 2;
+            var nameOffset = PIN_TXT_MARGIN + DEFAULT_LINE_WIDTH / 2;
+            var numOffset = PIN_TXT_MARGIN + DEFAULT_LINE_WIDTH / 2;
             var textInside = component.textOffset;
             var isHorizontal = orientation === kicad_common_1.PinOrientation.LEFT || orientation === kicad_common_1.PinOrientation.RIGHT;
             if (textInside) {
                 if (isHorizontal) {
                     if (drawPinname) {
                         if (orientation === kicad_common_1.PinOrientation.RIGHT) {
-                            this.text({ x: x1 + textInside, y: y1 }, "black", draw.name, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
+                            this.text({ x: x1 + textInside, y: y1 }, SCH_COLORS.LAYER_PINNAM, draw.name, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
                         } else {
-                            this.text({ x: x1 - textInside, y: y1 }, "black", draw.name, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.RIGHT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
+                            this.text({ x: x1 - textInside, y: y1 }, SCH_COLORS.LAYER_PINNAM, draw.name, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.RIGHT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
                         }
                     }
                     if (drawPinnumber) {
-                        this.text({ x: (x1 + pos.x) / 2, y: y1 + numOffset }, "black", draw.num, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
+                        this.text({ x: (x1 + pos.x) / 2, y: y1 + numOffset }, SCH_COLORS.LAYER_PINNUM, draw.num, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
                     }
                 } else {
                     if (orientation === kicad_common_1.PinOrientation.DOWN) {
                         if (drawPinname) {
-                            this.text({ x: x1, y: y1 + textInside }, "black", draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.RIGHT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
+                            this.text({ x: x1, y: y1 + textInside }, SCH_COLORS.LAYER_PINNAM, draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.RIGHT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
                         }
                         if (drawPinnumber) {
-                            this.text({ x: x1 - numOffset, y: (y1 + pos.y) / 2 }, "black", draw.num, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
+                            this.text({ x: x1 - numOffset, y: (y1 + pos.y) / 2 }, SCH_COLORS.LAYER_PINNUM, draw.num, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
                         }
                     } else {
                         if (drawPinname) {
-                            this.text({ x: x1, y: y1 - textInside }, "black", draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
+                            this.text({ x: x1, y: y1 - textInside }, SCH_COLORS.LAYER_PINNAM, draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
                         }
                         if (drawPinnumber) {
-                            this.text({ x: x1 - numOffset, y: (y1 + pos.y) / 2 }, "black", draw.num, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
+                            this.text({ x: x1 - numOffset, y: (y1 + pos.y) / 2 }, SCH_COLORS.LAYER_PINNUM, draw.num, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
                         }
                     }
                 }
             } else {
                 if (isHorizontal) {
                     if (drawPinname) {
-                        this.text({ x: (x1 + pos.x) / 2, y: y1 - nameOffset }, "black", draw.name, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
+                        this.text({ x: (x1 + pos.x) / 2, y: y1 - nameOffset }, SCH_COLORS.LAYER_PINNAM, draw.name, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
                     }
                     if (drawPinnumber) {
-                        this.text({ x: (x1 + pos.x) / 2, y: y1 + numOffset }, "black", draw.num, kicad_common_1.TextAngle.HORIZ, draw.numTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.TOP, 0, false, false);
+                        this.text({ x: (x1 + pos.x) / 2, y: y1 + numOffset }, SCH_COLORS.LAYER_PINNUM, draw.num, kicad_common_1.TextAngle.HORIZ, draw.numTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.TOP, 0, false, false);
                     }
                 } else {
                     if (drawPinname) {
-                        this.text({ x: x1 - nameOffset, y: (y1 + pos.y) / 2 }, "black", draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
+                        this.text({ x: x1 - nameOffset, y: (y1 + pos.y) / 2 }, SCH_COLORS.LAYER_PINNAM, draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
                     }
                     if (drawPinnumber) {
-                        this.text({ x: x1 + numOffset, y: (y1 + pos.y) / 2 }, "black", draw.num, kicad_common_1.TextAngle.VERT, draw.numTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.TOP, 0, false, false);
+                        this.text({ x: x1 + numOffset, y: (y1 + pos.y) / 2 }, SCH_COLORS.LAYER_PINNUM, draw.num, kicad_common_1.TextAngle.VERT, draw.numTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.TOP, 0, false, false);
                     }
                 }
             }
@@ -10526,7 +10764,7 @@ var Plotter = function () {
             }
             // TODO shape
             this.fill = kicad_common_1.Fill.NO_FILL;
-            this.setCurrentLineWidth(kicad_common_1.DEFAULT_LINE_WIDTH);
+            this.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
             this.moveTo({ x: x1, y: y1 });
             this.finishTo({ x: pos.x, y: pos.y });
             // this.circle({ x: pos.x, y: pos.y}, 20, Fill.NO_FILL, 2);
@@ -10564,9 +10802,9 @@ var Plotter = function () {
         value: function plotSchematic(sch, libs) {
             // default page layout
             var MARGIN = kicad_common_1.MM2MIL(10);
-            this.rect({ x: MARGIN, y: MARGIN }, { x: sch.descr.width - MARGIN, y: sch.descr.height - MARGIN }, kicad_common_1.Fill.NO_FILL, kicad_common_1.DEFAULT_LINE_WIDTH);
+            this.rect({ x: MARGIN, y: MARGIN }, { x: sch.descr.width - MARGIN, y: sch.descr.height - MARGIN }, kicad_common_1.Fill.NO_FILL, DEFAULT_LINE_WIDTH);
             var OFFSET = kicad_common_1.MM2MIL(2);
-            this.rect({ x: MARGIN + OFFSET, y: MARGIN + OFFSET }, { x: sch.descr.width - MARGIN - OFFSET, y: sch.descr.height - MARGIN - OFFSET }, kicad_common_1.Fill.NO_FILL, kicad_common_1.DEFAULT_LINE_WIDTH);
+            this.rect({ x: MARGIN + OFFSET, y: MARGIN + OFFSET }, { x: sch.descr.width - MARGIN - OFFSET, y: sch.descr.height - MARGIN - OFFSET }, kicad_common_1.Fill.NO_FILL, DEFAULT_LINE_WIDTH);
             // up
             this.moveTo(sch.descr.width / 2, MARGIN);
             this.finishTo(sch.descr.width / 2, MARGIN + OFFSET);
@@ -10622,160 +10860,82 @@ var Plotter = function () {
                         }
                         this.plotLibComponent(component, item.unit, item.convert, { x: item.posx, y: item.posy }, item.transform, item.fields[0].text, item.fields[1].text);
                     } else if (item instanceof kicad_sch_1.Sheet) {
-                        this.setColor("black");
-                        this.setCurrentLineWidth(kicad_common_1.DEFAULT_LINE_WIDTH);
+                        this.setColor(SCH_COLORS.LAYER_SHEET);
+                        this.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
                         this.fill = kicad_common_1.Fill.NO_FILL;
                         this.moveTo(item.posx, item.posy);
                         this.lineTo(item.posx, item.posy + item.sizey);
                         this.lineTo(item.posx + item.sizex, item.posy + item.sizey);
                         this.lineTo(item.posx + item.sizex, item.posy);
                         this.finishTo(item.posx, item.posy);
-                        this.text({ x: item.posx, y: item.posy - 4 }, "black", item.sheetName, 0, item.sheetNameSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
-                        this.text({ x: item.posx, y: item.posy + item.sizey + 4 }, "black", item.fileName, 0, item.fileNameSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.TOP, 0, false, false);
-                    } else if (item instanceof kicad_sch_1.SheetPin) {
-                        // TODO
+                        this.text({ x: item.posx, y: item.posy - 4 }, SCH_COLORS.LAYER_SHEETNAME, item.sheetName, 0, item.sheetNameSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
+                        this.text({ x: item.posx, y: item.posy + item.sizey + 4 }, SCH_COLORS.LAYER_SHEETFILENAME, item.fileName, 0, item.fileNameSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.TOP, 0, false, false);
+                        this.setColor(SCH_COLORS.LAYER_SHEETLABEL);
+                        var _iteratorNormalCompletion4 = true;
+                        var _didIteratorError4 = false;
+                        var _iteratorError4 = undefined;
+
+                        try {
+                            for (var _iterator4 = item.sheetPins[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                                var pin = _step4.value;
+
+                                var tmp = pin.shape;
+                                if (pin.shape === kicad_common_1.Net.INPUT) {
+                                    pin.shape = kicad_common_1.Net.OUTPUT;
+                                } else if (pin.shape === kicad_common_1.Net.OUTPUT) {
+                                    pin.shape = kicad_common_1.Net.INPUT;
+                                }
+                                this.plotSchTextHierarchicalLabel(pin);
+                                pin.shape = tmp;
+                            }
+                        } catch (err) {
+                            _didIteratorError4 = true;
+                            _iteratorError4 = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                                    _iterator4.return();
+                                }
+                            } finally {
+                                if (_didIteratorError4) {
+                                    throw _iteratorError4;
+                                }
+                            }
+                        }
                     } else if (item instanceof kicad_sch_1.Bitmap) {
-                        // TODO
+                        item.parseIHDR();
+                        var PPI = 300;
+                        var PIXEL_SCALE = 1000 / PPI;
+                        this.image({ x: item.posx, y: item.posy }, item.scale * PIXEL_SCALE, item.width, item.height, item.data);
                     } else if (item instanceof kicad_sch_1.Text) {
                         if (item.name1 === 'GLabel') {
-                            {
-                                var halfSize = item.size / 2;
-                                var lineWidth = kicad_common_1.DEFAULT_LINE_WIDTH;
-                                var points = [];
-                                var symLen = item.text.length * item.size;
-                                var hasOverBar = /~[^~]/.test(item.text);
-                                var Y_CORRECTION = 1.40;
-                                var Y_OVERBAR_CORRECTION = 1.2;
-                                var x = symLen + lineWidth + 3;
-                                var y = halfSize * Y_CORRECTION;
-                                if (hasOverBar) {
-                                    // TODO
-                                }
-                                y += lineWidth + lineWidth / 2;
-                                points.push(new kicad_common_1.Point(0, 0));
-                                points.push(new kicad_common_1.Point(0, -y)); // Up
-                                points.push(new kicad_common_1.Point(-x, -y)); // left
-                                points.push(new kicad_common_1.Point(-x, 0)); // Up left
-                                points.push(new kicad_common_1.Point(-x, y)); // left down
-                                points.push(new kicad_common_1.Point(0, y)); // down
-                                var xOffset = 0;
-                                if (item.shape === kicad_common_1.Net.INPUT) {
-                                    xOffset -= halfSize;
-                                    points[0].x += halfSize;
-                                } else if (item.shape === kicad_common_1.Net.OUTPUT) {
-                                    points[3].x -= halfSize;
-                                } else if (item.shape === kicad_common_1.Net.BIDI || item.shape === kicad_common_1.Net.TRISTATE) {
-                                    xOffset = -halfSize;
-                                    points[0].x += halfSize;
-                                    points[3].x -= halfSize;
-                                }
-                                var angle = 0;
-                                if (item.orientationType === 0) {
-                                    angle = 0;
-                                } else if (item.orientationType === 1) {
-                                    angle = -900;
-                                } else if (item.orientationType === 2) {
-                                    angle = 1800;
-                                } else if (item.orientationType === 3) {
-                                    angle = 900;
-                                }
-                                var _iteratorNormalCompletion4 = true;
-                                var _didIteratorError4 = false;
-                                var _iteratorError4 = undefined;
-
-                                try {
-                                    for (var _iterator4 = points[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-                                        var p = _step4.value;
-
-                                        p.x += xOffset;
-                                        if (angle) {
-                                            kicad_common_1.RotatePoint(p, angle);
-                                        }
-                                        p.x += item.posx;
-                                        p.y += item.posy;
-                                    }
-                                } catch (err) {
-                                    _didIteratorError4 = true;
-                                    _iteratorError4 = err;
-                                } finally {
-                                    try {
-                                        if (!_iteratorNormalCompletion4 && _iterator4.return) {
-                                            _iterator4.return();
-                                        }
-                                    } finally {
-                                        if (_didIteratorError4) {
-                                            throw _iteratorError4;
-                                        }
-                                    }
-                                }
-
-                                points.push(points[0]);
-                                this.polyline(points, kicad_common_1.Fill.NO_FILL, kicad_common_1.DEFAULT_LINE_WIDTH);
-                            }
-                            {
-                                var _p = new kicad_common_1.Point(item.posx, item.posy);
-                                var width = kicad_common_1.DEFAULT_LINE_WIDTH;
-                                var _halfSize = item.text.length * item.size / 2 * 0.5;
-                                var offset = width;
-                                if (item.shape === kicad_common_1.Net.INPUT || item.shape === kicad_common_1.Net.BIDI || item.shape === kicad_common_1.Net.TRISTATE) {
-                                    offset += _halfSize;
-                                } else if (item.shape === kicad_common_1.Net.OUTPUT || item.shape === kicad_common_1.Net.UNSPECIFIED) {
-                                    offset += item.size * 2;
-                                }
-                                if (item.orientationType === 0) {
-                                    _p.x -= offset;
-                                } else if (item.orientationType === 1) {
-                                    _p.y -= offset;
-                                } else if (item.orientationType === 2) {
-                                    _p.x += offset;
-                                } else if (item.orientationType === 3) {
-                                    _p.y += offset;
-                                }
-                                this.text(_p, "black", item.text, item.orientation, item.size, item.hjustify, item.vjustify, 0, item.italic, item.bold);
-                            }
+                            this.plotSchTextGlobalLabel(item);
                         } else if (item.name1 === 'HLabel') {
-                            var _p2 = new kicad_common_1.Point(item.posx, item.posy);
-                            var txtOffset = item.size * item.text.length + TXT_MARGIN + kicad_common_1.DEFAULT_LINE_WIDTH / 2;
-                            if (item.orientationType === 0) {
-                                _p2.x -= txtOffset;
-                            } else if (item.orientationType === 1) {
-                                _p2.y -= txtOffset;
-                            } else if (item.orientationType === 2) {
-                                _p2.x += txtOffset;
-                            } else if (item.orientationType === 3) {
-                                _p2.y += txtOffset;
-                            }
-                            this.text(_p2, "black", item.text, item.orientation, item.size, item.hjustify, item.vjustify, 0, item.italic, item.bold);
+                            this.plotSchTextHierarchicalLabel(item);
                         } else {
-                            var _p3 = new kicad_common_1.Point(item.posx, item.posy);
-                            var _txtOffset = TXT_MARGIN + kicad_common_1.DEFAULT_LINE_WIDTH / 2;
-                            if (item.orientationType === 0) {
-                                _p3.y -= _txtOffset;
-                            } else if (item.orientationType === 1) {
-                                _p3.x -= _txtOffset;
-                            } else if (item.orientationType === 2) {
-                                _p3.y -= _txtOffset;
-                            } else if (item.orientationType === 3) {
-                                _p3.x -= _txtOffset;
-                            }
-                            this.text(_p3, "black", item.text, item.orientation, item.size, item.hjustify, item.vjustify, 0, item.italic, item.bold);
+                            this.plotSchText(item);
                         }
-                    } else if (item instanceof kicad_sch_1.Entry) {} else if (item instanceof kicad_sch_1.Connection) {
-                        this.setColor("black");
-                        this.circle({ x: item.posx, y: item.posy }, 40, kicad_common_1.Fill.FILLED_SHAPE, kicad_common_1.DEFAULT_LINE_WIDTH);
+                    } else if (item instanceof kicad_sch_1.Entry) {
+                        this.setColor(item.isBus ? SCH_COLORS.LAYER_BUS : SCH_COLORS.LAYER_WIRE);
+                        this.setCurrentLineWidth(item.isBus ? DEFAULT_LINE_WIDTH_BUS : DEFAULT_LINE_WIDTH);
+                        this.moveTo(item.posx, item.posy);
+                        this.finishTo(item.posx + item.sizex, item.posy + item.sizey);
+                    } else if (item instanceof kicad_sch_1.Connection) {
+                        this.setColor(SCH_COLORS.LAYER_JUNCTION);
+                        this.circle({ x: item.posx, y: item.posy }, 40, kicad_common_1.Fill.FILLED_SHAPE, DEFAULT_LINE_WIDTH);
                     } else if (item instanceof kicad_sch_1.NoConn) {
                         this.fill = kicad_common_1.Fill.NO_FILL;
                         var DRAWNOCONNECT_SIZE = 48;
                         var delta = DRAWNOCONNECT_SIZE / 2;
-                        this.setColor("black");
-                        this.setCurrentLineWidth(kicad_common_1.DEFAULT_LINE_WIDTH);
+                        this.setColor(SCH_COLORS.LAYER_NOCONNECT);
+                        this.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
                         this.moveTo(item.posx - delta, item.posy - delta);
                         this.finishTo(item.posx + delta, item.posy + delta);
                         this.moveTo(item.posx + delta, item.posy - delta);
                         this.finishTo(item.posx - delta, item.posy + delta);
                     } else if (item instanceof kicad_sch_1.Wire) {
-                        this.setColor("black");
-                        this.setCurrentLineWidth(kicad_common_1.DEFAULT_LINE_WIDTH);
+                        this.setColor(item.isBus ? SCH_COLORS.LAYER_BUS : SCH_COLORS.LAYER_WIRE);
+                        this.setCurrentLineWidth(item.isBus ? DEFAULT_LINE_WIDTH_BUS : DEFAULT_LINE_WIDTH);
                         this.fill = kicad_common_1.Fill.NO_FILL;
                         this.moveTo(item.startx, item.starty);
                         this.finishTo(item.endx, item.endy);
@@ -10797,6 +10957,158 @@ var Plotter = function () {
                     }
                 }
             }
+        }
+    }, {
+        key: "plotSchTextGlobalLabel",
+        value: function plotSchTextGlobalLabel(item) {
+            {
+                var halfSize = item.size / 2;
+                var lineWidth = DEFAULT_LINE_WIDTH;
+                var points = [];
+                var symLen = item.text.length * item.size;
+                var hasOverBar = /~[^~]/.test(item.text);
+                var Y_CORRECTION = 1.40;
+                var Y_OVERBAR_CORRECTION = 1.2;
+                var x = symLen + lineWidth + 3;
+                var y = halfSize * Y_CORRECTION;
+                if (hasOverBar) {
+                    // TODO
+                }
+                y += lineWidth + lineWidth / 2;
+                points.push(new kicad_common_1.Point(0, 0));
+                points.push(new kicad_common_1.Point(0, -y)); // Up
+                points.push(new kicad_common_1.Point(-x, -y)); // left
+                points.push(new kicad_common_1.Point(-x, 0)); // Up left
+                points.push(new kicad_common_1.Point(-x, y)); // left down
+                points.push(new kicad_common_1.Point(0, y)); // down
+                var xOffset = 0;
+                if (item.shape === kicad_common_1.Net.INPUT) {
+                    xOffset -= halfSize;
+                    points[0].x += halfSize;
+                } else if (item.shape === kicad_common_1.Net.OUTPUT) {
+                    points[3].x -= halfSize;
+                } else if (item.shape === kicad_common_1.Net.BIDI || item.shape === kicad_common_1.Net.TRISTATE) {
+                    xOffset = -halfSize;
+                    points[0].x += halfSize;
+                    points[3].x -= halfSize;
+                }
+                var angle = 0;
+                if (item.orientationType === kicad_sch_1.TextOrientationType.HORIZ_LEFT) {
+                    angle = 0;
+                } else if (item.orientationType === kicad_sch_1.TextOrientationType.UP) {
+                    angle = -900;
+                } else if (item.orientationType === kicad_sch_1.TextOrientationType.HORIZ_RIGHT) {
+                    angle = 1800;
+                } else if (item.orientationType === kicad_sch_1.TextOrientationType.BOTTOM) {
+                    angle = 900;
+                }
+                var _iteratorNormalCompletion5 = true;
+                var _didIteratorError5 = false;
+                var _iteratorError5 = undefined;
+
+                try {
+                    for (var _iterator5 = points[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                        var p = _step5.value;
+
+                        p.x += xOffset;
+                        if (angle) {
+                            kicad_common_1.RotatePoint(p, angle);
+                        }
+                        p.x += item.posx;
+                        p.y += item.posy;
+                    }
+                } catch (err) {
+                    _didIteratorError5 = true;
+                    _iteratorError5 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                            _iterator5.return();
+                        }
+                    } finally {
+                        if (_didIteratorError5) {
+                            throw _iteratorError5;
+                        }
+                    }
+                }
+
+                points.push(points[0]);
+                this.setColor(SCH_COLORS.LAYER_GLOBLABEL);
+                this.polyline(points, kicad_common_1.Fill.NO_FILL, DEFAULT_LINE_WIDTH);
+            }
+            {
+                var _p = new kicad_common_1.Point(item.posx, item.posy);
+                var width = DEFAULT_LINE_WIDTH;
+                var _halfSize = item.text.length * item.size / 2 * 0.5;
+                var offset = width;
+                if (item.shape === kicad_common_1.Net.INPUT || item.shape === kicad_common_1.Net.BIDI || item.shape === kicad_common_1.Net.TRISTATE) {
+                    offset += _halfSize;
+                } else if (item.shape === kicad_common_1.Net.OUTPUT || item.shape === kicad_common_1.Net.UNSPECIFIED) {
+                    offset += item.size * 2;
+                }
+                if (item.orientationType === 0) {
+                    _p.x -= offset;
+                } else if (item.orientationType === 1) {
+                    _p.y -= offset;
+                } else if (item.orientationType === 2) {
+                    _p.x += offset;
+                } else if (item.orientationType === 3) {
+                    _p.y += offset;
+                }
+                this.text(_p, SCH_COLORS.LAYER_GLOBLABEL, item.text, item.orientation, item.size, item.hjustify, item.vjustify, 0, item.italic, item.bold);
+            }
+        }
+    }, {
+        key: "plotSchTextHierarchicalLabel",
+        value: function plotSchTextHierarchicalLabel(item) {
+            {
+                var p = new kicad_common_1.Point(item.posx, item.posy);
+                var halfSize = item.size / 2;
+                var template = TEMPLATE_SHAPES[item.shape][item.orientationType];
+                var points = [];
+                // first of template is number of corners
+                for (var i = 1; i < template.length; i += 2) {
+                    var x = template[i] * halfSize;
+                    var y = template[i + 1] * halfSize;
+                    points.push(kicad_common_1.Point.add(new kicad_common_1.Point(x, y), p));
+                }
+                this.polyline(points, kicad_common_1.Fill.NO_FILL, DEFAULT_LINE_WIDTH);
+            }
+            ;
+            {
+                var _p2 = new kicad_common_1.Point(item.posx, item.posy);
+                var txtOffset = item.size * item.text.length + TXT_MARGIN + DEFAULT_LINE_WIDTH / 2;
+                if (item.orientationType === 0) {
+                    _p2.x -= txtOffset;
+                } else if (item.orientationType === 1) {
+                    _p2.y -= txtOffset;
+                } else if (item.orientationType === 2) {
+                    _p2.x += txtOffset;
+                } else if (item.orientationType === 3) {
+                    _p2.y += txtOffset;
+                }
+                this.text(_p2, SCH_COLORS.LAYER_HIERLABEL, item.text, item.orientation, item.size, item.hjustify, item.vjustify, 0, item.italic, item.bold);
+            }
+        }
+    }, {
+        key: "plotSchText",
+        value: function plotSchText(item) {
+            var color = SCH_COLORS.LAYER_NOTES;
+            if (item.name1 === 'Label') {
+                color = SCH_COLORS.LAYER_LOCLABEL;
+            }
+            var p = new kicad_common_1.Point(item.posx, item.posy);
+            var txtOffset = TXT_MARGIN + DEFAULT_LINE_WIDTH / 2;
+            if (item.orientationType === 0) {
+                p.y -= txtOffset;
+            } else if (item.orientationType === 1) {
+                p.x -= txtOffset;
+            } else if (item.orientationType === 2) {
+                p.y -= txtOffset;
+            } else if (item.orientationType === 3) {
+                p.x -= txtOffset;
+            }
+            this.text(p, color, item.text, item.orientation, item.size, item.hjustify, item.vjustify, 0, item.italic, item.bold);
         }
     }]);
 
@@ -10873,6 +11185,7 @@ var CanvasPlotter = function (_Plotter) {
     }, {
         key: "text",
         value: function text(p, color, _text, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
+            this.setColor(color);
             if (hjustfy === kicad_common_1.TextHjustify.LEFT) {
                 this.ctx.textAlign = "left";
             } else if (hjustfy === kicad_common_1.TextHjustify.CENTER) {
@@ -10887,7 +11200,7 @@ var CanvasPlotter = function (_Plotter) {
             } else if (vjustify === kicad_common_1.TextVjustify.BOTTOM) {
                 this.ctx.textBaseline = "bottom";
             }
-            this.ctx.fillStyle = color;
+            this.ctx.fillStyle = this.color.toCSSColor();
             this.ctx.save();
             this.ctx.translate(p.x, p.y);
             this.ctx.rotate(-kicad_common_1.DECIDEG2RAD(orientation));
@@ -10936,13 +11249,21 @@ var CanvasPlotter = function (_Plotter) {
     }, {
         key: "setColor",
         value: function setColor(c) {
-            this.ctx.fillStyle = c;
-            this.ctx.strokeStyle = c;
+            _get(CanvasPlotter.prototype.__proto__ || Object.getPrototypeOf(CanvasPlotter.prototype), "setColor", this).call(this, c);
+            this.ctx.fillStyle = c.toCSSColor();
+            this.ctx.strokeStyle = c.toCSSColor();
         }
     }, {
         key: "setCurrentLineWidth",
         value: function setCurrentLineWidth(w) {
             this.ctx.lineWidth = w;
+        }
+    }, {
+        key: "image",
+        value: function image(p, scale, originalWidth, originalHeight, data) {
+            var start = kicad_common_1.Point.sub(p, { x: originalWidth / 2, y: originalHeight / 2 });
+            var end = kicad_common_1.Point.add(p, { x: originalWidth / 2, y: originalHeight / 2 });
+            this.rect(start, end, kicad_common_1.Fill.NO_FILL, DEFAULT_LINE_WIDTH);
         }
     }]);
 
@@ -10961,7 +11282,8 @@ var SVGPlotter = function (_Plotter2) {
 
         _this2.penState = "Z";
         _this2.output = "";
-        _this2.lineWidth = kicad_common_1.DEFAULT_LINE_WIDTH;
+        _this2.lineWidth = DEFAULT_LINE_WIDTH;
+        _this2.color = kicad_common_1.Color.BLACK;
         return _this2;
     }
 
@@ -10983,9 +11305,9 @@ var SVGPlotter = function (_Plotter2) {
             this.fill = fill;
             this.output += this.xmlTag(_templateObject, p.x, p.y, dia / 2);
             if (this.fill === kicad_common_1.Fill.NO_FILL) {
-                this.output += this.xmlTag(_templateObject2, this.lineWidth);
+                this.output += this.xmlTag(_templateObject2, this.color.toCSSColor(), this.lineWidth);
             } else {
-                this.output += this.xmlTag(_templateObject3, this.lineWidth);
+                this.output += this.xmlTag(_templateObject3, this.color.toCSSColor(), this.color.toCSSColor(), this.lineWidth);
             }
         }
     }, {
@@ -11020,9 +11342,9 @@ var SVGPlotter = function (_Plotter2) {
             var x = this.xmlTag;
             this.output += this.xmlTag(_templateObject4, start.x, start.y, radius, radius, isLargeArc ? 1 : 0, isSweep ? 1 : 0, end.x, end.y);
             if (this.fill === kicad_common_1.Fill.NO_FILL) {
-                this.output += this.xmlTag(_templateObject2, this.lineWidth);
+                this.output += this.xmlTag(_templateObject2, this.color.toCSSColor(), this.lineWidth);
             } else {
-                this.output += this.xmlTag(_templateObject3, this.lineWidth);
+                this.output += this.xmlTag(_templateObject3, this.color.toCSSColor(), this.color.toCSSColor(), this.lineWidth);
             }
         }
     }, {
@@ -11039,6 +11361,7 @@ var SVGPlotter = function (_Plotter2) {
     }, {
         key: "text",
         value: function text(p, color, _text2, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
+            this.setColor(color);
             var textAnchor = void 0;
             if (hjustfy === kicad_common_1.TextHjustify.LEFT) {
                 textAnchor = "start";
@@ -11062,7 +11385,7 @@ var SVGPlotter = function (_Plotter2) {
             var lines = _text2.split(/\n/);
             for (var i = 0, len = lines.length; i < len; i++) {
                 var y = p.y + i * size * 1.2;
-                this.output += this.xmlTag(_templateObject5, p.x, y, textAnchor, dominantBaseline, size, fontWeight, fontStyle, rotate, p.x, p.y, lines[i]);
+                this.output += this.xmlTag(_templateObject5, p.x, y, textAnchor, dominantBaseline, size, fontWeight, fontStyle, this.color.toCSSColor(), rotate, p.x, p.y, lines[i]);
             }
         }
         /**
@@ -11078,9 +11401,9 @@ var SVGPlotter = function (_Plotter2) {
             if (s === "Z") {
                 if (this.penState !== "Z") {
                     if (this.fill === kicad_common_1.Fill.NO_FILL) {
-                        this.output += this.xmlTag(_templateObject6, this.lineWidth);
+                        this.output += this.xmlTag(_templateObject6, this.color.toCSSColor(), this.lineWidth);
                     } else {
-                        this.output += this.xmlTag(_templateObject7, this.lineWidth);
+                        this.output += this.xmlTag(_templateObject7, this.color.toCSSColor(), this.color.toCSSColor(), this.lineWidth);
                     }
                 } else {
                     throw "invalid pen state Z -> Z";
@@ -11101,20 +11424,31 @@ var SVGPlotter = function (_Plotter2) {
             this.penState = s;
         }
     }, {
-        key: "setColor",
-        value: function setColor(c) {}
-    }, {
         key: "setCurrentLineWidth",
         value: function setCurrentLineWidth(w) {
             this.lineWidth = w;
+        }
+    }, {
+        key: "image",
+        value: function image(p, scale, originalWidth, originalHeight, data) {
+            var width = originalWidth * scale;
+            var height = originalHeight * scale;
+            var start = kicad_common_1.Point.sub(p, { x: width / 2, y: height / 2 });
+            var url = 'data:image/png,' + data.reduce(function (r, i) {
+                return r + '%' + (0x100 + i).toString(16).slice(1);
+            }, "");
+            console.log(url);
+            /*
+            this.rect(start, end, Fill.NO_FILL, DEFAULT_LINE_WIDTH);
+            */
+            this.output += this.xmlTag(_templateObject11, url, start.x, start.y, width, height);
         }
     }, {
         key: "plotSchematic",
         value: function plotSchematic(sch, libs) {
             var width = sch.descr.width;
             var height = sch.descr.height;
-            var x = this.xmlTag;
-            this.output = this.xmlTag(_templateObject11, width, height, sch.descr.width, sch.descr.height);
+            this.output = this.xmlTag(_templateObject12, width, height, sch.descr.width, sch.descr.height);
             _get(SVGPlotter.prototype.__proto__ || Object.getPrototypeOf(SVGPlotter.prototype), "plotSchematic", this).call(this, sch, libs);
             this.output += "</svg>";
         }

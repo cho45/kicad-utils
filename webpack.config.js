@@ -1,5 +1,6 @@
 
 const path = require('path');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 const babelOptions = {
 	"presets": [ [ "env", {
@@ -57,5 +58,14 @@ module.exports = {
 				]
 			}
 		]
-	}
+	},
+
+	plugins: [
+		/*
+		new UglifyJSPlugin({
+			sourceMap: true,
+			parallel: true
+		})
+		*/
+	]
 };

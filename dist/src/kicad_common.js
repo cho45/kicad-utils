@@ -33,7 +33,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
  *	length: mil (1/1000 inch)
  *	angles: decidegree (1/10 degrees)
  */
-exports.DEFAULT_LINE_WIDTH = 6;
 function DECIDEG2RAD(deg) {
     return deg * Math.PI / 1800;
 }
@@ -193,6 +192,87 @@ class Rect {
     }
 }
 exports.Rect = Rect;
+class Color {
+    // max 255 int
+    constructor(r, g, b) {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+    }
+    toCSSColor() {
+        return `rgb(${this.r}, ${this.g}, ${this.b})`;
+    }
+}
+// common/colors.cpp 
+Color.BLACK = new Color(0, 0, 0);
+Color.DARKDARKGRAY = new Color(72, 72, 72);
+Color.DARKGRAY = new Color(132, 132, 132);
+Color.LIGHTGRAY = new Color(194, 194, 194);
+Color.WHITE = new Color(255, 255, 255);
+Color.LIGHTYELLOW = new Color(255, 255, 194);
+Color.DARKBLUE = new Color(0, 0, 72);
+Color.DARKGREEN = new Color(0, 72, 0);
+Color.DARKCYAN = new Color(0, 72, 72);
+Color.DARKRED = new Color(72, 0, 0);
+Color.DARKMAGENTA = new Color(72, 0, 72);
+Color.DARKBROWN = new Color(72, 72, 0);
+Color.BLUE = new Color(0, 0, 132);
+Color.GREEN = new Color(0, 132, 0);
+Color.CYAN = new Color(0, 132, 132);
+Color.RED = new Color(132, 0, 0);
+Color.MAGENTA = new Color(132, 0, 132);
+Color.BROWN = new Color(132, 132, 0);
+Color.LIGHTBLUE = new Color(0, 0, 194);
+Color.LIGHTGREEN = new Color(0, 194, 0);
+Color.LIGHTCYAN = new Color(0, 194, 194);
+Color.LIGHTRED = new Color(194, 0, 0);
+Color.LIGHTMAGENTA = new Color(194, 0, 194);
+Color.YELLOW = new Color(194, 194, 0);
+Color.PUREBLUE = new Color(0, 0, 255);
+Color.PUREGREEN = new Color(0, 255, 0);
+Color.PURECYAN = new Color(0, 255, 255);
+Color.PURERED = new Color(255, 0, 0);
+Color.PUREMAGENTA = new Color(255, 0, 255);
+Color.PUREYELLOW = new Color(255, 255, 0);
+exports.Color = Color;
+class ColorDefinition extends Color {
+    constructor(c, name, light) {
+        super(c.r, c.g, c.b);
+        this.name = name;
+        this.light = light;
+    }
+}
+ColorDefinition.BLACK = new ColorDefinition(Color.BLACK, "Black", Color.DARKDARKGRAY);
+ColorDefinition.DARKDARKGRAY = new ColorDefinition(Color.DARKDARKGRAY, "Gray 1", Color.DARKGRAY);
+ColorDefinition.DARKGRAY = new ColorDefinition(Color.DARKGRAY, "Gray 2", Color.LIGHTGRAY);
+ColorDefinition.LIGHTGRAY = new ColorDefinition(Color.LIGHTGRAY, "Gray 3", Color.WHITE);
+ColorDefinition.WHITE = new ColorDefinition(Color.WHITE, "White", Color.WHITE);
+ColorDefinition.LIGHTYELLOW = new ColorDefinition(Color.LIGHTYELLOW, "L.Yellow", Color.WHITE);
+ColorDefinition.DARKBLUE = new ColorDefinition(Color.DARKBLUE, "Blue 1", Color.BLUE);
+ColorDefinition.DARKGREEN = new ColorDefinition(Color.DARKGREEN, "Green 1", Color.GREEN);
+ColorDefinition.DARKCYAN = new ColorDefinition(Color.DARKCYAN, "Cyan 1", Color.CYAN);
+ColorDefinition.DARKRED = new ColorDefinition(Color.DARKRED, "Red 1", Color.RED);
+ColorDefinition.DARKMAGENTA = new ColorDefinition(Color.DARKMAGENTA, "Magenta 1", Color.MAGENTA);
+ColorDefinition.DARKBROWN = new ColorDefinition(Color.DARKBROWN, "Brown 1", Color.BROWN);
+ColorDefinition.BLUE = new ColorDefinition(Color.BLUE, "Blue 2", Color.LIGHTBLUE);
+ColorDefinition.GREEN = new ColorDefinition(Color.GREEN, "Green 2", Color.LIGHTGREEN);
+ColorDefinition.CYAN = new ColorDefinition(Color.CYAN, "Cyan 2", Color.LIGHTCYAN);
+ColorDefinition.RED = new ColorDefinition(Color.RED, "Red 2", Color.LIGHTRED);
+ColorDefinition.MAGENTA = new ColorDefinition(Color.MAGENTA, "Magenta 2", Color.LIGHTMAGENTA);
+ColorDefinition.BROWN = new ColorDefinition(Color.BROWN, "Brown 2", Color.YELLOW);
+ColorDefinition.LIGHTBLUE = new ColorDefinition(Color.LIGHTBLUE, "Blue 3", Color.PUREBLUE);
+ColorDefinition.LIGHTGREEN = new ColorDefinition(Color.LIGHTGREEN, "Green 3", Color.PUREGREEN);
+ColorDefinition.LIGHTCYAN = new ColorDefinition(Color.LIGHTCYAN, "Cyan 3", Color.PURECYAN);
+ColorDefinition.LIGHTRED = new ColorDefinition(Color.LIGHTRED, "Red 3", Color.PURERED);
+ColorDefinition.LIGHTMAGENTA = new ColorDefinition(Color.LIGHTMAGENTA, "Magenta 3", Color.PUREMAGENTA);
+ColorDefinition.YELLOW = new ColorDefinition(Color.YELLOW, "Yellow 3", Color.PUREYELLOW);
+ColorDefinition.PUREBLUE = new ColorDefinition(Color.PUREBLUE, "Blue 4", Color.WHITE);
+ColorDefinition.PUREGREEN = new ColorDefinition(Color.PUREGREEN, "Green 4", Color.WHITE);
+ColorDefinition.PURECYAN = new ColorDefinition(Color.PURECYAN, "Cyan 4", Color.WHITE);
+ColorDefinition.PURERED = new ColorDefinition(Color.PURERED, "Red 4", Color.WHITE);
+ColorDefinition.PUREMAGENTA = new ColorDefinition(Color.PUREMAGENTA, "Magenta 4", Color.WHITE);
+ColorDefinition.PUREYELLOW = new ColorDefinition(Color.PUREYELLOW, "Yellow 4", Color.WHITE);
+exports.ColorDefinition = ColorDefinition;
 var Fill;
 (function (Fill) {
     Fill["NO_FILL"] = "N";

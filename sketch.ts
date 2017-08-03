@@ -14,6 +14,9 @@ import * as fs from "fs";
 //	const sch = Schematic.load(fs.readFileSync('../keyboard-schematic/KeyModule-L.sch', 'utf-8'));
 	const lib = Library.load(fs.readFileSync('../keyboard-schematic/Root-cache.lib', 'utf-8'));
 	const sch = Schematic.load(fs.readFileSync('../keyboard-schematic/_keymodule_l.sch', 'utf-8'));
+//	const lib = Library.load(fs.readFileSync('../schematic-test/schematic-test-cache.lib', 'utf-8'));
+//	const sch = Schematic.load(fs.readFileSync('../schematic-test/file59827D42.sch', 'utf-8'));
+//	const sch = Schematic.load(fs.readFileSync('../schematic-test/schematic-test.sch', 'utf-8'));
 	console.log(sch);
 	console.log(lib.findByName("GND"));
 
@@ -37,7 +40,7 @@ import * as fs from "fs";
 	// plotter.plotLibComponent(lib.findByName("RJ45"), 1, 1, { x: 500, y: 500 }, new Transform(0, 1, 1, 0));
 	plotter.plotSchematic(sch, [ lib ]);
 
-	const out = fs.createWriteStream(__dirname + '/text.png'), stream = canvas.pngStream();
+	const out = fs.createWriteStream('text.png'), stream = canvas.pngStream();
 
 	stream.on('data', function (chunk: any) {
 		out.write(chunk);

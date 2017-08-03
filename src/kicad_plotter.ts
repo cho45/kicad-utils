@@ -30,7 +30,6 @@
 import {
 	DECIDEG2RAD,
 	MM2MIL,
-	DEFAULT_LINE_WIDTH,
 	RotatePoint,
 
 	Fill,
@@ -42,6 +41,8 @@ import {
 	Transform,
 	Point,
 	Net,
+	Color,
+	ColorDefinition,
 } from "./kicad_common";
 
 import {
@@ -67,10 +68,75 @@ import {
 	Connection,
 	NoConn,
 	SchComponent,
+	TextOrientationType,
 } from "./kicad_sch";
 
 const TXT_MARGIN = 4;
 const PIN_TXT_MARGIN = 4;
+const DEFAULT_LINE_WIDTH = 6;
+const DEFAULT_LINE_WIDTH_BUS = 12;
+
+const SCH_COLORS = {
+	LAYER_WIRE:                 Color.GREEN,
+	LAYER_BUS:                  Color.BLUE,
+	LAYER_JUNCTION:             Color.GREEN,
+	LAYER_LOCLABEL:             Color.BLACK,
+	LAYER_HIERLABEL:            Color.BROWN,
+	LAYER_GLOBLABEL:            Color.RED,
+	LAYER_PINNUM:               Color.RED,
+	LAYER_PINNAM:               Color.CYAN,
+	LAYER_FIELDS:               Color.MAGENTA,
+	LAYER_REFERENCEPART:        Color.CYAN,
+	LAYER_VALUEPART:            Color.CYAN,
+	LAYER_NOTES:                Color.LIGHTBLUE,
+	LAYER_DEVICE:               Color.RED,
+	LAYER_DEVICE_BACKGROUND:    Color.LIGHTYELLOW,
+	LAYER_NETNAM:               Color.DARKGRAY,
+	LAYER_PIN:                  Color.RED,
+	LAYER_SHEET:                Color.MAGENTA,
+	LAYER_SHEETFILENAME:        Color.BROWN,
+	LAYER_SHEETNAME:            Color.CYAN,
+	LAYER_SHEETLABEL:           Color.BROWN,
+	LAYER_NOCONNECT:            Color.BLUE,
+	LAYER_ERC_WARN:             Color.GREEN,
+	LAYER_ERC_ERR:              Color.RED,
+	LAYER_SCHEMATIC_GRID:       Color.DARKGRAY,
+	LAYER_SCHEMATIC_BACKGROUND: Color.WHITE,
+	LAYER_BRIGHTENED:           Color.PUREMAGENTA,
+};
+
+const TEMPLATE_SHAPES = {
+	[Net.INPUT]: {
+		[TextOrientationType.HORIZ_LEFT]: [ 6, 0, 0, -1, -1, -2, -1, -2, 1, -1, 1, 0, 0 ],
+		[TextOrientationType.UP]: [ 6, 0, 0, 1, -1, 1, -2, -1, -2, -1, -1, 0, 0 ],
+		[TextOrientationType.HORIZ_RIGHT]: [ 6, 0, 0, 1, 1, 2, 1, 2, -1, 1, -1, 0, 0 ],
+		[TextOrientationType.BOTTOM]: [ 6, 0, 0, 1, 1, 1, 2, -1, 2, -1, 1, 0, 0 ],
+	},
+	[Net.OUTPUT]: {
+		[TextOrientationType.HORIZ_LEFT]: [ 6, -2, 0, -1, 1, 0, 1, 0, -1, -1, -1, -2, 0 ],
+		[TextOrientationType.HORIZ_RIGHT]: [ 6, 2, 0, 1, -1, 0, -1, 0, 1, 1, 1, 2, 0 ],
+		[TextOrientationType.UP]: [ 6, 0, -2, 1, -1, 1, 0, -1, 0, -1, -1, 0, -2 ],
+		[TextOrientationType.BOTTOM]: [ 6, 0, 2, 1, 1, 1, 0, -1, 0, -1, 1, 0, 2 ],
+	},
+	[Net.UNSPECIFIED]: {
+		[TextOrientationType.HORIZ_LEFT]: [ 5, 0, -1, -2, -1, -2, 1, 0, 1, 0, -1 ],
+		[TextOrientationType.HORIZ_RIGHT]: [ 5, 0, -1, 2, -1, 2, 1, 0, 1, 0, -1 ],
+		[TextOrientationType.UP]: [ 5, 1, 0, 1, -2, -1, -2, -1, 0, 1, 0 ],
+		[TextOrientationType.BOTTOM]: [ 5, 1, 0, 1, 2, -1, 2, -1, 0, 1, 0 ],
+	},
+	[Net.BIDI]: {
+		[TextOrientationType.HORIZ_LEFT]: [ 5, 0, 0, -1, -1, -2, 0, -1, 1, 0, 0 ],
+		[TextOrientationType.HORIZ_RIGHT]: [ 5, 0, 0, 1, -1, 2, 0, 1, 1, 0, 0 ],
+		[TextOrientationType.UP]: [ 5, 0, 0, -1, -1, 0, -2, 1, -1, 0, 0 ],
+		[TextOrientationType.BOTTOM]: [ 5, 0, 0, -1, 1, 0, 2, 1, 1, 0, 0 ],
+	},
+	[Net.TRISTATE]: {
+		[TextOrientationType.HORIZ_LEFT]: [ 5, 0, 0, -1, -1, -2, 0, -1, 1, 0, 0 ],
+		[TextOrientationType.HORIZ_RIGHT]: [ 5, 0, 0, 1, -1, 2, 0, 1, 1, 0, 0 ],
+		[TextOrientationType.UP]: [ 5, 0, 0, -1, -1, 0, -2, 1, -1, 0, 0 ],
+		[TextOrientationType.BOTTOM]: [ 5, 0, 0, -1, 1, 0, 2, 1, 1, 0, 0 ],
+	}
+};
 
 
 /**
@@ -79,17 +145,17 @@ const PIN_TXT_MARGIN = 4;
  */
 export abstract class Plotter {
 	fill: Fill;
+	color: Color;
 
 	abstract rect(p1: Point, p2: Point, fill: Fill, width: number): void;
 	abstract circle(p: Point, dia: number, fill: Fill, width: number): void;
 	abstract arc(p: Point, startAngle: number, endAngle: number, radius: number, fill: Fill, width: number): void;
 	abstract polyline(points: Array<Point>, fill: Fill, width: number): void;
 	abstract setCurrentLineWidth(w: number): void;
-	abstract setColor(c: string): void;
 	abstract penTo(p: Point, s: "U"|"D"|"Z"): void;
 	abstract text(
 		p: Point,
-		color: string,
+		color: Color,
 		text: string,
 		orientation: number,
 		size: number,
@@ -100,6 +166,11 @@ export abstract class Plotter {
 		bold: boolean,
 		multiline?: boolean,
 	): void;
+	abstract image(p: Point, scale: number, originalWidth:number, originalHeight:number, data: Uint8Array): void;
+
+	setColor(c: Color): void {
+		this.color = c;
+	}
 
 	moveTo(p: Point): void;
 	moveTo(x: number, y: number): void;
@@ -153,7 +224,7 @@ export abstract class Plotter {
 			}
 			this.text(
 				pos,
-				"black",
+				SCH_COLORS.LAYER_REFERENCEPART,
 				(typeof reference !== 'undefined') ? reference : component.field.reference,
 				orientation,
 				component.field.textSize,
@@ -177,7 +248,7 @@ export abstract class Plotter {
 			}
 			this.text(
 				pos,
-				"black",
+				SCH_COLORS.LAYER_VALUEPART,
 				(typeof name !== 'undefined') ? name : component.fields[0].name,
 				orientation,
 				component.fields[0].textSize,
@@ -189,6 +260,7 @@ export abstract class Plotter {
 			);
 		}
 
+		this.setColor(SCH_COLORS.LAYER_DEVICE);
 		for (let draw of component.draw.objects) {
 			if (draw.unit !== 0 && unit !== draw.unit) {
 				continue;
@@ -271,7 +343,7 @@ export abstract class Plotter {
 		const pos = Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy}), offset);
 		this.text(
 			pos,
-			"black",
+			this.color,
 			draw.text,
 			component.field.textOrientation,
 			draw.textSize,
@@ -330,7 +402,7 @@ export abstract class Plotter {
 					if (orientation === PinOrientation.RIGHT) {
 						this.text(
 							{x: x1 + textInside, y: y1},
-							"black",
+							SCH_COLORS.LAYER_PINNAM,
 							draw.name,
 							TextAngle.HORIZ,
 							draw.nameTextSize,
@@ -343,7 +415,7 @@ export abstract class Plotter {
 					} else {
 						this.text(
 							{x: x1 - textInside, y: y1},
-							"black",
+							SCH_COLORS.LAYER_PINNAM,
 							draw.name,
 							TextAngle.HORIZ,
 							draw.nameTextSize,
@@ -359,7 +431,7 @@ export abstract class Plotter {
 				if (drawPinnumber) {
 					this.text(
 						{x: (x1 + pos.x) / 2, y: y1 + numOffset},
-						"black",
+						SCH_COLORS.LAYER_PINNUM,
 						draw.num,
 						TextAngle.HORIZ,
 						draw.nameTextSize,
@@ -375,7 +447,7 @@ export abstract class Plotter {
 					if (drawPinname) {
 						this.text(
 							{x: x1, y: y1 + textInside },
-							"black",
+							SCH_COLORS.LAYER_PINNAM,
 							draw.name,
 							TextAngle.VERT,
 							draw.nameTextSize,
@@ -389,7 +461,7 @@ export abstract class Plotter {
 					if (drawPinnumber) {
 						this.text(
 							{x: x1 - numOffset, y: (y1 + pos.y) / 2 },
-							"black",
+							SCH_COLORS.LAYER_PINNUM,
 							draw.num,
 							TextAngle.VERT,
 							draw.nameTextSize,
@@ -404,7 +476,7 @@ export abstract class Plotter {
 					if (drawPinname) {
 						this.text(
 							{x: x1, y: y1 - textInside },
-							"black",
+							SCH_COLORS.LAYER_PINNAM,
 							draw.name,
 							TextAngle.VERT,
 							draw.nameTextSize,
@@ -418,7 +490,7 @@ export abstract class Plotter {
 					if (drawPinnumber) {
 						this.text(
 							{x: x1 - numOffset, y: (y1 + pos.y) / 2 },
-							"black",
+							SCH_COLORS.LAYER_PINNUM,
 							draw.num,
 							TextAngle.VERT,
 							draw.nameTextSize,
@@ -436,7 +508,7 @@ export abstract class Plotter {
 				if (drawPinname) {
 					this.text(
 						{ x: (x1 + pos.x) / 2, y: y1 - nameOffset },
-						"black",
+						SCH_COLORS.LAYER_PINNAM,
 						draw.name,
 						TextAngle.HORIZ,
 						draw.nameTextSize,
@@ -451,7 +523,7 @@ export abstract class Plotter {
 				if (drawPinnumber) {
 					this.text(
 						{ x: (x1 + pos.x) / 2, y: y1 + numOffset },
-						"black",
+						SCH_COLORS.LAYER_PINNUM,
 						draw.num,
 						TextAngle.HORIZ,
 						draw.numTextSize,
@@ -466,7 +538,7 @@ export abstract class Plotter {
 				if (drawPinname) {
 					this.text(
 						{x: x1 - nameOffset, y: (y1 + pos.y) / 2},
-						"black",
+						SCH_COLORS.LAYER_PINNAM,
 						draw.name,
 						TextAngle.VERT,
 						draw.nameTextSize,
@@ -481,7 +553,7 @@ export abstract class Plotter {
 				if (drawPinnumber) {
 					this.text(
 						{x: x1 + numOffset, y: (y1 + pos.y) / 2},
-						"black",
+						SCH_COLORS.LAYER_PINNUM,
 						draw.num,
 						TextAngle.VERT,
 						draw.numTextSize,
@@ -604,7 +676,7 @@ export abstract class Plotter {
 				this.plotLibComponent(component, item.unit, item.convert, { x: item.posx, y: item.posy }, item.transform, item.fields[0].text, item.fields[1].text);
 			} else
 			if (item instanceof Sheet) {
-				this.setColor("black");
+				this.setColor(SCH_COLORS.LAYER_SHEET);
 				this.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
 				this.fill = Fill.NO_FILL;
 				this.moveTo(item.posx, item.posy);
@@ -614,7 +686,7 @@ export abstract class Plotter {
 				this.finishTo(item.posx, item.posy);
 				this.text(
 					{x: item.posx, y: item.posy - 4},
-					"black",
+					SCH_COLORS.LAYER_SHEETNAME,
 					item.sheetName,
 					0,
 					item.sheetNameSize,
@@ -626,7 +698,7 @@ export abstract class Plotter {
 				);
 				this.text(
 					{x: item.posx, y: item.posy + item.sizey + 4},
-					"black",
+					SCH_COLORS.LAYER_SHEETFILENAME,
 					item.fileName,
 					0,
 					item.fileNameSize,
@@ -636,193 +708,51 @@ export abstract class Plotter {
 					false,
 					false
 				);
-			} else
-			if (item instanceof SheetPin) {
-				// TODO
+
+				this.setColor(SCH_COLORS.LAYER_SHEETLABEL);
+				for (let pin of item.sheetPins) {
+					const tmp = pin.shape;
+					if (pin.shape === Net.INPUT) {
+						pin.shape = Net.OUTPUT;
+					} else
+					if (pin.shape === Net.OUTPUT) {
+						pin.shape = Net.INPUT;
+					}
+					this.plotSchTextHierarchicalLabel(pin);
+					pin.shape = tmp;
+				}
 			} else
 			if (item instanceof Bitmap) {
-				// TODO
+				item.parseIHDR();
+				const PPI = 300;
+				const PIXEL_SCALE = 1000 / PPI;
+				this.image({ x: item.posx, y: item.posy }, item.scale * PIXEL_SCALE, item.width, item.height, item.data);
 			} else
 			if (item instanceof Text) {
 				if (item.name1 === 'GLabel') {
-					{
-						const halfSize = item.size / 2;
-						const lineWidth = DEFAULT_LINE_WIDTH;
-						const points: Array<Point> = [];
-						const symLen = item.text.length * item.size;
-						const hasOverBar = /~[^~]/.test(item.text);
-
-						const Y_CORRECTION = 1.40;
-						const Y_OVERBAR_CORRECTION = 1.2;
-
-						let x = symLen + lineWidth + 3;
-						let y = halfSize * Y_CORRECTION;
-						if (hasOverBar) {
-							// TODO
-						}
-
-						y += lineWidth + lineWidth / 2;
-
-						points.push( new Point( 0, 0 ) );
-						points.push( new Point( 0, -y ) );     // Up
-						points.push( new Point( -x, -y ) );    // left
-						points.push( new Point( -x, 0 ) );     // Up left
-						points.push( new Point( -x, y ) );     // left down
-						points.push( new Point( 0, y ) );      // down
-
-						let xOffset = 0;
-
-						if (item.shape === Net.INPUT) {
-							xOffset -= halfSize;
-							points[0].x += halfSize;
-						} else
-						if (item.shape === Net.OUTPUT) {
-							points[3].x -= halfSize;
-						} else
-						if (item.shape === Net.BIDI ||
-							item.shape === Net.TRISTATE) {
-							xOffset = -halfSize;
-							points[0].x += halfSize;
-							points[3].x -= halfSize;
-						}
-
-						let angle = 0;
-						if (item.orientationType === 0) {
-							angle = 0;
-						} else
-						if (item.orientationType === 1) {
-							angle = -900;
-						} else
-						if (item.orientationType === 2) {
-							angle = 1800;
-						} else
-						if (item.orientationType === 3) {
-							angle = 900;
-						}
-
-						for (let p of points) {
-							p.x += xOffset;
-							if (angle) {
-								RotatePoint(p, angle);
-							}
-
-							p.x += item.posx;
-							p.y += item.posy;
-						}
-
-						points.push(points[0]);
-
-						this.polyline(points, Fill.NO_FILL, DEFAULT_LINE_WIDTH);
-					}
-
-					{
-						let p = new Point(item.posx, item.posy);
-						const width = DEFAULT_LINE_WIDTH;
-						const halfSize = item.text.length * item.size / 2 * 0.5;
-						let offset = width;
-						if (item.shape === Net.INPUT ||
-							item.shape === Net.BIDI ||
-							item.shape === Net.TRISTATE
-						) {
-							offset += halfSize;
-						} else
-						if (item.shape === Net.OUTPUT ||
-							item.shape === Net.UNSPECIFIED) {
-							offset += (item.size * 2);
-						}
-						if (item.orientationType === 0) {
-							p.x -= offset;
-						} else
-						if (item.orientationType === 1) {
-							p.y -= offset;
-						} else
-						if (item.orientationType === 2) {
-							p.x += offset;
-						} else
-						if (item.orientationType === 3) {
-							p.y += offset;
-						}
-						this.text(
-							p,
-							"black",
-							item.text,
-							item.orientation,
-							item.size,
-							item.hjustify,
-							item.vjustify,
-							0,
-							item.italic,
-							item.bold
-						);
-					}
+					this.plotSchTextGlobalLabel(item);
 				} else
 				if (item.name1 === 'HLabel') {
-					let p = new Point(item.posx, item.posy);
-					const txtOffset = item.size * item.text.length + TXT_MARGIN + DEFAULT_LINE_WIDTH / 2;
-					if (item.orientationType === 0) {
-						p.x -= txtOffset;
-					} else
-					if (item.orientationType === 1) {
-						p.y -= txtOffset;
-					} else
-					if (item.orientationType === 2) {
-						p.x += txtOffset;
-					} else
-					if (item.orientationType === 3) {
-						p.y += txtOffset;
-					}
-					this.text(
-						p,
-						"black",
-						item.text,
-						item.orientation,
-						item.size,
-						item.hjustify,
-						item.vjustify,
-						0,
-						item.italic,
-						item.bold
-					);
+					this.plotSchTextHierarchicalLabel(item);
 				} else {
-					let p = new Point(item.posx, item.posy);
-					const txtOffset = TXT_MARGIN + DEFAULT_LINE_WIDTH / 2;
-					if (item.orientationType === 0) {
-						p.y -= txtOffset;
-					} else
-					if (item.orientationType === 1) {
-						p.x -= txtOffset;
-					} else
-					if (item.orientationType === 2) {
-						p.y -= txtOffset;
-					} else
-					if (item.orientationType === 3) {
-						p.x -= txtOffset;
-					}
-					this.text(
-						p,
-						"black",
-						item.text,
-						item.orientation,
-						item.size,
-						item.hjustify,
-						item.vjustify,
-						0,
-						item.italic,
-						item.bold
-					);
+					this.plotSchText(item);
 				}
 			} else
 			if (item instanceof Entry) {
+				this.setColor(item.isBus ? SCH_COLORS.LAYER_BUS : SCH_COLORS.LAYER_WIRE);
+				this.setCurrentLineWidth(item.isBus ? DEFAULT_LINE_WIDTH_BUS : DEFAULT_LINE_WIDTH);
+				this.moveTo(item.posx, item.posy);
+				this.finishTo(item.posx + item.sizex, item.posy + item.sizey);
 			} else
 			if (item instanceof Connection) {
-				this.setColor("black");
+				this.setColor(SCH_COLORS.LAYER_JUNCTION);
 				this.circle({ x: item.posx, y: item.posy }, 40, Fill.FILLED_SHAPE, DEFAULT_LINE_WIDTH);
 			} else
 			if (item instanceof NoConn) {
 				this.fill = Fill.NO_FILL;
 				const DRAWNOCONNECT_SIZE = 48;
 				const delta = DRAWNOCONNECT_SIZE / 2;
-				this.setColor("black");
+				this.setColor(SCH_COLORS.LAYER_NOCONNECT);
 				this.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
 				this.moveTo( item.posx - delta, item.posy - delta);
 				this.finishTo(item.posx + delta, item.posy + delta);
@@ -830,8 +760,8 @@ export abstract class Plotter {
 				this.finishTo(item.posx - delta, item.posy + delta);
 			} else
 			if (item instanceof Wire) {
-				this.setColor("black");
-				this.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
+				this.setColor(item.isBus ? SCH_COLORS.LAYER_BUS : SCH_COLORS.LAYER_WIRE);
+				this.setCurrentLineWidth(item.isBus ? DEFAULT_LINE_WIDTH_BUS : DEFAULT_LINE_WIDTH);
 				this.fill = Fill.NO_FILL;
 				this.moveTo(item.startx, item.starty);
 				this.finishTo(item.endx, item.endy);
@@ -839,6 +769,198 @@ export abstract class Plotter {
 				throw "unknown SchItem: " + item.constructor.name;
 			}
 		}
+	}
+
+	plotSchTextGlobalLabel(item: Text) {
+		{
+			const halfSize = item.size / 2;
+			const lineWidth = DEFAULT_LINE_WIDTH;
+			const points: Array<Point> = [];
+			const symLen = item.text.length * item.size;
+			const hasOverBar = /~[^~]/.test(item.text);
+
+			const Y_CORRECTION = 1.40;
+			const Y_OVERBAR_CORRECTION = 1.2;
+
+			let x = symLen + lineWidth + 3;
+			let y = halfSize * Y_CORRECTION;
+			if (hasOverBar) {
+				// TODO
+			}
+
+			y += lineWidth + lineWidth / 2;
+
+			points.push( new Point( 0, 0 ) );
+			points.push( new Point( 0, -y ) );     // Up
+			points.push( new Point( -x, -y ) );    // left
+			points.push( new Point( -x, 0 ) );     // Up left
+			points.push( new Point( -x, y ) );     // left down
+			points.push( new Point( 0, y ) );      // down
+
+			let xOffset = 0;
+
+			if (item.shape === Net.INPUT) {
+				xOffset -= halfSize;
+				points[0].x += halfSize;
+			} else
+			if (item.shape === Net.OUTPUT) {
+				points[3].x -= halfSize;
+			} else
+			if (item.shape === Net.BIDI ||
+				item.shape === Net.TRISTATE) {
+				xOffset = -halfSize;
+				points[0].x += halfSize;
+				points[3].x -= halfSize;
+			}
+
+			let angle = 0;
+			if (item.orientationType === TextOrientationType.HORIZ_LEFT) {
+				angle = 0;
+			} else
+			if (item.orientationType === TextOrientationType.UP) {
+				angle = -900;
+			} else
+			if (item.orientationType === TextOrientationType.HORIZ_RIGHT) {
+				angle = 1800;
+			} else
+			if (item.orientationType === TextOrientationType.BOTTOM) {
+				angle = 900;
+			}
+
+			for (let p of points) {
+				p.x += xOffset;
+				if (angle) {
+					RotatePoint(p, angle);
+				}
+
+				p.x += item.posx;
+				p.y += item.posy;
+			}
+
+			points.push(points[0]);
+
+			this.setColor(SCH_COLORS.LAYER_GLOBLABEL);
+			this.polyline(points, Fill.NO_FILL, DEFAULT_LINE_WIDTH);
+		}
+
+		{
+			let p = new Point(item.posx, item.posy);
+			const width = DEFAULT_LINE_WIDTH;
+			const halfSize = item.text.length * item.size / 2 * 0.5;
+			let offset = width;
+			if (item.shape === Net.INPUT ||
+				item.shape === Net.BIDI ||
+				item.shape === Net.TRISTATE
+			) {
+				offset += halfSize;
+			} else
+			if (item.shape === Net.OUTPUT ||
+				item.shape === Net.UNSPECIFIED) {
+				offset += (item.size * 2);
+			}
+			if (item.orientationType === 0) {
+				p.x -= offset;
+			} else
+			if (item.orientationType === 1) {
+				p.y -= offset;
+			} else
+			if (item.orientationType === 2) {
+				p.x += offset;
+			} else
+			if (item.orientationType === 3) {
+				p.y += offset;
+			}
+			this.text(
+				p,
+				SCH_COLORS.LAYER_GLOBLABEL,
+				item.text,
+				item.orientation,
+				item.size,
+				item.hjustify,
+				item.vjustify,
+				0,
+				item.italic,
+				item.bold
+			);
+		}
+	}
+
+	plotSchTextHierarchicalLabel(item: Text) {
+		{
+			let p = new Point(item.posx, item.posy);
+			const halfSize = item.size / 2;
+			const template = TEMPLATE_SHAPES[item.shape][item.orientationType];
+			const points: Array<Point> = [];
+			// first of template is number of corners
+			for (let i = 1; i < template.length; i += 2) {
+				const x = template[i] * halfSize;
+				const y = template[i+1] * halfSize;
+				points.push(Point.add(new Point(x, y), p));
+			}
+
+			this.polyline(points, Fill.NO_FILL, DEFAULT_LINE_WIDTH);
+		};
+		{
+			let p = new Point(item.posx, item.posy);
+			const txtOffset = item.size * item.text.length + TXT_MARGIN + DEFAULT_LINE_WIDTH / 2;
+			if (item.orientationType === 0) {
+				p.x -= txtOffset;
+			} else
+			if (item.orientationType === 1) {
+				p.y -= txtOffset;
+			} else
+			if (item.orientationType === 2) {
+				p.x += txtOffset;
+			} else
+			if (item.orientationType === 3) {
+				p.y += txtOffset;
+			}
+			this.text(
+				p,
+				SCH_COLORS.LAYER_HIERLABEL,
+				item.text,
+				item.orientation,
+				item.size,
+				item.hjustify,
+				item.vjustify,
+				0,
+				item.italic,
+				item.bold
+			);
+		}
+	}
+
+	plotSchText(item: Text) {
+		let color = SCH_COLORS.LAYER_NOTES;
+		if (item.name1 === 'Label') {
+			color = SCH_COLORS.LAYER_LOCLABEL;
+		}
+		let p = new Point(item.posx, item.posy);
+		const txtOffset = TXT_MARGIN + DEFAULT_LINE_WIDTH / 2;
+		if (item.orientationType === 0) {
+			p.y -= txtOffset;
+		} else
+		if (item.orientationType === 1) {
+			p.x -= txtOffset;
+		} else
+		if (item.orientationType === 2) {
+			p.y -= txtOffset;
+		} else
+		if (item.orientationType === 3) {
+			p.x -= txtOffset;
+		}
+		this.text(
+			p,
+			color,
+			item.text,
+			item.orientation,
+			item.size,
+			item.hjustify,
+			item.vjustify,
+			0,
+			item.italic,
+			item.bold
+		);
 	}
 }
 
@@ -903,7 +1025,7 @@ export class CanvasPlotter extends Plotter {
 
 	text(
 		p: Point,
-		color: string,
+		color: Color,
 		text: string,
 		orientation: number,
 		size: number,
@@ -914,6 +1036,7 @@ export class CanvasPlotter extends Plotter {
 		bold: boolean,
 		multiline?: boolean,
 	): void {
+		this.setColor(color);
 		if (hjustfy === TextHjustify.LEFT) {
 			this.ctx.textAlign = "left";
 		} else
@@ -932,7 +1055,7 @@ export class CanvasPlotter extends Plotter {
 		if (vjustify === TextVjustify.BOTTOM) {
 			this.ctx.textBaseline = "bottom";
 		}
-		this.ctx.fillStyle = color;
+		this.ctx.fillStyle = this.color.toCSSColor();
 		this.ctx.save();
 		this.ctx.translate(p.x, p.y);
 		this.ctx.rotate(-DECIDEG2RAD(orientation));
@@ -980,13 +1103,20 @@ export class CanvasPlotter extends Plotter {
 		this.penState = s;
 	} 
 
-	setColor(c: string): void {
-		this.ctx.fillStyle = c;
-		this.ctx.strokeStyle = c;
+	setColor(c: Color): void {
+		super.setColor(c);
+		this.ctx.fillStyle = c.toCSSColor();
+		this.ctx.strokeStyle = c.toCSSColor();
 	}
 
 	setCurrentLineWidth(w: number): void {
 		this.ctx.lineWidth = w;
+	}
+
+	image(p: Point, scale: number, originalWidth:number, originalHeight:number, data: Uint8Array): void {
+		const start = Point.sub(p, { x: originalWidth / 2, y: originalHeight / 2 });
+		const end = Point.add(p, { x: originalWidth / 2, y: originalHeight / 2 });
+		this.rect(start, end, Fill.NO_FILL, DEFAULT_LINE_WIDTH);
 	}
 }
 
@@ -1000,6 +1130,7 @@ export class SVGPlotter extends Plotter {
 		this.penState = "Z";
 		this.output = "";
 		this.lineWidth = DEFAULT_LINE_WIDTH;
+		this.color = Color.BLACK;
 	}
 
 	rect(p1: Point, p2: Point, fill: Fill, width: number): void {
@@ -1018,9 +1149,9 @@ export class SVGPlotter extends Plotter {
 
 		this.output += this.xmlTag `<circle cx="${p.x}" cy="${p.y}" r="${dia/2}" `;
 		if (this.fill === Fill.NO_FILL) {
-			this.output += this.xmlTag ` style="stroke: #000000; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
 		} else {
-			this.output += this.xmlTag ` style="stroke: #000000; fill: #000000; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
 		}
 	}
 
@@ -1056,9 +1187,9 @@ export class SVGPlotter extends Plotter {
 		const x = this.xmlTag;
 		this.output += this.xmlTag `<path d="M${start.x} ${start.y} A${radius} ${radius} 0.0 ${isLargeArc ? 1 : 0} ${isSweep ? 1 : 0} ${end.x} ${end.y}"`;
 		if (this.fill === Fill.NO_FILL) {
-			this.output += this.xmlTag ` style="stroke: #000000; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
 		} else {
-			this.output += this.xmlTag ` style="stroke: #000000; fill: #000000; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
 		}
 	}
 
@@ -1074,7 +1205,7 @@ export class SVGPlotter extends Plotter {
 
 	text(
 		p: Point,
-		color: string,
+		color: Color,
 		text: string,
 		orientation: number,
 		size: number,
@@ -1085,6 +1216,8 @@ export class SVGPlotter extends Plotter {
 		bold: boolean,
 		multiline?: boolean,
 	): void {
+		this.setColor(color);
+
 		let textAnchor;
 		if (hjustfy === TextHjustify.LEFT) {
 			textAnchor = "start";
@@ -1121,7 +1254,8 @@ export class SVGPlotter extends Plotter {
 				font-size="${size}"
 				font-weight="${fontWeight}"
 				font-style="${fontStyle}"
-				fill="#000000"
+				stroke="none"
+				fill="${this.color.toCSSColor()}"
 				transform="rotate(${rotate}, ${p.x}, ${p.y})">${lines[i]}</text>`;
 		}
 	}
@@ -1136,9 +1270,9 @@ export class SVGPlotter extends Plotter {
 		if (s === "Z") {
 			if (this.penState !== "Z") {
 				if (this.fill === Fill.NO_FILL) {
-					this.output += this.xmlTag `" style="stroke: #000000; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+					this.output += this.xmlTag `" style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
 				} else {
-					this.output += this.xmlTag `" style="stroke: #000000; fill: #000000; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+					this.output += this.xmlTag `" style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
 				}
 			} else {
 				throw "invalid pen state Z -> Z";
@@ -1162,22 +1296,39 @@ export class SVGPlotter extends Plotter {
 		this.penState = s;
 	} 
 
-	setColor(c: string): void {
-	}
-
 	setCurrentLineWidth(w: number): void {
 		this.lineWidth = w;
+	}
+
+	image(p: Point, scale: number, originalWidth:number, originalHeight:number, data: Uint8Array): void {
+		const width = originalWidth * scale;
+		const height = originalHeight * scale;
+		const start = Point.sub(p, { x: width / 2, y: height / 2 });
+		const url = 'data:image/png,' + data.reduce( (r, i) => r + '%' + (0x100 + i).toString(16).slice(1), "");
+		console.log(url);
+
+		/*
+		this.rect(start, end, Fill.NO_FILL, DEFAULT_LINE_WIDTH);
+		*/
+		this.output += this.xmlTag `<image
+			xlink:href="${url}"
+			x="${start.x}"
+			y="${start.y}"
+			width="${width}"
+			height="${height}"
+			/>`;
 	}
 
 	plotSchematic(sch: Schematic, libs: Array<Library>) {
 		const width = sch.descr.width;
 		const height =sch.descr.height;
-		const x = this.xmlTag;
 		this.output = this.xmlTag `<svg preserveAspectRatio="xMinYMin"
 			width="${width}"
 			height="${height}"
 			viewBox="0 0 ${sch.descr.width} ${sch.descr.height}"
-			xmlns="http://www.w3.org/2000/svg" version="1.1">`;
+			xmlns="http://www.w3.org/2000/svg"
+			xmlns:xlink="http://www.w3.org/1999/xlink"
+			version="1.1">`;
 		super.plotSchematic(sch, libs);
 		this.output += `</svg>`;
 	}

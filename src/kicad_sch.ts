@@ -37,6 +37,13 @@ import {
 	ReadDelimitedText,
 } from "./kicad_common";
 
+export enum TextOrientationType {
+	HORIZ_LEFT = 0,
+	UP = 1,
+	HORIZ_RIGHT = 2,
+	BOTTOM = 3,
+};
+
 export class Schematic {
 	libs: Array<string>;
 	descr: Descr;
@@ -169,34 +176,10 @@ export class Sheet extends SchItem {
 					this.fileName = ReadDelimitedText(tokens[1]);
 					this.fileNameSize = Number(tokens[2]);
 				} else {
-					this.sheetPins.push(new SheetPin(tokens.slice(1)).parse(lines));
+					this.sheetPins.push(new SheetPin(n, tokens.slice(1)).parse(lines));
 				}
 			}
 		}
-		return this;
-	}
-}
-
-export class SheetPin extends SchItem {
-	number: number;
-	name: string;
-	connectType: Net;
-	sheetSide: SheetSide;
-	posx: number;
-	posy: number;
-	textWidth: number;
-
-	constructor(tokens: Array<string>) {
-		super();
-		this.name = tokens[0];
-		this.connectType = tokens[1][0] as Net;
-		this.sheetSide = tokens[2][0] as SheetSide;
-		this.posx = Number(tokens[3]);
-		this.posy = Number(tokens[4]);
-		this.textWidth = Number(tokens[5]);
-	}
-
-	parse(lines: Array<string>): this {
 		return this;
 	}
 }
@@ -372,7 +355,11 @@ export class Bitmap extends SchItem {
 	posx: number;
 	posy: number;
 	scale: number;
-	data: string;
+	width: number;
+	height: number;
+	data: Uint8Array;
+
+	static PNG_SIGNATURE = "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A";
 
 	constructor() {
 		super();
@@ -391,11 +378,17 @@ export class Bitmap extends SchItem {
 				this.scale = Number(tokens[1]);
 			} else
 			if (tokens[0] === 'Data') {
-				this.data = '';
+				const chunks : Array<Uint8Array> = [];
 				while ( (line = lines.shift()) !== undefined ) {
 					if (line === 'EndData') break;
-					// raw hex data
-					this.data += line;
+					chunks.push(Uint8Array.from( line.replace(/^\s+|\s+$/g, '').split(/\s+/).map( (hex) => parseInt(hex, 16) )));
+				}
+				const size = chunks.reduce( (r, i) => r + i.length, 0);
+				this.data = new Uint8Array(size);
+				let offset = 0;
+				for (let chunk of chunks) {
+					this.data.set(chunk, offset);
+					offset += chunk.length;
 				}
 			} else {
 				throw "unexpected token " + tokens[0];
@@ -403,13 +396,35 @@ export class Bitmap extends SchItem {
 		}
 		return this;
 	}
+
+	get isValidPNG(): boolean {
+		const signature = String.fromCharCode(...this.data.slice(0, Bitmap.PNG_SIGNATURE.length));
+		return signature === Bitmap.PNG_SIGNATURE;
+	}
+
+	// we need to parse png file to know image dimension
+	parseIHDR(): void {
+		if (!this.isValidPNG) {
+			throw "this is not a valid png file: invalid signature";
+		}
+
+		const IHDR = new DataView(this.data.buffer, Bitmap.PNG_SIGNATURE.length, 25);
+		const size = IHDR.getUint32(0);
+		const name = String.fromCharCode(IHDR.getUint8(4), IHDR.getUint8(5), IHDR.getUint8(6), IHDR.getUint8(7));
+		if (name !== 'IHDR' || size !== 13) {
+			throw "this is not a valid png file: invalid IHDR";
+		}
+
+		this.width = IHDR.getUint32(0x08);
+		this.height = IHDR.getUint32(0x0c);
+	}
 }
 
 export class Text extends SchItem {
 	name1: string;
 	posx: number;
 	posy: number;
-	orientationType: number;
+	orientationType: TextOrientationType;
 	orientation: number;
 	size: number;
 	bold: boolean;
@@ -419,29 +434,40 @@ export class Text extends SchItem {
 	hjustify: TextHjustify;
 	vjustify: TextVjustify;
 
-	constructor(tokens: Array<string>) {
+	constructor(tokens?: Array<string>) {
 		super();
+		if (!tokens) return;
 		this.name1 = tokens[0];
 		this.posx = Number(tokens[1]);
 		this.posy = Number(tokens[2]);
-		let orientationType = Number(tokens[3]);
+		let orientationType = Number(tokens[3]) as TextOrientationType;
+		this.setOrientationType(orientationType);
+		this.size = Number(tokens[4]);
+		this.shape = tokens[5][0] as Net;
+		this.italic = tokens[6] == "Italic";
+		this.bold  = Number(tokens[7]) !== 0;
+
+	}
+
+	setOrientationType(orientationType: TextOrientationType) {
+		this.orientationType = orientationType;
 		if (this.name1 === "GLabel") {
-			if (orientationType === 0) {
+			if (orientationType === TextOrientationType.HORIZ_LEFT) {
 				this.orientation = TextAngle.HORIZ;
 				this.hjustify = TextHjustify.RIGHT;
 				this.vjustify = TextVjustify.CENTER;
 			} else
-			if (orientationType === 1) {
+			if (orientationType === TextOrientationType.UP) {
 				this.orientation = TextAngle.VERT;
 				this.hjustify = TextHjustify.LEFT;
 				this.vjustify = TextVjustify.CENTER;
 			} else
-			if (orientationType === 2) {
+			if (orientationType === TextOrientationType.HORIZ_RIGHT) {
 				this.orientation = TextAngle.HORIZ;
 				this.hjustify = TextHjustify.LEFT;
 				this.vjustify = TextVjustify.CENTER;
 			} else
-			if (orientationType === 3) {
+			if (orientationType === TextOrientationType.BOTTOM) {
 				this.orientation = TextAngle.VERT;
 				this.hjustify = TextHjustify.RIGHT;
 				this.vjustify = TextVjustify.CENTER;
@@ -450,22 +476,22 @@ export class Text extends SchItem {
 			}
 		} else
 		if (this.name1 === 'HLabel') {
-			if (orientationType === 0) {
+			if (orientationType === TextOrientationType.HORIZ_LEFT) {
 				this.orientation = TextAngle.HORIZ;
 				this.hjustify = TextHjustify.RIGHT;
 				this.vjustify = TextVjustify.CENTER;
 			} else
-			if (orientationType === 1) {
+			if (orientationType === TextOrientationType.UP) {
 				this.orientation = TextAngle.VERT;
 				this.hjustify = TextHjustify.LEFT;
 				this.vjustify = TextVjustify.CENTER;
 			} else
-			if (orientationType === 2) {
+			if (orientationType === TextOrientationType.HORIZ_RIGHT) {
 				this.orientation = TextAngle.HORIZ;
 				this.hjustify = TextHjustify.LEFT;
 				this.vjustify = TextVjustify.CENTER;
 			} else
-			if (orientationType === 3) {
+			if (orientationType === TextOrientationType.BOTTOM) {
 				this.orientation = TextAngle.VERT;
 				this.hjustify = TextHjustify.RIGHT;
 				this.vjustify = TextVjustify.CENTER;
@@ -473,22 +499,22 @@ export class Text extends SchItem {
 				throw "invalid orientationType: " + orientationType;
 			}
 		} else {
-			if (orientationType === 0) {
+			if (orientationType === TextOrientationType.HORIZ_LEFT) {
 				this.orientation = TextAngle.HORIZ;
 				this.hjustify = TextHjustify.LEFT;
 				this.vjustify = TextVjustify.BOTTOM;
 			} else
-			if (orientationType === 1) {
+			if (orientationType === TextOrientationType.UP) {
 				this.orientation = TextAngle.VERT;
 				this.hjustify = TextHjustify.LEFT;
 				this.vjustify = TextVjustify.BOTTOM;
 			} else
-			if (orientationType === 2) {
+			if (orientationType === TextOrientationType.HORIZ_RIGHT) {
 				this.orientation = TextAngle.HORIZ;
 				this.hjustify = TextHjustify.RIGHT;
 				this.vjustify = TextVjustify.BOTTOM;
 			} else
-			if (orientationType === 3) {
+			if (orientationType === TextOrientationType.BOTTOM) {
 				this.orientation = TextAngle.VERT;
 				this.hjustify = TextHjustify.RIGHT;
 				this.vjustify = TextVjustify.BOTTOM;
@@ -496,12 +522,6 @@ export class Text extends SchItem {
 				throw "invalid orientationType: " + orientationType;
 			}
 		}
-		this.orientationType = orientationType;
-		this.size = Number(tokens[4]);
-		this.shape = tokens[5][0] as Net;
-		this.italic = tokens[6] == "Italic";
-		this.bold  = Number(tokens[7]) !== 0;
-
 	}
 
 	parse(lines: Array<string>): this {
@@ -526,6 +546,10 @@ export class Wire extends SchItem {
 		this.name2 = tokens[1];
 	}
 
+	get isBus():boolean {
+		return this.name1[0] === 'B';
+	}
+
 	parse(lines: Array<string>): this {
 		const wire = lines.shift();
 		if (!wire) throw "expected text wire but not";
@@ -548,10 +572,16 @@ export class Entry extends SchItem {
 		this.name2 = tokens[1];
 	}
 
+	get isBus():boolean {
+		return this.name1[0] === 'B';
+	}
+
 	parse(lines: Array<string>): this {
 		const entry = lines.shift();
-		if (!entry) throw "expected text wire but not";
-		[ this.posx, this.posy, this.sizex, this.sizey] = entry.split(/\s+/).map( (i) => Number(i) );
+		if (!entry) throw "expected text entry but not";
+		[ this.posx, this.posy, this.sizex, this.sizey] = entry.substring(1).split(/\s+/).map( (i) => Number(i) );
+		this.sizex -= this.posx;
+		this.sizey -= this.posy;
 		return this;
 	}
 }
@@ -589,3 +619,36 @@ export class NoConn extends SchItem {
 		return this;
 	}
 }
+export class SheetPin extends Text {
+	number: number;
+	sheetSide: SheetSide;
+
+	constructor(n: number, tokens: Array<string>) {
+		super();
+		this.number = n;
+		this.text = ReadDelimitedText(tokens[0]);
+		this.shape = tokens[1][0] as Net;
+		this.sheetSide = tokens[2][0] as SheetSide;
+		this.posx = Number(tokens[3]);
+		this.posy = Number(tokens[4]);
+		this.size = Number(tokens[5]);
+
+		if (this.sheetSide === SheetSide.LEFT) {
+			this.setOrientationType(TextOrientationType.HORIZ_RIGHT);
+		} else
+		if (this.sheetSide === SheetSide.RIGHT) {
+			this.setOrientationType(TextOrientationType.HORIZ_LEFT);
+		} else
+		if (this.sheetSide === SheetSide.TOP) {
+			this.setOrientationType(TextOrientationType.BOTTOM);
+		} else
+		if (this.sheetSide === SheetSide.BOTTOM) {
+			this.setOrientationType(TextOrientationType.UP);
+		}
+	}
+
+	parse(lines: Array<string>): this {
+		return this;
+	}
+}
+

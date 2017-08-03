@@ -33,8 +33,6 @@
  *	angles: decidegree (1/10 degrees)
  */
 
-export const DEFAULT_LINE_WIDTH = 6;
-
 export function DECIDEG2RAD(deg: number): number {
 	return deg * Math.PI / 1800;
 }
@@ -213,6 +211,97 @@ export class Rect {
 		this.pos2.x += n;
 		this.pos2.y += n;
 		return this;
+	}
+}
+
+export class Color {
+	r: number;
+	g: number;
+	b: number;
+
+	// common/colors.cpp 
+	static BLACK =         new Color(0    , 0   , 0    );
+	static DARKDARKGRAY =  new Color(72   , 72  , 72    );
+	static DARKGRAY =      new Color(132  , 132 , 132    );
+	static LIGHTGRAY =     new Color(194  , 194 , 194    );
+	static WHITE =         new Color(255  , 255 , 255    );
+	static LIGHTYELLOW =   new Color(255  , 255 , 194    );
+	static DARKBLUE =      new Color(0    , 0   , 72   );
+	static DARKGREEN =     new Color(0    , 72  , 0    );
+	static DARKCYAN =      new Color(0    , 72  , 72   );
+	static DARKRED =       new Color(72   , 0   , 0     );
+	static DARKMAGENTA =   new Color(72   , 0   , 72    );
+	static DARKBROWN =     new Color(72   , 72  , 0     );
+	static BLUE =          new Color(0    , 0   , 132  );
+	static GREEN =         new Color(0    , 132 , 0    );
+	static CYAN =          new Color(0    , 132 , 132  );
+	static RED =           new Color(132  , 0   , 0      );
+	static MAGENTA =       new Color(132  , 0   , 132    );
+	static BROWN =         new Color(132  , 132 , 0      );
+	static LIGHTBLUE =     new Color(0    , 0   , 194  );
+	static LIGHTGREEN =    new Color(0    , 194 , 0    );
+	static LIGHTCYAN =     new Color(0    , 194 , 194  );
+	static LIGHTRED =      new Color(194  , 0   , 0      );
+	static LIGHTMAGENTA =  new Color(194  , 0   , 194    );
+	static YELLOW =        new Color(194  , 194 , 0      );
+	static PUREBLUE =      new Color(0    , 0   , 255  );
+	static PUREGREEN =     new Color(0    , 255 , 0    );
+	static PURECYAN =      new Color(0    , 255 , 255  );
+	static PURERED =       new Color(255  , 0   , 0      );
+	static PUREMAGENTA =   new Color(255  , 0   , 255    );
+	static PUREYELLOW =    new Color(255  , 255 , 0      );
+
+	// max 255 int
+	constructor(r: number, g: number, b:number) {
+		this.r = r;
+		this.g = g;
+		this.b = b;
+	}
+
+	toCSSColor(): string {
+		return `rgb(${this.r}, ${this.g}, ${this.b})`;
+	}
+}
+
+export class ColorDefinition extends Color {
+	static BLACK        = new ColorDefinition(Color.BLACK        , "Black"     , Color.DARKDARKGRAY      );
+	static DARKDARKGRAY = new ColorDefinition(Color.DARKDARKGRAY , "Gray 1"    , Color.DARKGRAY          );
+	static DARKGRAY     = new ColorDefinition(Color.DARKGRAY     , "Gray 2"    , Color.LIGHTGRAY         );
+	static LIGHTGRAY    = new ColorDefinition(Color.LIGHTGRAY    , "Gray 3"    , Color.WHITE             );
+	static WHITE        = new ColorDefinition(Color.WHITE        , "White"     , Color.WHITE             );
+	static LIGHTYELLOW  = new ColorDefinition(Color.LIGHTYELLOW  , "L.Yellow"  , Color.WHITE             );
+	static DARKBLUE     = new ColorDefinition(Color.DARKBLUE     , "Blue 1"    , Color.BLUE              );
+	static DARKGREEN    = new ColorDefinition(Color.DARKGREEN    , "Green 1"   , Color.GREEN             );
+	static DARKCYAN     = new ColorDefinition(Color.DARKCYAN     , "Cyan 1"    , Color.CYAN              );
+	static DARKRED      = new ColorDefinition(Color.DARKRED      , "Red 1"     , Color.RED               );
+	static DARKMAGENTA  = new ColorDefinition(Color.DARKMAGENTA  , "Magenta 1" , Color.MAGENTA           );
+	static DARKBROWN    = new ColorDefinition(Color.DARKBROWN    , "Brown 1"   , Color.BROWN             );
+	static BLUE         = new ColorDefinition(Color.BLUE         , "Blue 2"    , Color.LIGHTBLUE         );
+	static GREEN        = new ColorDefinition(Color.GREEN        , "Green 2"   , Color.LIGHTGREEN        );
+	static CYAN         = new ColorDefinition(Color.CYAN         , "Cyan 2"    , Color.LIGHTCYAN         );
+	static RED          = new ColorDefinition(Color.RED          , "Red 2"     , Color.LIGHTRED          );
+	static MAGENTA      = new ColorDefinition(Color.MAGENTA      , "Magenta 2" , Color.LIGHTMAGENTA      );
+	static BROWN        = new ColorDefinition(Color.BROWN        , "Brown 2"   , Color.YELLOW            );
+	static LIGHTBLUE    = new ColorDefinition(Color.LIGHTBLUE    , "Blue 3"    , Color.PUREBLUE          );
+	static LIGHTGREEN   = new ColorDefinition(Color.LIGHTGREEN   , "Green 3"   , Color.PUREGREEN         );
+	static LIGHTCYAN    = new ColorDefinition(Color.LIGHTCYAN    , "Cyan 3"    , Color.PURECYAN          );
+	static LIGHTRED     = new ColorDefinition(Color.LIGHTRED     , "Red 3"     , Color.PURERED           );
+	static LIGHTMAGENTA = new ColorDefinition(Color.LIGHTMAGENTA , "Magenta 3" , Color.PUREMAGENTA       );
+	static YELLOW       = new ColorDefinition(Color.YELLOW       , "Yellow 3"  , Color.PUREYELLOW        );
+	static PUREBLUE     = new ColorDefinition(Color.PUREBLUE     , "Blue 4"    , Color.WHITE             );
+	static PUREGREEN    = new ColorDefinition(Color.PUREGREEN    , "Green 4"   , Color.WHITE             );
+	static PURECYAN     = new ColorDefinition(Color.PURECYAN     , "Cyan 4"    , Color.WHITE             );
+	static PURERED      = new ColorDefinition(Color.PURERED      , "Red 4"     , Color.WHITE             );
+	static PUREMAGENTA  = new ColorDefinition(Color.PUREMAGENTA  , "Magenta 4" , Color.WHITE             );
+	static PUREYELLOW   = new ColorDefinition(Color.PUREYELLOW   , "Yellow 4"  , Color.WHITE             );
+
+
+	name: string;
+	light: Color;
+	constructor(c: Color, name: string, light: Color) {
+		super(c.r, c.g, c.b);
+		this.name = name;
+		this.light = light;
 	}
 }
 
