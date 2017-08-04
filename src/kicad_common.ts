@@ -196,6 +196,21 @@ export class Rect {
 		return this.pos2.y - this.pos1.y;
 	}
 
+	normalize(): this {
+		[
+			this.pos1.x,
+			this.pos1.y,
+			this.pos2.x,
+			this.pos2.y,
+		] = [
+			Math.min(this.pos1.x, this.pos2.x),
+			Math.min(this.pos1.y, this.pos2.y),
+			Math.max(this.pos1.x, this.pos2.x),
+			Math.max(this.pos1.y, this.pos2.y),
+		]
+		return this;
+	}
+
 	merge(o: Rect): Rect {
 		return new Rect(
 			Math.min(this.pos1.x, o.pos1.x),
