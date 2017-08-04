@@ -224,7 +224,7 @@ export abstract class Plotter {
 			}
 
 			let text  = (typeof reference !== 'undefined') ? reference : component.field.reference;
-			const width = text.length * component.field.textSize * 0.5;
+			const width = text.length * component.field.textSize * 0.6;
 			const height = text.length;
 
 			this.text(
@@ -252,7 +252,7 @@ export abstract class Plotter {
 				}
 			}
 			let text  = (typeof name !== 'undefined') ? name : component.fields[0].name;
-			const width = text.length * component.fields[0].textSize * 0.5;
+			const width = text.length * component.fields[0].textSize * 0.6;
 			const height = text.length;
 			this.text(
 				Point.add({ x: width, y: height }, pos),
@@ -854,7 +854,7 @@ export abstract class Plotter {
 		{
 			let p = new Point(item.posx, item.posy);
 			const width = DEFAULT_LINE_WIDTH;
-			const halfSize = item.text.length * item.size / 2 * 0.5;
+			const halfSize = item.text.length * item.size / 2 * 0.6;
 			let offset = width;
 			if (item.shape === Net.INPUT ||
 				item.shape === Net.BIDI ||
@@ -1360,6 +1360,8 @@ export class SVGPlotter extends Plotter {
 			'<': '&lt;',
 			'>': '&gt;',
 			'&': '&amp;',
+			'"': '&x22;',
+			"'": '&x27;',
 		};
 		return String(s).replace(/[<>&]/g, (_) => map[_] );
 	}
