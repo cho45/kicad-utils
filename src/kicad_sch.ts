@@ -246,7 +246,9 @@ export class SchComponent extends SchItem {
 		if (!transform) {
 			throw 'unexpected line';
 		}
-		this.transform = new Transform( ...transform.split(/\s+/).map( (i) => Number(i) ) );
+		this.transform = new Transform(
+			...transform.split(/\s+/).map( (i) => Number(i) ) 
+		).translate(this.posx, this.posy);
 
 		return this;
 	}

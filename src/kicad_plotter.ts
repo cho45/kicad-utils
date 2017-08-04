@@ -146,6 +146,19 @@ const TEMPLATE_SHAPES = {
 export abstract class Plotter {
 	fill: Fill;
 	color: Color;
+	transform: Transform;
+	stateHistory: Array<{
+		fill: Fill,
+		color: Color,
+		transform: Transform,
+	}>;
+
+	constructor() {
+		this.fill = Fill.NO_FILL;
+		this.color = Color.BLACK;
+		this.transform = Transform.identify();
+		this.stateHistory = [];
+	}
 
 	abstract rect(p1: Point, p2: Point, fill: Fill, width: number): void;
 	abstract circle(p: Point, dia: number, fill: Fill, width: number): void;
@@ -167,6 +180,31 @@ export abstract class Plotter {
 		multiline?: boolean,
 	): void;
 	abstract image(p: Point, scale: number, originalWidth:number, originalHeight:number, data: Uint8Array): void;
+
+	save(): void {
+		this.stateHistory.push({
+			fill: this.fill,
+			color: this.color,
+			transform: this.transform.clone(),
+		});
+	}
+
+	translate(tx: number, ty: number): void {
+		this.transform = this.transform.translate(tx, ty);
+	}
+
+	scale(sx: number, sy: number): void {
+		this.transform = this.transform.scale(sx, sy);
+	}
+
+	rotate(radian: number): void {
+		this.transform = this.transform.rotate(radian);
+	}
+
+	restore(): void {
+		const state = this.stateHistory.pop();
+		Object.assign(this, state);
+	}
 
 	setColor(c: Color): void {
 		this.color = c;
@@ -211,9 +249,9 @@ export abstract class Plotter {
 	/**
 	 * kicad-js implements plot methods to plotter instead of each library items for simplify parsing dependencies.
 	 */
-	plotLibComponent(component: LibComponent, unit: number, convert: number, offset: Point, transform: Transform, reference?: string, name?: string): void {
+	plotLibComponent(component: LibComponent, unit: number, convert: number, transform: Transform, reference?: string, name?: string): void {
 		if (component.field && component.field.visibility) {
-			const pos = Point.add(transform.transformCoordinate({ x: component.field.posx, y: component.field.posy}), offset);
+			const pos = transform.transformCoordinate({ x: component.field.posx, y: component.field.posy});
 			let orientation = component.field.textOrientation;
 			if (transform.y1) {
 				if (orientation === TextAngle.HORIZ) {
@@ -224,7 +262,7 @@ export abstract class Plotter {
 			}
 
 			let text  = (typeof reference !== 'undefined') ? reference : component.field.reference;
-			const width = text.length * component.field.textSize * 0.5;
+			const width = text.length * component.field.textSize * 0.6;
 			const height = text.length;
 
 			this.text(
@@ -242,7 +280,7 @@ export abstract class Plotter {
 		}
 
 		if (component.fields[0] && component.fields[0].visibility) {
-			const pos = Point.add(transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy}), offset);
+			const pos = transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy});
 			let orientation = component.fields[0].textOrientation;
 			if (transform.y1) {
 				if (orientation === TextAngle.HORIZ) {
@@ -252,7 +290,7 @@ export abstract class Plotter {
 				}
 			}
 			let text  = (typeof name !== 'undefined') ? name : component.fields[0].name;
-			const width = text.length * component.fields[0].textSize * 0.5;
+			const width = text.length * component.fields[0].textSize * 0.6;
 			const height = text.length;
 			this.text(
 				Point.add({ x: width, y: height }, pos),
@@ -277,30 +315,30 @@ export abstract class Plotter {
 				continue;
 			}
 			if (draw instanceof DrawArc) {
-				this.plotDrawArc(draw, component, offset, transform);
+				this.plotDrawArc(draw, component, transform);
 			} else
 			if (draw instanceof DrawCircle) {
-				this.plotDrawCircle(draw, component, offset, transform);
+				this.plotDrawCircle(draw, component, transform);
 			} else
 			if (draw instanceof DrawPolyline) {
-				this.plotDrawPolyline(draw, component, offset, transform);
+				this.plotDrawPolyline(draw, component, transform);
 			} else
 			if (draw instanceof DrawSquare) {
-				this.plotDrawSquare(draw, component, offset, transform);
+				this.plotDrawSquare(draw, component, transform);
 			} else
 			if (draw instanceof DrawText) {
-				this.plotDrawText(draw, component, offset, transform);
+				this.plotDrawText(draw, component, transform);
 			} else
 			if (draw instanceof DrawPin) {
-				this.plotDrawPin(draw, component, offset, transform);
+				this.plotDrawPin(draw, component, transform);
 			} else {
 				throw 'unknown draw object type: ' + draw.constructor.name;
 			}
 		}
 	}
 
-	plotDrawArc(draw: DrawArc, component: LibComponent, offset: Point, transform: Transform ):void {
-		const pos = Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy}), offset);
+	plotDrawArc(draw: DrawArc, component: LibComponent, transform: Transform ):void {
+		const pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy});
 		const [startAngle, endAngle] = transform.mapAngles(draw.startAngle, draw.endAngle);
 
 		this.arc(
@@ -313,8 +351,8 @@ export abstract class Plotter {
 		);
 	}
 
-	plotDrawCircle(draw: DrawCircle, component: LibComponent, offset: Point, transform: Transform ):void {
-		const pos = Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy}), offset);
+	plotDrawCircle(draw: DrawCircle, component: LibComponent, transform: Transform ):void {
+		const pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy});
 		this.circle(
 			pos,
 			draw.radius * 2,
@@ -323,10 +361,10 @@ export abstract class Plotter {
 		);
 	}
 
-	plotDrawPolyline(draw: DrawPolyline, component: LibComponent, offset: Point, transform: Transform ):void {
+	plotDrawPolyline(draw: DrawPolyline, component: LibComponent,transform: Transform ):void {
 		const points: Array<Point> = [];
 		for (let i = 0, len = draw.points.length; i < len; i += 2) {
-			const pos = Point.add(transform.transformCoordinate({x:draw.points[i] , y:draw.points[i+1] }), offset);
+			const pos = transform.transformCoordinate({x:draw.points[i] , y:draw.points[i+1] });
 			points.push(pos);
 		}
 		this.polyline(
@@ -336,9 +374,9 @@ export abstract class Plotter {
 		);
 	}
 
-	plotDrawSquare(draw: DrawSquare, component: LibComponent, offset: Point, transform: Transform ):void {
-		const pos1 = Point.add(transform.transformCoordinate({x: draw.startx, y: draw.starty}), offset);
-		const pos2 = Point.add(transform.transformCoordinate({x: draw.endx, y: draw.endy}), offset);
+	plotDrawSquare(draw: DrawSquare, component: LibComponent, transform: Transform ):void {
+		const pos1 = transform.transformCoordinate({x: draw.startx, y: draw.starty});
+		const pos2 = transform.transformCoordinate({x: draw.endx, y: draw.endy});
 		this.rect(
 			pos1,
 			pos2,
@@ -347,8 +385,8 @@ export abstract class Plotter {
 		);
 	}
 	
-	plotDrawText(draw: DrawText, component: LibComponent, offset: Point, transform: Transform ):void {
-		const pos = Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy}), offset);
+	plotDrawText(draw: DrawText, component: LibComponent, transform: Transform ):void {
+		const pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy});
 		this.text(
 			pos,
 			this.color,
@@ -363,13 +401,13 @@ export abstract class Plotter {
 		);
 	}
 
-	plotDrawPin(draw: DrawPin, component: LibComponent, offset: Point, transform: Transform ):void {
+	plotDrawPin(draw: DrawPin, component: LibComponent, transform: Transform ):void {
 		if (!draw.visibility) return;
-		this.plotDrawPinTexts(draw, component, offset, transform);
-		this.plotDrawPinSymbol(draw, component, offset, transform);
+		this.plotDrawPinTexts(draw, component, transform);
+		this.plotDrawPinSymbol(draw, component, transform);
 	}
 
-	plotDrawPinTexts(draw: DrawPin, component: LibComponent, offset: Point, transform: Transform ): void {
+	plotDrawPinTexts(draw: DrawPin, component: LibComponent, transform: Transform ): void {
 		let drawPinname = component.drawPinname;
 		let drawPinnumber = component.drawPinnumber;
 		if (draw.name === "" || draw.name === "~") {
@@ -381,7 +419,7 @@ export abstract class Plotter {
 
 		if (!drawPinname && !drawPinnumber) return;
 
-		const pos = Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy}), offset);
+		const pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy});
 		const orientation = this.pinDrawOrientation(draw, transform);
 
 		let x1 = pos.x, y1 = pos.y;
@@ -576,8 +614,8 @@ export abstract class Plotter {
 		}
 	}
 
-	plotDrawPinSymbol(draw: DrawPin, component: LibComponent, offset: Point, transform: Transform): void {
-		const pos = Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy}), offset);
+	plotDrawPinSymbol(draw: DrawPin, component: LibComponent, transform: Transform): void {
+		const pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy});
 		const orientation = this.pinDrawOrientation(draw, transform);
 		
 		let x1 = pos.x, y1 = pos.y;
@@ -623,7 +661,7 @@ export abstract class Plotter {
 			end.x = 1;
 		}
 
-		end = transform.transformCoordinate(end);
+		end = transform.translate(-transform.tx, -transform.ty).transformCoordinate(end);
 
 		if (end.x === 0) {
 			if (end.y > 0) {
@@ -681,7 +719,7 @@ export abstract class Plotter {
 					console.warn("component " + item.name + " is not found in libraries");
 					continue;
 				}
-				this.plotLibComponent(component, item.unit, item.convert, { x: item.posx, y: item.posy }, item.transform, item.fields[0].text, item.fields[1].text);
+				this.plotLibComponent(component, item.unit, item.convert, item.transform, item.fields[0].text, item.fields[1].text);
 			} else
 			if (item instanceof Sheet) {
 				this.setColor(SCH_COLORS.LAYER_SHEET);
@@ -854,7 +892,7 @@ export abstract class Plotter {
 		{
 			let p = new Point(item.posx, item.posy);
 			const width = DEFAULT_LINE_WIDTH;
-			const halfSize = item.text.length * item.size / 2 * 0.5;
+			const halfSize = item.text.length * item.size / 2 * 0.6;
 			let offset = width;
 			if (item.shape === Net.INPUT ||
 				item.shape === Net.BIDI ||
@@ -997,6 +1035,7 @@ export class CanvasPlotter extends Plotter {
 	}
 
 	circle(p: Point, dia: number, fill: Fill, width: number): void {
+		p = this.transform.transformCoordinate(p);
 		this.setCurrentLineWidth(width);
 		this.fill = fill;
 		this.ctx.beginPath();
@@ -1009,6 +1048,7 @@ export class CanvasPlotter extends Plotter {
 	}
 
 	arc(p: Point, startAngle: number, endAngle: number, radius: number, fill: Fill, width: number): void {
+		p = this.transform.transformCoordinate(p);
 		this.setCurrentLineWidth(width);
 		this.fill = fill;
 		this.ctx.beginPath();
@@ -1044,6 +1084,7 @@ export class CanvasPlotter extends Plotter {
 		bold: boolean,
 		multiline?: boolean,
 	): void {
+		p = this.transform.transformCoordinate(p);
 		this.setColor(color);
 		if (hjustfy === TextHjustify.LEFT) {
 			this.ctx.textAlign = "left";
@@ -1079,6 +1120,7 @@ export class CanvasPlotter extends Plotter {
 	 * Z = Pen is outof canvas
 	 */
 	penTo(p: Point, s: "U"|"D"|"Z"): void {
+		p = this.transform.transformCoordinate(p);
 		if (s === "Z") {
 			if (this.fill === Fill.FILLED_SHAPE) {
 				// console.log('ctx.fill', p);
@@ -1122,6 +1164,7 @@ export class CanvasPlotter extends Plotter {
 	}
 
 	image(p: Point, scale: number, originalWidth:number, originalHeight:number, data: Uint8Array): void {
+		p = this.transform.transformCoordinate(p);
 		const start = Point.sub(p, { x: originalWidth / 2, y: originalHeight / 2 });
 		const end = Point.add(p, { x: originalWidth / 2, y: originalHeight / 2 });
 		this.rect(start, end, Fill.NO_FILL, DEFAULT_LINE_WIDTH);
@@ -1160,6 +1203,8 @@ export class SVGPlotter extends Plotter {
 		this.setCurrentLineWidth(width);
 		this.fill = fill;
 
+		p = this.transform.transformCoordinate(p);
+
 		this.output += this.xmlTag `<circle cx="${p.x}" cy="${p.y}" r="${dia/2}" `;
 		if (this.fill === Fill.NO_FILL) {
 			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
@@ -1175,6 +1220,7 @@ export class SVGPlotter extends Plotter {
 		}
 		this.setCurrentLineWidth(width);
 		this.fill = fill;
+		p = this.transform.transformCoordinate(p);
 
 		[startAngle, endAngle] = [-endAngle, -startAngle];
 
@@ -1230,6 +1276,7 @@ export class SVGPlotter extends Plotter {
 		multiline?: boolean,
 	): void {
 		this.setColor(color);
+		p = this.transform.transformCoordinate(p);
 
 		let textAnchor;
 		if (hjustfy === TextHjustify.LEFT) {
@@ -1280,6 +1327,7 @@ export class SVGPlotter extends Plotter {
 	 */
 	penTo(p: Point, s: "U"|"D"|"Z"): void {
 		const x = this.xmlTag;
+		p = this.transform.transformCoordinate(p);
 		if (s === "Z") {
 			if (this.penState !== "Z") {
 				if (this.fill === Fill.NO_FILL) {
@@ -1314,6 +1362,7 @@ export class SVGPlotter extends Plotter {
 	}
 
 	image(p: Point, scale: number, originalWidth:number, originalHeight:number, data: Uint8Array): void {
+		p = this.transform.transformCoordinate(p);
 		const width = originalWidth * scale;
 		const height = originalHeight * scale;
 		const start = Point.sub(p, { x: width / 2, y: height / 2 });
@@ -1365,6 +1414,8 @@ export class SVGPlotter extends Plotter {
 			'<': '&lt;',
 			'>': '&gt;',
 			'&': '&amp;',
+			'"': '&x22;',
+			"'": '&x27;',
 		};
 		return String(s).replace(/[<>&]/g, (_) => map[_] );
 	}

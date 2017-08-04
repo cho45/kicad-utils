@@ -34,6 +34,8 @@ function ensure(arg) {
     ctx.translate(0, 0);
     ctx.scale(scale, scale);
     const plotter = new kicad_plotter_1.CanvasPlotter(ctx);
+    plotter.translate(-sch.descr.width, 0);
+    plotter.scale(-1, 1);
     // plotter.plotLibComponent(lib.findByName("RJ45"), 1, 1, { x: 500, y: 500 }, new Transform(0, 1, 1, 0));
     plotter.plotSchematic(sch, [lib]);
     const out = fs.createWriteStream('text.png'), stream = canvas.pngStream();
@@ -44,6 +46,8 @@ function ensure(arg) {
         console.log('saved png');
     });
     const svgPlotter = new kicad_plotter_1.SVGPlotter();
+    svgPlotter.translate(-sch.descr.width, 0);
+    svgPlotter.scale(-1, 1);
     svgPlotter.plotSchematic(sch, [lib]);
     let dpi = 72; // 72 dpi == 72000 dot/mil
     // sch.descr.{width,height} is mil

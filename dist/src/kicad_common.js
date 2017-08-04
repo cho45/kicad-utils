@@ -92,17 +92,52 @@ function ReadDelimitedText(s) {
 }
 exports.ReadDelimitedText = ReadDelimitedText;
 class Transform {
-    constructor(x1 = 1, y1 = 0, x2 = 0, y2 = -1) {
+    constructor(x1 = 1, x2 = 0, y1 = 0, y2 = -1, tx = 0, ty = 0) {
         this.x1 = x1;
-        this.y1 = y1;
         this.x2 = x2;
+        this.y1 = y1;
         this.y2 = y2;
+        this.tx = tx;
+        this.ty = ty;
+    }
+    // default in KiCAD
+    static default() {
+        return new Transform(1, 0, 0, -1, 0, 0);
+    }
+    static identify() {
+        return new Transform(1, 0, 0, 1, 0, 0);
+    }
+    static translate(tx, ty) {
+        return new Transform(1, 0, 0, 1, tx, ty);
+    }
+    static scale(sx, sy) {
+        return new Transform(sx, 0, 0, sy, 0, 0);
+    }
+    static rotate(radian) {
+        const s = Math.sin(radian);
+        const c = Math.cos(radian);
+        return new Transform(c, s, -s, c, 0, 0);
+    }
+    clone() {
+        return new Transform(this.x1, this.x2, this.y1, this.y2, this.tx, this.ty);
+    }
+    translate(tx, ty) {
+        return this.multiply(Transform.translate(tx, ty));
+    }
+    scale(sx, sy) {
+        return this.multiply(Transform.scale(sx, sy));
+    }
+    rotate(radian) {
+        return this.multiply(Transform.rotate(radian));
+    }
+    multiply(b) {
+        const a = this;
+        return new Transform(a.x1 * b.x1 + a.x2 * b.y1, a.x1 * b.x2 + a.x2 * b.y2, a.y1 * b.x1 + a.y2 * b.y1, a.y1 * b.x2 + a.y2 * b.y2, a.tx * b.x1 + a.ty * b.y1 + b.tx, a.tx * b.x2 + a.ty * b.y2 + b.ty);
     }
     transformCoordinate(p) {
-        return {
-            x: (this.x1 * p.x) + (this.y1 * p.y),
-            y: (this.x2 * p.x) + (this.y2 * p.y)
-        };
+        const x = (this.x1 * p.x + this.y1 * p.y) + this.tx;
+        const y = (this.x2 * p.x + this.y2 * p.y) + this.ty;
+        return new Point(x, y);
     }
     mapAngles(angle1, angle2) {
         let angle, delta;

@@ -210,7 +210,7 @@ class SchComponent extends SchItem {
         if (!transform) {
             throw 'unexpected line';
         }
-        this.transform = new kicad_common_1.Transform(...transform.split(/\s+/).map((i) => Number(i)));
+        this.transform = new kicad_common_1.Transform(...transform.split(/\s+/).map((i) => Number(i))).translate(this.posx, this.posy);
         return this;
     }
 }
