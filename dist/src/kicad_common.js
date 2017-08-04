@@ -174,6 +174,12 @@ class Rect {
         this.pos1 = new Point(pos1x, pos1y);
         this.pos2 = new Point(pos2x, pos2y);
     }
+    get width() {
+        return this.getWidth();
+    }
+    get height() {
+        return this.getHeight();
+    }
     getWidth() {
         return this.pos2.x - this.pos1.x;
     }

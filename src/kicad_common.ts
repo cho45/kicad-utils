@@ -188,6 +188,14 @@ export class Rect {
 		this.pos2 = new Point(pos2x, pos2y);
 	}
 
+	get width(): number {
+		return this.getWidth();
+	}
+
+	get height(): number {
+		return this.getHeight();
+	}
+
 	getWidth(): number {
 		return this.pos2.x - this.pos1.x;
 	}

@@ -1962,6 +1962,16 @@ var Rect = function () {
             this.pos2.y += n;
             return this;
         }
+    }, {
+        key: "width",
+        get: function get() {
+            return this.getWidth();
+        }
+    }, {
+        key: "height",
+        get: function get() {
+            return this.getHeight();
+        }
     }]);
 
     return Rect;
