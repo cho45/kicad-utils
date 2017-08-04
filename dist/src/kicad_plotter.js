@@ -135,9 +135,9 @@ class Plotter {
     /**
      * kicad-js implements plot methods to plotter instead of each library items for simplify parsing dependencies.
      */
-    plotLibComponent(component, unit, convert, offset, transform, reference, name) {
+    plotLibComponent(component, unit, convert, transform, reference, name) {
         if (component.field && component.field.visibility) {
-            const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: component.field.posx, y: component.field.posy }), offset);
+            const pos = transform.transformCoordinate({ x: component.field.posx, y: component.field.posy });
             let orientation = component.field.textOrientation;
             if (transform.y1) {
                 if (orientation === kicad_common_1.TextAngle.HORIZ) {
@@ -148,12 +148,12 @@ class Plotter {
                 }
             }
             let text = (typeof reference !== 'undefined') ? reference : component.field.reference;
-            const width = text.length * component.field.textSize * 0.5;
+            const width = text.length * component.field.textSize * 0.6;
             const height = text.length;
             this.text(kicad_common_1.Point.add({ x: width, y: height }, pos), SCH_COLORS.LAYER_REFERENCEPART, text, orientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, component.field.italic, component.field.bold);
         }
         if (component.fields[0] && component.fields[0].visibility) {
-            const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy }), offset);
+            const pos = transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy });
             let orientation = component.fields[0].textOrientation;
             if (transform.y1) {
                 if (orientation === kicad_common_1.TextAngle.HORIZ) {
@@ -164,7 +164,7 @@ class Plotter {
                 }
             }
             let text = (typeof name !== 'undefined') ? name : component.fields[0].name;
-            const width = text.length * component.fields[0].textSize * 0.5;
+            const width = text.length * component.fields[0].textSize * 0.6;
             const height = text.length;
             this.text(kicad_common_1.Point.add({ x: width, y: height }, pos), SCH_COLORS.LAYER_VALUEPART, text, orientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, component.fields[0].italic, component.fields[0].bold);
         }
@@ -178,61 +178,61 @@ class Plotter {
                 continue;
             }
             if (draw instanceof kicad_lib_1.DrawArc) {
-                this.plotDrawArc(draw, component, offset, transform);
+                this.plotDrawArc(draw, component, transform);
             }
             else if (draw instanceof kicad_lib_1.DrawCircle) {
-                this.plotDrawCircle(draw, component, offset, transform);
+                this.plotDrawCircle(draw, component, transform);
             }
             else if (draw instanceof kicad_lib_1.DrawPolyline) {
-                this.plotDrawPolyline(draw, component, offset, transform);
+                this.plotDrawPolyline(draw, component, transform);
             }
             else if (draw instanceof kicad_lib_1.DrawSquare) {
-                this.plotDrawSquare(draw, component, offset, transform);
+                this.plotDrawSquare(draw, component, transform);
             }
             else if (draw instanceof kicad_lib_1.DrawText) {
-                this.plotDrawText(draw, component, offset, transform);
+                this.plotDrawText(draw, component, transform);
             }
             else if (draw instanceof kicad_lib_1.DrawPin) {
-                this.plotDrawPin(draw, component, offset, transform);
+                this.plotDrawPin(draw, component, transform);
             }
             else {
                 throw 'unknown draw object type: ' + draw.constructor.name;
             }
         }
     }
-    plotDrawArc(draw, component, offset, transform) {
-        const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+    plotDrawArc(draw, component, transform) {
+        const pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy });
         const [startAngle, endAngle] = transform.mapAngles(draw.startAngle, draw.endAngle);
         this.arc(pos, startAngle, endAngle, draw.radius, draw.fill, draw.lineWidth || DEFAULT_LINE_WIDTH);
     }
-    plotDrawCircle(draw, component, offset, transform) {
-        const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+    plotDrawCircle(draw, component, transform) {
+        const pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy });
         this.circle(pos, draw.radius * 2, draw.fill, draw.lineWidth || DEFAULT_LINE_WIDTH);
     }
-    plotDrawPolyline(draw, component, offset, transform) {
+    plotDrawPolyline(draw, component, transform) {
         const points = [];
         for (let i = 0, len = draw.points.length; i < len; i += 2) {
-            const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.points[i], y: draw.points[i + 1] }), offset);
+            const pos = transform.transformCoordinate({ x: draw.points[i], y: draw.points[i + 1] });
             points.push(pos);
         }
         this.polyline(points, draw.fill, draw.lineWidth || DEFAULT_LINE_WIDTH);
     }
-    plotDrawSquare(draw, component, offset, transform) {
-        const pos1 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.startx, y: draw.starty }), offset);
-        const pos2 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.endx, y: draw.endy }), offset);
+    plotDrawSquare(draw, component, transform) {
+        const pos1 = transform.transformCoordinate({ x: draw.startx, y: draw.starty });
+        const pos2 = transform.transformCoordinate({ x: draw.endx, y: draw.endy });
         this.rect(pos1, pos2, draw.fill, draw.lineWidth || DEFAULT_LINE_WIDTH);
     }
-    plotDrawText(draw, component, offset, transform) {
-        const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+    plotDrawText(draw, component, transform) {
+        const pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy });
         this.text(pos, this.color, draw.text, component.field.textOrientation, draw.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, draw.italic, draw.bold);
     }
-    plotDrawPin(draw, component, offset, transform) {
+    plotDrawPin(draw, component, transform) {
         if (!draw.visibility)
             return;
-        this.plotDrawPinTexts(draw, component, offset, transform);
-        this.plotDrawPinSymbol(draw, component, offset, transform);
+        this.plotDrawPinTexts(draw, component, transform);
+        this.plotDrawPinSymbol(draw, component, transform);
     }
-    plotDrawPinTexts(draw, component, offset, transform) {
+    plotDrawPinTexts(draw, component, transform) {
         let drawPinname = component.drawPinname;
         let drawPinnumber = component.drawPinnumber;
         if (draw.name === "" || draw.name === "~") {
@@ -243,7 +243,7 @@ class Plotter {
         }
         if (!drawPinname && !drawPinnumber)
             return;
-        const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+        const pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy });
         const orientation = this.pinDrawOrientation(draw, transform);
         let x1 = pos.x, y1 = pos.y;
         if (orientation === kicad_common_1.PinOrientation.UP) {
@@ -314,8 +314,8 @@ class Plotter {
             }
         }
     }
-    plotDrawPinSymbol(draw, component, offset, transform) {
-        const pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+    plotDrawPinSymbol(draw, component, transform) {
+        const pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy });
         const orientation = this.pinDrawOrientation(draw, transform);
         let x1 = pos.x, y1 = pos.y;
         let mapX1 = 0, mapY1 = 0;
@@ -356,7 +356,7 @@ class Plotter {
         else if (draw.orientation === kicad_common_1.PinOrientation.RIGHT) {
             end.x = 1;
         }
-        end = transform.transformCoordinate(end);
+        end = transform.translate(-transform.tx, -transform.ty).transformCoordinate(end);
         if (end.x === 0) {
             if (end.y > 0) {
                 return kicad_common_1.PinOrientation.DOWN;
@@ -406,7 +406,7 @@ class Plotter {
                     console.warn("component " + item.name + " is not found in libraries");
                     continue;
                 }
-                this.plotLibComponent(component, item.unit, item.convert, { x: item.posx, y: item.posy }, item.transform, item.fields[0].text, item.fields[1].text);
+                this.plotLibComponent(component, item.unit, item.convert, item.transform, item.fields[0].text, item.fields[1].text);
             }
             else if (item instanceof kicad_sch_1.Sheet) {
                 this.setColor(SCH_COLORS.LAYER_SHEET);
@@ -545,7 +545,7 @@ class Plotter {
         {
             let p = new kicad_common_1.Point(item.posx, item.posy);
             const width = DEFAULT_LINE_WIDTH;
-            const halfSize = item.text.length * item.size / 2 * 0.5;
+            const halfSize = item.text.length * item.size / 2 * 0.6;
             let offset = width;
             if (item.shape === kicad_common_1.Net.INPUT ||
                 item.shape === kicad_common_1.Net.BIDI ||
@@ -958,6 +958,8 @@ class SVGPlotter extends Plotter {
             '<': '&lt;',
             '>': '&gt;',
             '&': '&amp;',
+            '"': '&x22;',
+            "'": '&x27;',
         };
         return String(s).replace(/[<>&]/g, (_) => map[_]);
     }

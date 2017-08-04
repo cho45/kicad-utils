@@ -1809,25 +1809,51 @@ exports.ReadDelimitedText = ReadDelimitedText;
 var Transform = function () {
     function Transform() {
         var x1 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-        var y1 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-        var x2 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+        var x2 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+        var y1 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
         var y2 = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : -1;
+        var tx = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
+        var ty = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
 
         _classCallCheck(this, Transform);
 
         this.x1 = x1;
-        this.y1 = y1;
         this.x2 = x2;
+        this.y1 = y1;
         this.y2 = y2;
+        this.tx = tx;
+        this.ty = ty;
     }
+    // default in KiCAD
+
 
     _createClass(Transform, [{
+        key: "translate",
+        value: function translate(tx, ty) {
+            return this.multiply(Transform.translate(tx, ty));
+        }
+    }, {
+        key: "scale",
+        value: function scale(sx, sy) {
+            return this.multiply(Transform.scale(sx, sy));
+        }
+    }, {
+        key: "rotate",
+        value: function rotate(radian) {
+            return this.multiply(Transform.rotate(radian));
+        }
+    }, {
+        key: "multiply",
+        value: function multiply(b) {
+            var a = this;
+            return new Transform(a.x1 * b.x1 + a.x2 * b.y1, a.x1 * b.x2 + a.x2 * b.y2, a.y1 * b.x1 + a.y2 * b.y1, a.y1 * b.x2 + a.y2 * b.y2, a.tx * b.x1 + a.ty * b.y1 + b.tx, a.tx * b.x2 + a.ty * b.y2 + b.ty);
+        }
+    }, {
         key: "transformCoordinate",
         value: function transformCoordinate(p) {
-            return {
-                x: this.x1 * p.x + this.y1 * p.y,
-                y: this.x2 * p.x + this.y2 * p.y
-            };
+            var x = this.x1 * p.x + this.y1 * p.y + this.tx;
+            var y = this.x2 * p.x + this.y2 * p.y + this.ty;
+            return new Point(x, y);
         }
     }, {
         key: "mapAngles",
@@ -1872,6 +1898,33 @@ var Transform = function () {
                 angle2 -= 1;
             }
             return [angle1, angle2, swap];
+        }
+    }], [{
+        key: "default",
+        value: function _default() {
+            return new Transform(1, 0, 0, -1, 0, 0);
+        }
+    }, {
+        key: "identify",
+        value: function identify() {
+            return new Transform(1, 0, 0, 1, 0, 0);
+        }
+    }, {
+        key: "translate",
+        value: function translate(tx, ty) {
+            return new Transform(1, 0, 0, 1, tx, ty);
+        }
+    }, {
+        key: "scale",
+        value: function scale(sx, sy) {
+            return new Transform(sx, 0, 0, sy, 0, 0);
+        }
+    }, {
+        key: "rotate",
+        value: function rotate(radian) {
+            var s = Math.sin(radian);
+            var c = Math.cos(radian);
+            return new Transform(c, s, -s, c, 0, 0);
         }
     }]);
 
@@ -1936,6 +1989,17 @@ var Rect = function () {
         key: "getHeight",
         value: function getHeight() {
             return this.pos2.y - this.pos1.y;
+        }
+    }, {
+        key: "normalize",
+        value: function normalize() {
+            var _ref4 = [Math.min(this.pos1.x, this.pos2.x), Math.min(this.pos1.y, this.pos2.y), Math.max(this.pos1.x, this.pos2.x), Math.max(this.pos1.y, this.pos2.y)];
+            this.pos1.x = _ref4[0];
+            this.pos1.y = _ref4[1];
+            this.pos2.x = _ref4[2];
+            this.pos2.y = _ref4[3];
+
+            return this;
         }
     }, {
         key: "merge",
@@ -4557,7 +4621,7 @@ var SchComponent = function (_SchItem2) {
             }
             this.transform = new (Function.prototype.bind.apply(kicad_common_1.Transform, [null].concat(_toConsumableArray(transform.split(/\s+/).map(function (i) {
                 return Number(i);
-            })))))();
+            })))))().translate(this.posx, this.posy);
             return this;
         }
     }]);
@@ -10544,9 +10608,9 @@ var Plotter = function () {
 
     }, {
         key: "plotLibComponent",
-        value: function plotLibComponent(component, unit, convert, offset, transform, reference, name) {
+        value: function plotLibComponent(component, unit, convert, transform, reference, name) {
             if (component.field && component.field.visibility) {
-                var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: component.field.posx, y: component.field.posy }), offset);
+                var pos = transform.transformCoordinate({ x: component.field.posx, y: component.field.posy });
                 var orientation = component.field.textOrientation;
                 if (transform.y1) {
                     if (orientation === kicad_common_1.TextAngle.HORIZ) {
@@ -10556,12 +10620,12 @@ var Plotter = function () {
                     }
                 }
                 var text = typeof reference !== 'undefined' ? reference : component.field.reference;
-                var width = text.length * component.field.textSize * 0.5;
+                var width = text.length * component.field.textSize * 0.6;
                 var height = text.length;
                 this.text(kicad_common_1.Point.add({ x: width, y: height }, pos), SCH_COLORS.LAYER_REFERENCEPART, text, orientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, component.field.italic, component.field.bold);
             }
             if (component.fields[0] && component.fields[0].visibility) {
-                var _pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy }), offset);
+                var _pos = transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy });
                 var _orientation = component.fields[0].textOrientation;
                 if (transform.y1) {
                     if (_orientation === kicad_common_1.TextAngle.HORIZ) {
@@ -10571,7 +10635,7 @@ var Plotter = function () {
                     }
                 }
                 var _text = typeof name !== 'undefined' ? name : component.fields[0].name;
-                var _width = _text.length * component.fields[0].textSize * 0.5;
+                var _width = _text.length * component.fields[0].textSize * 0.6;
                 var _height = _text.length;
                 this.text(kicad_common_1.Point.add({ x: _width, y: _height }, _pos), SCH_COLORS.LAYER_VALUEPART, _text, _orientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, component.fields[0].italic, component.fields[0].bold);
             }
@@ -10592,17 +10656,17 @@ var Plotter = function () {
                         continue;
                     }
                     if (draw instanceof kicad_lib_1.DrawArc) {
-                        this.plotDrawArc(draw, component, offset, transform);
+                        this.plotDrawArc(draw, component, transform);
                     } else if (draw instanceof kicad_lib_1.DrawCircle) {
-                        this.plotDrawCircle(draw, component, offset, transform);
+                        this.plotDrawCircle(draw, component, transform);
                     } else if (draw instanceof kicad_lib_1.DrawPolyline) {
-                        this.plotDrawPolyline(draw, component, offset, transform);
+                        this.plotDrawPolyline(draw, component, transform);
                     } else if (draw instanceof kicad_lib_1.DrawSquare) {
-                        this.plotDrawSquare(draw, component, offset, transform);
+                        this.plotDrawSquare(draw, component, transform);
                     } else if (draw instanceof kicad_lib_1.DrawText) {
-                        this.plotDrawText(draw, component, offset, transform);
+                        this.plotDrawText(draw, component, transform);
                     } else if (draw instanceof kicad_lib_1.DrawPin) {
-                        this.plotDrawPin(draw, component, offset, transform);
+                        this.plotDrawPin(draw, component, transform);
                     } else {
                         throw 'unknown draw object type: ' + draw.constructor.name;
                     }
@@ -10624,8 +10688,8 @@ var Plotter = function () {
         }
     }, {
         key: "plotDrawArc",
-        value: function plotDrawArc(draw, component, offset, transform) {
-            var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+        value: function plotDrawArc(draw, component, transform) {
+            var pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy });
 
             var _transform$mapAngles = transform.mapAngles(draw.startAngle, draw.endAngle),
                 _transform$mapAngles2 = _slicedToArray(_transform$mapAngles, 2),
@@ -10636,43 +10700,43 @@ var Plotter = function () {
         }
     }, {
         key: "plotDrawCircle",
-        value: function plotDrawCircle(draw, component, offset, transform) {
-            var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+        value: function plotDrawCircle(draw, component, transform) {
+            var pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy });
             this.circle(pos, draw.radius * 2, draw.fill, draw.lineWidth || DEFAULT_LINE_WIDTH);
         }
     }, {
         key: "plotDrawPolyline",
-        value: function plotDrawPolyline(draw, component, offset, transform) {
+        value: function plotDrawPolyline(draw, component, transform) {
             var points = [];
             for (var i = 0, len = draw.points.length; i < len; i += 2) {
-                var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.points[i], y: draw.points[i + 1] }), offset);
+                var pos = transform.transformCoordinate({ x: draw.points[i], y: draw.points[i + 1] });
                 points.push(pos);
             }
             this.polyline(points, draw.fill, draw.lineWidth || DEFAULT_LINE_WIDTH);
         }
     }, {
         key: "plotDrawSquare",
-        value: function plotDrawSquare(draw, component, offset, transform) {
-            var pos1 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.startx, y: draw.starty }), offset);
-            var pos2 = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.endx, y: draw.endy }), offset);
+        value: function plotDrawSquare(draw, component, transform) {
+            var pos1 = transform.transformCoordinate({ x: draw.startx, y: draw.starty });
+            var pos2 = transform.transformCoordinate({ x: draw.endx, y: draw.endy });
             this.rect(pos1, pos2, draw.fill, draw.lineWidth || DEFAULT_LINE_WIDTH);
         }
     }, {
         key: "plotDrawText",
-        value: function plotDrawText(draw, component, offset, transform) {
-            var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+        value: function plotDrawText(draw, component, transform) {
+            var pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy });
             this.text(pos, this.color, draw.text, component.field.textOrientation, draw.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, draw.italic, draw.bold);
         }
     }, {
         key: "plotDrawPin",
-        value: function plotDrawPin(draw, component, offset, transform) {
+        value: function plotDrawPin(draw, component, transform) {
             if (!draw.visibility) return;
-            this.plotDrawPinTexts(draw, component, offset, transform);
-            this.plotDrawPinSymbol(draw, component, offset, transform);
+            this.plotDrawPinTexts(draw, component, transform);
+            this.plotDrawPinSymbol(draw, component, transform);
         }
     }, {
         key: "plotDrawPinTexts",
-        value: function plotDrawPinTexts(draw, component, offset, transform) {
+        value: function plotDrawPinTexts(draw, component, transform) {
             var drawPinname = component.drawPinname;
             var drawPinnumber = component.drawPinnumber;
             if (draw.name === "" || draw.name === "~") {
@@ -10682,7 +10746,7 @@ var Plotter = function () {
                 drawPinnumber = false;
             }
             if (!drawPinname && !drawPinnumber) return;
-            var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+            var pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy });
             var orientation = this.pinDrawOrientation(draw, transform);
             var x1 = pos.x,
                 y1 = pos.y;
@@ -10748,8 +10812,8 @@ var Plotter = function () {
         }
     }, {
         key: "plotDrawPinSymbol",
-        value: function plotDrawPinSymbol(draw, component, offset, transform) {
-            var pos = kicad_common_1.Point.add(transform.transformCoordinate({ x: draw.posx, y: draw.posy }), offset);
+        value: function plotDrawPinSymbol(draw, component, transform) {
+            var pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy });
             var orientation = this.pinDrawOrientation(draw, transform);
             var x1 = pos.x,
                 y1 = pos.y;
@@ -10788,7 +10852,7 @@ var Plotter = function () {
             } else if (draw.orientation === kicad_common_1.PinOrientation.RIGHT) {
                 end.x = 1;
             }
-            end = transform.transformCoordinate(end);
+            end = transform.translate(-transform.tx, -transform.ty).transformCoordinate(end);
             if (end.x === 0) {
                 if (end.y > 0) {
                     return kicad_common_1.PinOrientation.DOWN;
@@ -10864,7 +10928,7 @@ var Plotter = function () {
                             console.warn("component " + item.name + " is not found in libraries");
                             continue;
                         }
-                        this.plotLibComponent(component, item.unit, item.convert, { x: item.posx, y: item.posy }, item.transform, item.fields[0].text, item.fields[1].text);
+                        this.plotLibComponent(component, item.unit, item.convert, item.transform, item.fields[0].text, item.fields[1].text);
                     } else if (item instanceof kicad_sch_1.Sheet) {
                         this.setColor(SCH_COLORS.LAYER_SHEET);
                         this.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
@@ -11045,7 +11109,7 @@ var Plotter = function () {
             {
                 var _p = new kicad_common_1.Point(item.posx, item.posy);
                 var width = DEFAULT_LINE_WIDTH;
-                var _halfSize = item.text.length * item.size / 2 * 0.5;
+                var _halfSize = item.text.length * item.size / 2 * 0.6;
                 var offset = width;
                 if (item.shape === kicad_common_1.Net.INPUT || item.shape === kicad_common_1.Net.BIDI || item.shape === kicad_common_1.Net.TRISTATE) {
                     offset += _halfSize;
@@ -11481,7 +11545,9 @@ var SVGPlotter = function (_Plotter2) {
             var map = {
                 '<': '&lt;',
                 '>': '&gt;',
-                '&': '&amp;'
+                '&': '&amp;',
+                '"': '&x22;',
+                "'": '&x27;'
             };
             return String(s).replace(/[<>&]/g, function (_) {
                 return map[_];
