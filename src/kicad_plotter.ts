@@ -682,7 +682,9 @@ export abstract class Plotter {
 			end.x = 1;
 		}
 
-		end = transform.translate(-transform.tx, -transform.ty).transformCoordinate(end);
+		const t = transform.clone();
+		t.tx = 0; t.ty = 0;
+		end = t.transformCoordinate(end);
 
 		if (end.x === 0) {
 			if (end.y > 0) {
@@ -913,7 +915,6 @@ export abstract class Plotter {
 		{
 			let p = new Point(item.posx, item.posy);
 			const width = DEFAULT_LINE_WIDTH;
-			console.log(item);
 			const halfSize = this.font.computeTextLineSize(' ', item.size, width) / 2;
 			let offset = width;
 			if (item.shape === Net.INPUT ||
@@ -1093,6 +1094,7 @@ export class CanvasPlotter extends Plotter {
 		this.finishPen();
 	}
 
+	/*
 	text(
 		p: Point,
 		color: Color,
@@ -1134,7 +1136,7 @@ export class CanvasPlotter extends Plotter {
 		// console.log('fillText', text, p.x, p.y, hjustfy, vjustify);
 		this.ctx.fillText(text, 0, 0);
 		this.ctx.restore();
-	}
+	} */
 
 	/**
 	 * U = Pen is up

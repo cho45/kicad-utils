@@ -27,9 +27,9 @@ const fs = require("fs");
     ctx.lineTo(canvas.width, canvas.height / 2);
     ctx.stroke();
     ctx.lineCap = "round";
-    ctx.translate(canvas.width / 2, canvas.height / 2);
+    // ctx.translate(canvas.width / 2, canvas.height / 2);
     const plotter = new kicad_plotter_1.CanvasPlotter(ctx);
-    font.drawText(plotter, { x: 0, y: 0 }, 'foobar', 18, 3, kicad_common_1.TextAngle.HORIZ, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER);
+    font.drawText(plotter, { x: canvas.width / 2, y: canvas.height / 2 }, 'foobar', 18, 3, kicad_common_1.TextAngle.VERT, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.BOTTOM);
     const out = fs.createWriteStream('text.png'), stream = canvas.pngStream();
     stream.on('data', function (chunk) {
         out.write(chunk);

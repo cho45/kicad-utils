@@ -149,15 +149,15 @@ export class Transform {
 	}
 
 	translate(tx: number, ty: number) {
-		return this.multiply(Transform.translate(tx, ty));
+		return Transform.translate(tx, ty).multiply(this);
 	}
 
 	scale(sx: number, sy: number) {
-		return this.multiply(Transform.scale(sx, sy));
+		return Transform.scale(sx, sy).multiply(this);
 	}
 
 	rotate(radian: number) {
-		return this.multiply(Transform.rotate(radian));
+		return Transform.rotate(radian).multiply(this);
 	}
 
 	multiply(b: Transform): Transform {

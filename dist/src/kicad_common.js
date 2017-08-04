@@ -122,13 +122,13 @@ class Transform {
         return new Transform(this.x1, this.x2, this.y1, this.y2, this.tx, this.ty);
     }
     translate(tx, ty) {
-        return this.multiply(Transform.translate(tx, ty));
+        return Transform.translate(tx, ty).multiply(this);
     }
     scale(sx, sy) {
-        return this.multiply(Transform.scale(sx, sy));
+        return Transform.scale(sx, sy).multiply(this);
     }
     rotate(radian) {
-        return this.multiply(Transform.rotate(radian));
+        return Transform.rotate(radian).multiply(this);
     }
     multiply(b) {
         const a = this;

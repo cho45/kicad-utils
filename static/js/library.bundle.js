@@ -1835,17 +1835,17 @@ var Transform = function () {
     }, {
         key: "translate",
         value: function translate(tx, ty) {
-            return this.multiply(Transform.translate(tx, ty));
+            return Transform.translate(tx, ty).multiply(this);
         }
     }, {
         key: "scale",
         value: function scale(sx, sy) {
-            return this.multiply(Transform.scale(sx, sy));
+            return Transform.scale(sx, sy).multiply(this);
         }
     }, {
         key: "rotate",
         value: function rotate(radian) {
-            return this.multiply(Transform.rotate(radian));
+            return Transform.rotate(radian).multiply(this);
         }
     }, {
         key: "multiply",
@@ -4634,9 +4634,11 @@ var SchComponent = function (_SchItem2) {
             if (!transform) {
                 throw 'unexpected line';
             }
-            this.transform = new (Function.prototype.bind.apply(kicad_common_1.Transform, [null].concat(_toConsumableArray(transform.split(/\s+/).map(function (i) {
+            var matrix = transform.split(/\s+/).slice(0, 4).map(function (i) {
                 return Number(i);
-            })))))().translate(this.posx, this.posy);
+            });
+            matrix.push(this.posx, this.posy);
+            this.transform = new (Function.prototype.bind.apply(kicad_common_1.Transform, [null].concat(_toConsumableArray(matrix))))();
             return this;
         }
     }]);
@@ -10911,7 +10913,10 @@ var Plotter = function () {
             } else if (draw.orientation === kicad_common_1.PinOrientation.RIGHT) {
                 end.x = 1;
             }
-            end = transform.translate(-transform.tx, -transform.ty).transformCoordinate(end);
+            var t = transform.clone();
+            t.tx = 0;
+            t.ty = 0;
+            end = t.transformCoordinate(end);
             if (end.x === 0) {
                 if (end.y > 0) {
                     return kicad_common_1.PinOrientation.DOWN;
@@ -11168,7 +11173,6 @@ var Plotter = function () {
             {
                 var _p = new kicad_common_1.Point(item.posx, item.posy);
                 var width = DEFAULT_LINE_WIDTH;
-                console.log(item);
                 var _halfSize = this.font.computeTextLineSize(' ', item.size, width) / 2;
                 var offset = width;
                 if (item.shape === kicad_common_1.Net.INPUT || item.shape === kicad_common_1.Net.BIDI || item.shape === kicad_common_1.Net.TRISTATE) {
@@ -11314,34 +11318,49 @@ var CanvasPlotter = function (_Plotter) {
             }
             this.finishPen();
         }
-    }, {
-        key: "text",
-        value: function text(p, color, _text3, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
+        /*
+        text(
+            p: Point,
+            color: Color,
+            text: string,
+            orientation: number,
+            size: number,
+            hjustfy: TextHjustify,
+            vjustify: TextVjustify,
+            width: number,
+            italic: boolean,
+            bold: boolean,
+            multiline?: boolean,
+        ): void {
             p = this.transform.transformCoordinate(p);
             this.setColor(color);
-            if (hjustfy === kicad_common_1.TextHjustify.LEFT) {
+            if (hjustfy === TextHjustify.LEFT) {
                 this.ctx.textAlign = "left";
-            } else if (hjustfy === kicad_common_1.TextHjustify.CENTER) {
+            } else
+            if (hjustfy === TextHjustify.CENTER) {
                 this.ctx.textAlign = "center";
-            } else if (hjustfy === kicad_common_1.TextHjustify.RIGHT) {
+            } else
+            if (hjustfy === TextHjustify.RIGHT) {
                 this.ctx.textAlign = "right";
             }
-            if (vjustify === kicad_common_1.TextVjustify.TOP) {
+            if (vjustify === TextVjustify.TOP) {
                 this.ctx.textBaseline = "top";
-            } else if (vjustify === kicad_common_1.TextVjustify.CENTER) {
+            } else
+            if (vjustify === TextVjustify.CENTER) {
                 this.ctx.textBaseline = "middle";
-            } else if (vjustify === kicad_common_1.TextVjustify.BOTTOM) {
+            } else
+            if (vjustify === TextVjustify.BOTTOM) {
                 this.ctx.textBaseline = "bottom";
             }
             this.ctx.fillStyle = this.color.toCSSColor();
             this.ctx.save();
             this.ctx.translate(p.x, p.y);
-            this.ctx.rotate(-kicad_common_1.DECIDEG2RAD(orientation));
+            this.ctx.rotate(-DECIDEG2RAD(orientation));
             this.ctx.font = (italic ? "italic " : "") + (bold ? "bold " : "") + size + "px monospace";
             // console.log('fillText', text, p.x, p.y, hjustfy, vjustify);
-            this.ctx.fillText(_text3, 0, 0);
+            this.ctx.fillText(text, 0, 0);
             this.ctx.restore();
-        }
+        } */
         /**
          * U = Pen is up
          * D = Pen is down

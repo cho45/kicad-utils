@@ -76,7 +76,8 @@ const lib = Library.load(content);
 // const component = lib.findByName("Led_x2");
 
 const plotter = new CanvasPlotter(ctx);
-plotter.plotLibComponent(ensure(lib.findByName("Battery")), 1, 1, { x: 500, y: 500 }, new Transform());
+plotter.plotLibComponent(ensure(lib.findByName("RJ45")), 1, 1, new Transform(0, 1, 1, 0, 1000, 1000));
+// plotter.plotLibComponent(ensure(lib.findByName("RJ45")), 1, 1, new Transform().translate(1000, 1000));
 
 const out = fs.createWriteStream('text.png'), stream = canvas.pngStream();
 
@@ -87,5 +88,9 @@ stream.on('data', function (chunk: any) {
 stream.on('end', function(){
     console.log('saved png');
 });
-*/
+
+//const svgPlotter = new SVGPlotter();
+//svgPlotter.plotLibComponent(ensure(lib.findByName("RJ45")), 1, 1, new Transform(0, 1, 1, 0).translate(1000, 1000));
+//fs.writeFileSync("text.svg", svgPlotter.output);
+//*/
 //# sourceMappingURL=sketch.js.map

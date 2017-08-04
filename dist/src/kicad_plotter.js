@@ -390,7 +390,10 @@ class Plotter {
         else if (draw.orientation === kicad_common_1.PinOrientation.RIGHT) {
             end.x = 1;
         }
-        end = transform.translate(-transform.tx, -transform.ty).transformCoordinate(end);
+        const t = transform.clone();
+        t.tx = 0;
+        t.ty = 0;
+        end = t.transformCoordinate(end);
         if (end.x === 0) {
             if (end.y > 0) {
                 return kicad_common_1.PinOrientation.DOWN;
@@ -579,7 +582,6 @@ class Plotter {
         {
             let p = new kicad_common_1.Point(item.posx, item.posy);
             const width = DEFAULT_LINE_WIDTH;
-            console.log(item);
             const halfSize = this.font.computeTextLineSize(' ', item.size, width) / 2;
             let offset = width;
             if (item.shape === kicad_common_1.Net.INPUT ||
@@ -716,36 +718,49 @@ class CanvasPlotter extends Plotter {
         }
         this.finishPen();
     }
-    text(p, color, text, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
+    /*
+    text(
+        p: Point,
+        color: Color,
+        text: string,
+        orientation: number,
+        size: number,
+        hjustfy: TextHjustify,
+        vjustify: TextVjustify,
+        width: number,
+        italic: boolean,
+        bold: boolean,
+        multiline?: boolean,
+    ): void {
         p = this.transform.transformCoordinate(p);
         this.setColor(color);
-        if (hjustfy === kicad_common_1.TextHjustify.LEFT) {
+        if (hjustfy === TextHjustify.LEFT) {
             this.ctx.textAlign = "left";
-        }
-        else if (hjustfy === kicad_common_1.TextHjustify.CENTER) {
+        } else
+        if (hjustfy === TextHjustify.CENTER) {
             this.ctx.textAlign = "center";
-        }
-        else if (hjustfy === kicad_common_1.TextHjustify.RIGHT) {
+        } else
+        if (hjustfy === TextHjustify.RIGHT) {
             this.ctx.textAlign = "right";
         }
-        if (vjustify === kicad_common_1.TextVjustify.TOP) {
+        if (vjustify === TextVjustify.TOP) {
             this.ctx.textBaseline = "top";
-        }
-        else if (vjustify === kicad_common_1.TextVjustify.CENTER) {
+        } else
+        if (vjustify === TextVjustify.CENTER) {
             this.ctx.textBaseline = "middle";
-        }
-        else if (vjustify === kicad_common_1.TextVjustify.BOTTOM) {
+        } else
+        if (vjustify === TextVjustify.BOTTOM) {
             this.ctx.textBaseline = "bottom";
         }
         this.ctx.fillStyle = this.color.toCSSColor();
         this.ctx.save();
         this.ctx.translate(p.x, p.y);
-        this.ctx.rotate(-kicad_common_1.DECIDEG2RAD(orientation));
+        this.ctx.rotate(-DECIDEG2RAD(orientation));
         this.ctx.font = (italic ? "italic " : "") + (bold ? "bold " : "") + size + "px monospace";
         // console.log('fillText', text, p.x, p.y, hjustfy, vjustify);
         this.ctx.fillText(text, 0, 0);
         this.ctx.restore();
-    }
+    } */
     /**
      * U = Pen is up
      * D = Pen is down

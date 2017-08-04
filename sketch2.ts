@@ -40,11 +40,11 @@ import * as fs from "fs";
 	ctx.stroke();
 	ctx.lineCap = "round";
 
-	ctx.translate(canvas.width / 2, canvas.height / 2);
+	// ctx.translate(canvas.width / 2, canvas.height / 2);
 
 	const plotter = new CanvasPlotter(ctx);
 
-	font.drawText(plotter, { x: 0, y: 0 }, 'foobar', 18, 3, TextAngle.HORIZ, TextHjustify.CENTER, TextVjustify.CENTER);
+	font.drawText(plotter, { x: canvas.width / 2, y: canvas.height / 2 }, 'foobar', 18, 3, TextAngle.VERT, TextHjustify.LEFT, TextVjustify.BOTTOM);
 
 	const out = fs.createWriteStream('text.png'), stream = canvas.pngStream();
 	stream.on('data', function (chunk: any) {
