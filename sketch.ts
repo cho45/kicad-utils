@@ -42,8 +42,8 @@ function ensure<T>(arg: T | null | undefined): T {
 	ctx.scale(scale, scale);
 
 	const plotter = new CanvasPlotter(ctx);
-	plotter.translate(-sch.descr.width, 0);
-	plotter.scale(-1, 1);
+	// plotter.translate(-sch.descr.width, 0);
+	// plotter.scale(-1, 1);
 	// plotter.plotLibComponent(lib.findByName("RJ45"), 1, 1, { x: 500, y: 500 }, new Transform(0, 1, 1, 0));
 	plotter.plotSchematic(sch, [ lib ]);
 
@@ -58,8 +58,8 @@ function ensure<T>(arg: T | null | undefined): T {
 	});
 
 	const svgPlotter = new SVGPlotter();
-	svgPlotter.translate(-sch.descr.width, 0);
-	svgPlotter.scale(-1, 1);
+//	svgPlotter.translate(-sch.descr.width, 0);
+//	svgPlotter.scale(-1, 1);
 	svgPlotter.plotSchematic(sch, [ lib ]);
 
 	let dpi = 72; // 72 dpi == 72000 dot/mil

@@ -71,6 +71,10 @@ import {
 	TextOrientationType,
 } from "./kicad_sch";
 
+import {
+	StrokeFont
+} from "./kicad_strokefont";
+
 const TXT_MARGIN = 4;
 const PIN_TXT_MARGIN = 4;
 const DEFAULT_LINE_WIDTH = 6;
@@ -152,12 +156,14 @@ export abstract class Plotter {
 		color: Color,
 		transform: Transform,
 	}>;
+	font: StrokeFont;
 
 	constructor() {
 		this.fill = Fill.NO_FILL;
 		this.color = Color.BLACK;
 		this.transform = Transform.identify();
 		this.stateHistory = [];
+		this.font = new StrokeFont();
 	}
 
 	abstract rect(p1: Point, p2: Point, fill: Fill, width: number): void;
@@ -166,7 +172,9 @@ export abstract class Plotter {
 	abstract polyline(points: Array<Point>, fill: Fill, width: number): void;
 	abstract setCurrentLineWidth(w: number): void;
 	abstract penTo(p: Point, s: "U"|"D"|"Z"): void;
-	abstract text(
+	abstract image(p: Point, scale: number, originalWidth:number, originalHeight:number, data: Uint8Array): void;
+
+	text(
 		p: Point,
 		color: Color,
 		text: string,
@@ -178,8 +186,21 @@ export abstract class Plotter {
 		italic: boolean,
 		bold: boolean,
 		multiline?: boolean,
-	): void;
-	abstract image(p: Point, scale: number, originalWidth:number, originalHeight:number, data: Uint8Array): void;
+	): void {
+		this.setColor(color);
+		this.fill = Fill.NO_FILL;
+		// p = this.transform.transformCoordinate(p);
+		this.font.drawText(
+			this,
+			p,
+			text,
+			size,
+			width,
+			orientation,
+			hjustfy,
+			vjustify
+		);
+	}
 
 	save(): void {
 		this.stateHistory.push({
@@ -262,18 +283,18 @@ export abstract class Plotter {
 			}
 
 			let text  = (typeof reference !== 'undefined') ? reference : component.field.reference;
-			const width = text.length * component.field.textSize * 0.6;
-			const height = text.length;
+			const width  = 0;//this.font.computeTextLineSize(text, component.field.textSize, DEFAULT_LINE_WIDTH);
+			const height = 0;//this.font.getInterline(component.field.textSize, DEFAULT_LINE_WIDTH);
 
 			this.text(
-				Point.add({ x: width, y: height }, pos),
+				Point.add({ x: width / 2, y: height /2 }, pos),
 				SCH_COLORS.LAYER_REFERENCEPART,
 				text,
 				orientation,
 				component.field.textSize,
 				TextHjustify.CENTER,
 				TextVjustify.CENTER,
-				0,
+				DEFAULT_LINE_WIDTH,
 				component.field.italic,
 				component.field.bold,
 			);
@@ -290,17 +311,17 @@ export abstract class Plotter {
 				}
 			}
 			let text  = (typeof name !== 'undefined') ? name : component.fields[0].name;
-			const width = text.length * component.fields[0].textSize * 0.6;
-			const height = text.length;
+			const width  = 0; // this.font.computeTextLineSize(text, component.fields[0].textSize, DEFAULT_LINE_WIDTH);
+			const height = 0; // this.font.getInterline(component.fields[0].textSize, DEFAULT_LINE_WIDTH);
 			this.text(
-				Point.add({ x: width, y: height }, pos),
+				Point.add({ x: width / 2, y: height / 2 }, pos),
 				SCH_COLORS.LAYER_VALUEPART,
 				text,
 				orientation,
 				component.fields[0].textSize,
 				TextHjustify.CENTER,
 				TextVjustify.CENTER,
-				0,
+				DEFAULT_LINE_WIDTH,
 				component.fields[0].italic,
 				component.fields[0].bold
 			);
@@ -395,7 +416,7 @@ export abstract class Plotter {
 			draw.textSize,
 			TextHjustify.CENTER,
 			TextVjustify.CENTER,
-			0,
+			DEFAULT_LINE_WIDTH,
 			draw.italic,
 			draw.bold
 		);
@@ -454,7 +475,7 @@ export abstract class Plotter {
 							draw.nameTextSize,
 							TextHjustify.LEFT,
 							TextVjustify.CENTER,
-							0,
+							DEFAULT_LINE_WIDTH,
 							false,
 							false
 						)
@@ -467,7 +488,7 @@ export abstract class Plotter {
 							draw.nameTextSize,
 							TextHjustify.RIGHT,
 							TextVjustify.CENTER,
-							0,
+							DEFAULT_LINE_WIDTH,
 							false,
 							false
 						)
@@ -483,7 +504,7 @@ export abstract class Plotter {
 						draw.nameTextSize,
 						TextHjustify.CENTER,
 						TextVjustify.BOTTOM,
-						0,
+						DEFAULT_LINE_WIDTH,
 						false,
 						false
 					)
@@ -499,7 +520,7 @@ export abstract class Plotter {
 							draw.nameTextSize,
 							TextHjustify.RIGHT,
 							TextVjustify.CENTER,
-							0,
+							DEFAULT_LINE_WIDTH,
 							false,
 							false
 						);
@@ -513,7 +534,7 @@ export abstract class Plotter {
 							draw.nameTextSize,
 							TextHjustify.CENTER,
 							TextVjustify.BOTTOM,
-							0,
+							DEFAULT_LINE_WIDTH,
 							false,
 							false
 						);
@@ -528,7 +549,7 @@ export abstract class Plotter {
 							draw.nameTextSize,
 							TextHjustify.LEFT,
 							TextVjustify.CENTER,
-							0,
+							DEFAULT_LINE_WIDTH,
 							false,
 							false
 						);
@@ -542,7 +563,7 @@ export abstract class Plotter {
 							draw.nameTextSize,
 							TextHjustify.CENTER,
 							TextVjustify.BOTTOM,
-							0,
+							DEFAULT_LINE_WIDTH,
 							false,
 							false
 						);
@@ -560,7 +581,7 @@ export abstract class Plotter {
 						draw.nameTextSize,
 						TextHjustify.CENTER,
 						TextVjustify.BOTTOM,
-						0,
+						DEFAULT_LINE_WIDTH,
 						false,
 						false
 					)
@@ -575,7 +596,7 @@ export abstract class Plotter {
 						draw.numTextSize,
 						TextHjustify.CENTER,
 						TextVjustify.TOP,
-						0,
+						DEFAULT_LINE_WIDTH,
 						false,
 						false
 					)
@@ -590,7 +611,7 @@ export abstract class Plotter {
 						draw.nameTextSize,
 						TextHjustify.CENTER,
 						TextVjustify.BOTTOM,
-						0,
+						DEFAULT_LINE_WIDTH,
 						false,
 						false
 					)
@@ -605,7 +626,7 @@ export abstract class Plotter {
 						draw.numTextSize,
 						TextHjustify.CENTER,
 						TextVjustify.TOP,
-						0,
+						DEFAULT_LINE_WIDTH,
 						false,
 						false
 					)
@@ -738,7 +759,7 @@ export abstract class Plotter {
 					item.sheetNameSize,
 					TextHjustify.LEFT,
 					TextVjustify.BOTTOM,
-					0,
+					DEFAULT_LINE_WIDTH,
 					false,
 					false
 				);
@@ -750,7 +771,7 @@ export abstract class Plotter {
 					item.fileNameSize,
 					TextHjustify.LEFT,
 					TextVjustify.TOP,
-					0,
+					DEFAULT_LINE_WIDTH,
 					false,
 					false
 				);
@@ -822,7 +843,7 @@ export abstract class Plotter {
 			const halfSize = item.size / 2;
 			const lineWidth = DEFAULT_LINE_WIDTH;
 			const points: Array<Point> = [];
-			const symLen = item.text.length * item.size;
+			const symLen = this.font.computeTextLineSize(item.text, item.size, lineWidth);
 			const hasOverBar = /~[^~]/.test(item.text);
 
 			const Y_CORRECTION = 1.40;
@@ -892,7 +913,8 @@ export abstract class Plotter {
 		{
 			let p = new Point(item.posx, item.posy);
 			const width = DEFAULT_LINE_WIDTH;
-			const halfSize = item.text.length * item.size / 2 * 0.6;
+			console.log(item);
+			const halfSize = this.font.computeTextLineSize(' ', item.size, width) / 2;
 			let offset = width;
 			if (item.shape === Net.INPUT ||
 				item.shape === Net.BIDI ||
@@ -902,7 +924,7 @@ export abstract class Plotter {
 			} else
 			if (item.shape === Net.OUTPUT ||
 				item.shape === Net.UNSPECIFIED) {
-				offset += (item.size * 2);
+				offset += TXT_MARGIN;
 			}
 			if (item.orientationType === 0) {
 				p.x -= offset;
@@ -924,7 +946,7 @@ export abstract class Plotter {
 				item.size,
 				item.hjustify,
 				item.vjustify,
-				0,
+				width,
 				item.italic,
 				item.bold
 			);
@@ -948,7 +970,7 @@ export abstract class Plotter {
 		};
 		{
 			let p = new Point(item.posx, item.posy);
-			const txtOffset = item.size * item.text.length + TXT_MARGIN + DEFAULT_LINE_WIDTH / 2;
+			const txtOffset =  this.font.computeTextLineSize(' ', item.size, DEFAULT_LINE_WIDTH) + TXT_MARGIN + DEFAULT_LINE_WIDTH / 2;
 			if (item.orientationType === 0) {
 				p.x -= txtOffset;
 			} else
@@ -969,7 +991,7 @@ export abstract class Plotter {
 				item.size,
 				item.hjustify,
 				item.vjustify,
-				0,
+				DEFAULT_LINE_WIDTH,
 				item.italic,
 				item.bold
 			);
@@ -1003,7 +1025,7 @@ export abstract class Plotter {
 			item.size,
 			item.hjustify,
 			item.vjustify,
-			0,
+			DEFAULT_LINE_WIDTH,
 			item.italic,
 			item.bold
 		);
@@ -1262,6 +1284,7 @@ export class SVGPlotter extends Plotter {
 		this.finishPen();
 	}
 
+	/*
 	text(
 		p: Point,
 		color: Color,
@@ -1318,7 +1341,7 @@ export class SVGPlotter extends Plotter {
 				fill="${this.color.toCSSColor()}"
 				transform="rotate(${rotate}, ${p.x}, ${p.y})">${lines[i]}</text>`;
 		}
-	}
+	} */
 
 	/**
 	 * U = Pen is up

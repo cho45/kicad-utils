@@ -31,6 +31,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const kicad_common_1 = require("./kicad_common");
 const kicad_lib_1 = require("./kicad_lib");
 const kicad_sch_1 = require("./kicad_sch");
+const kicad_strokefont_1 = require("./kicad_strokefont");
 const TXT_MARGIN = 4;
 const PIN_TXT_MARGIN = 4;
 const DEFAULT_LINE_WIDTH = 6;
@@ -105,6 +106,13 @@ class Plotter {
         this.color = kicad_common_1.Color.BLACK;
         this.transform = kicad_common_1.Transform.identify();
         this.stateHistory = [];
+        this.font = new kicad_strokefont_1.StrokeFont();
+    }
+    text(p, color, text, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
+        this.setColor(color);
+        this.fill = kicad_common_1.Fill.NO_FILL;
+        // p = this.transform.transformCoordinate(p);
+        this.font.drawText(this, p, text, size, width, orientation, hjustfy, vjustify);
     }
     save() {
         this.stateHistory.push({
@@ -174,9 +182,9 @@ class Plotter {
                 }
             }
             let text = (typeof reference !== 'undefined') ? reference : component.field.reference;
-            const width = text.length * component.field.textSize * 0.6;
-            const height = text.length;
-            this.text(kicad_common_1.Point.add({ x: width, y: height }, pos), SCH_COLORS.LAYER_REFERENCEPART, text, orientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, component.field.italic, component.field.bold);
+            const width = 0; //this.font.computeTextLineSize(text, component.field.textSize, DEFAULT_LINE_WIDTH);
+            const height = 0; //this.font.getInterline(component.field.textSize, DEFAULT_LINE_WIDTH);
+            this.text(kicad_common_1.Point.add({ x: width / 2, y: height / 2 }, pos), SCH_COLORS.LAYER_REFERENCEPART, text, orientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, DEFAULT_LINE_WIDTH, component.field.italic, component.field.bold);
         }
         if (component.fields[0] && component.fields[0].visibility) {
             const pos = transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy });
@@ -190,9 +198,9 @@ class Plotter {
                 }
             }
             let text = (typeof name !== 'undefined') ? name : component.fields[0].name;
-            const width = text.length * component.fields[0].textSize * 0.6;
-            const height = text.length;
-            this.text(kicad_common_1.Point.add({ x: width, y: height }, pos), SCH_COLORS.LAYER_VALUEPART, text, orientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, component.fields[0].italic, component.fields[0].bold);
+            const width = 0; // this.font.computeTextLineSize(text, component.fields[0].textSize, DEFAULT_LINE_WIDTH);
+            const height = 0; // this.font.getInterline(component.fields[0].textSize, DEFAULT_LINE_WIDTH);
+            this.text(kicad_common_1.Point.add({ x: width / 2, y: height / 2 }, pos), SCH_COLORS.LAYER_VALUEPART, text, orientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, DEFAULT_LINE_WIDTH, component.fields[0].italic, component.fields[0].bold);
         }
         this.setColor(SCH_COLORS.LAYER_DEVICE);
         for (let draw of component.draw.objects) {
@@ -250,7 +258,7 @@ class Plotter {
     }
     plotDrawText(draw, component, transform) {
         const pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy });
-        this.text(pos, this.color, draw.text, component.field.textOrientation, draw.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, 0, draw.italic, draw.bold);
+        this.text(pos, this.color, draw.text, component.field.textOrientation, draw.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, DEFAULT_LINE_WIDTH, draw.italic, draw.bold);
     }
     plotDrawPin(draw, component, transform) {
         if (!draw.visibility)
@@ -292,31 +300,31 @@ class Plotter {
             if (isHorizontal) {
                 if (drawPinname) {
                     if (orientation === kicad_common_1.PinOrientation.RIGHT) {
-                        this.text({ x: x1 + textInside, y: y1 }, SCH_COLORS.LAYER_PINNAM, draw.name, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
+                        this.text({ x: x1 + textInside, y: y1 }, SCH_COLORS.LAYER_PINNAM, draw.name, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.CENTER, DEFAULT_LINE_WIDTH, false, false);
                     }
                     else {
-                        this.text({ x: x1 - textInside, y: y1 }, SCH_COLORS.LAYER_PINNAM, draw.name, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.RIGHT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
+                        this.text({ x: x1 - textInside, y: y1 }, SCH_COLORS.LAYER_PINNAM, draw.name, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.RIGHT, kicad_common_1.TextVjustify.CENTER, DEFAULT_LINE_WIDTH, false, false);
                     }
                 }
                 if (drawPinnumber) {
-                    this.text({ x: (x1 + pos.x) / 2, y: y1 + numOffset }, SCH_COLORS.LAYER_PINNUM, draw.num, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
+                    this.text({ x: (x1 + pos.x) / 2, y: y1 + numOffset }, SCH_COLORS.LAYER_PINNUM, draw.num, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, DEFAULT_LINE_WIDTH, false, false);
                 }
             }
             else {
                 if (orientation === kicad_common_1.PinOrientation.DOWN) {
                     if (drawPinname) {
-                        this.text({ x: x1, y: y1 + textInside }, SCH_COLORS.LAYER_PINNAM, draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.RIGHT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
+                        this.text({ x: x1, y: y1 + textInside }, SCH_COLORS.LAYER_PINNAM, draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.RIGHT, kicad_common_1.TextVjustify.CENTER, DEFAULT_LINE_WIDTH, false, false);
                     }
                     if (drawPinnumber) {
-                        this.text({ x: x1 - numOffset, y: (y1 + pos.y) / 2 }, SCH_COLORS.LAYER_PINNUM, draw.num, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
+                        this.text({ x: x1 - numOffset, y: (y1 + pos.y) / 2 }, SCH_COLORS.LAYER_PINNUM, draw.num, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, DEFAULT_LINE_WIDTH, false, false);
                     }
                 }
                 else {
                     if (drawPinname) {
-                        this.text({ x: x1, y: y1 - textInside }, SCH_COLORS.LAYER_PINNAM, draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.CENTER, 0, false, false);
+                        this.text({ x: x1, y: y1 - textInside }, SCH_COLORS.LAYER_PINNAM, draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.CENTER, DEFAULT_LINE_WIDTH, false, false);
                     }
                     if (drawPinnumber) {
-                        this.text({ x: x1 - numOffset, y: (y1 + pos.y) / 2 }, SCH_COLORS.LAYER_PINNUM, draw.num, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
+                        this.text({ x: x1 - numOffset, y: (y1 + pos.y) / 2 }, SCH_COLORS.LAYER_PINNUM, draw.num, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, DEFAULT_LINE_WIDTH, false, false);
                     }
                 }
             }
@@ -324,18 +332,18 @@ class Plotter {
         else {
             if (isHorizontal) {
                 if (drawPinname) {
-                    this.text({ x: (x1 + pos.x) / 2, y: y1 - nameOffset }, SCH_COLORS.LAYER_PINNAM, draw.name, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
+                    this.text({ x: (x1 + pos.x) / 2, y: y1 - nameOffset }, SCH_COLORS.LAYER_PINNAM, draw.name, kicad_common_1.TextAngle.HORIZ, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, DEFAULT_LINE_WIDTH, false, false);
                 }
                 if (drawPinnumber) {
-                    this.text({ x: (x1 + pos.x) / 2, y: y1 + numOffset }, SCH_COLORS.LAYER_PINNUM, draw.num, kicad_common_1.TextAngle.HORIZ, draw.numTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.TOP, 0, false, false);
+                    this.text({ x: (x1 + pos.x) / 2, y: y1 + numOffset }, SCH_COLORS.LAYER_PINNUM, draw.num, kicad_common_1.TextAngle.HORIZ, draw.numTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.TOP, DEFAULT_LINE_WIDTH, false, false);
                 }
             }
             else {
                 if (drawPinname) {
-                    this.text({ x: x1 - nameOffset, y: (y1 + pos.y) / 2 }, SCH_COLORS.LAYER_PINNAM, draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
+                    this.text({ x: x1 - nameOffset, y: (y1 + pos.y) / 2 }, SCH_COLORS.LAYER_PINNAM, draw.name, kicad_common_1.TextAngle.VERT, draw.nameTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.BOTTOM, DEFAULT_LINE_WIDTH, false, false);
                 }
                 if (drawPinnumber) {
-                    this.text({ x: x1 + numOffset, y: (y1 + pos.y) / 2 }, SCH_COLORS.LAYER_PINNUM, draw.num, kicad_common_1.TextAngle.VERT, draw.numTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.TOP, 0, false, false);
+                    this.text({ x: x1 + numOffset, y: (y1 + pos.y) / 2 }, SCH_COLORS.LAYER_PINNUM, draw.num, kicad_common_1.TextAngle.VERT, draw.numTextSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.TOP, DEFAULT_LINE_WIDTH, false, false);
                 }
             }
         }
@@ -443,8 +451,8 @@ class Plotter {
                 this.lineTo(item.posx + item.sizex, item.posy + item.sizey);
                 this.lineTo(item.posx + item.sizex, item.posy);
                 this.finishTo(item.posx, item.posy);
-                this.text({ x: item.posx, y: item.posy - 4 }, SCH_COLORS.LAYER_SHEETNAME, item.sheetName, 0, item.sheetNameSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.BOTTOM, 0, false, false);
-                this.text({ x: item.posx, y: item.posy + item.sizey + 4 }, SCH_COLORS.LAYER_SHEETFILENAME, item.fileName, 0, item.fileNameSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.TOP, 0, false, false);
+                this.text({ x: item.posx, y: item.posy - 4 }, SCH_COLORS.LAYER_SHEETNAME, item.sheetName, 0, item.sheetNameSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.BOTTOM, DEFAULT_LINE_WIDTH, false, false);
+                this.text({ x: item.posx, y: item.posy + item.sizey + 4 }, SCH_COLORS.LAYER_SHEETFILENAME, item.fileName, 0, item.fileNameSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.TOP, DEFAULT_LINE_WIDTH, false, false);
                 this.setColor(SCH_COLORS.LAYER_SHEETLABEL);
                 for (let pin of item.sheetPins) {
                     const tmp = pin.shape;
@@ -513,7 +521,7 @@ class Plotter {
             const halfSize = item.size / 2;
             const lineWidth = DEFAULT_LINE_WIDTH;
             const points = [];
-            const symLen = item.text.length * item.size;
+            const symLen = this.font.computeTextLineSize(item.text, item.size, lineWidth);
             const hasOverBar = /~[^~]/.test(item.text);
             const Y_CORRECTION = 1.40;
             const Y_OVERBAR_CORRECTION = 1.2;
@@ -571,7 +579,8 @@ class Plotter {
         {
             let p = new kicad_common_1.Point(item.posx, item.posy);
             const width = DEFAULT_LINE_WIDTH;
-            const halfSize = item.text.length * item.size / 2 * 0.6;
+            console.log(item);
+            const halfSize = this.font.computeTextLineSize(' ', item.size, width) / 2;
             let offset = width;
             if (item.shape === kicad_common_1.Net.INPUT ||
                 item.shape === kicad_common_1.Net.BIDI ||
@@ -580,7 +589,7 @@ class Plotter {
             }
             else if (item.shape === kicad_common_1.Net.OUTPUT ||
                 item.shape === kicad_common_1.Net.UNSPECIFIED) {
-                offset += (item.size * 2);
+                offset += TXT_MARGIN;
             }
             if (item.orientationType === 0) {
                 p.x -= offset;
@@ -594,7 +603,7 @@ class Plotter {
             else if (item.orientationType === 3) {
                 p.y += offset;
             }
-            this.text(p, SCH_COLORS.LAYER_GLOBLABEL, item.text, item.orientation, item.size, item.hjustify, item.vjustify, 0, item.italic, item.bold);
+            this.text(p, SCH_COLORS.LAYER_GLOBLABEL, item.text, item.orientation, item.size, item.hjustify, item.vjustify, width, item.italic, item.bold);
         }
     }
     plotSchTextHierarchicalLabel(item) {
@@ -614,7 +623,7 @@ class Plotter {
         ;
         {
             let p = new kicad_common_1.Point(item.posx, item.posy);
-            const txtOffset = item.size * item.text.length + TXT_MARGIN + DEFAULT_LINE_WIDTH / 2;
+            const txtOffset = this.font.computeTextLineSize(' ', item.size, DEFAULT_LINE_WIDTH) + TXT_MARGIN + DEFAULT_LINE_WIDTH / 2;
             if (item.orientationType === 0) {
                 p.x -= txtOffset;
             }
@@ -627,7 +636,7 @@ class Plotter {
             else if (item.orientationType === 3) {
                 p.y += txtOffset;
             }
-            this.text(p, SCH_COLORS.LAYER_HIERLABEL, item.text, item.orientation, item.size, item.hjustify, item.vjustify, 0, item.italic, item.bold);
+            this.text(p, SCH_COLORS.LAYER_HIERLABEL, item.text, item.orientation, item.size, item.hjustify, item.vjustify, DEFAULT_LINE_WIDTH, item.italic, item.bold);
         }
     }
     plotSchText(item) {
@@ -649,7 +658,7 @@ class Plotter {
         else if (item.orientationType === 3) {
             p.x -= txtOffset;
         }
-        this.text(p, color, item.text, item.orientation, item.size, item.hjustify, item.vjustify, 0, item.italic, item.bold);
+        this.text(p, color, item.text, item.orientation, item.size, item.hjustify, item.vjustify, DEFAULT_LINE_WIDTH, item.italic, item.bold);
     }
 }
 exports.Plotter = Plotter;
@@ -865,48 +874,64 @@ class SVGPlotter extends Plotter {
         }
         this.finishPen();
     }
-    text(p, color, text, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
+    /*
+    text(
+        p: Point,
+        color: Color,
+        text: string,
+        orientation: number,
+        size: number,
+        hjustfy: TextHjustify,
+        vjustify: TextVjustify,
+        width: number,
+        italic: boolean,
+        bold: boolean,
+        multiline?: boolean,
+    ): void {
         this.setColor(color);
         p = this.transform.transformCoordinate(p);
+
         let textAnchor;
-        if (hjustfy === kicad_common_1.TextHjustify.LEFT) {
+        if (hjustfy === TextHjustify.LEFT) {
             textAnchor = "start";
-        }
-        else if (hjustfy === kicad_common_1.TextHjustify.CENTER) {
+        } else
+        if (hjustfy === TextHjustify.CENTER) {
             textAnchor = "middle";
-        }
-        else if (hjustfy === kicad_common_1.TextHjustify.RIGHT) {
+        } else
+        if (hjustfy === TextHjustify.RIGHT) {
             textAnchor = "end";
         }
         let dominantBaseline;
-        if (vjustify === kicad_common_1.TextVjustify.TOP) {
+        if (vjustify === TextVjustify.TOP) {
             dominantBaseline = "text-before-edge";
-        }
-        else if (vjustify === kicad_common_1.TextVjustify.CENTER) {
+        } else
+        if (vjustify === TextVjustify.CENTER) {
             dominantBaseline = "middle";
-        }
-        else if (vjustify === kicad_common_1.TextVjustify.BOTTOM) {
+        } else
+        if (vjustify === TextVjustify.BOTTOM) {
             dominantBaseline = "text-after-edge";
         }
+
         const fontWeight = bold ? "bold" : "normal";
         const fontStyle = italic ? "italic" : "normal";
+
         const rotate = -orientation / 10;
         const x = this.xmlTag;
         const lines = text.split(/\n/);
         for (var i = 0, len = lines.length; i < len; i++) {
             const y = p.y + (i * size * 1.2);
             this.output += this.xmlTag `<text x="${p.x}" y="${y}"
-				text-anchor="${textAnchor}"
-				dominant-baseline="${dominantBaseline}"
-				font-family="${SVGPlotter.font.family}"
-				font-size="${size}"
-				font-weight="${fontWeight}"
-				font-style="${fontStyle}"
-				stroke="none"
-				fill="${this.color.toCSSColor()}"
-				transform="rotate(${rotate}, ${p.x}, ${p.y})">${lines[i]}</text>`;
+                text-anchor="${textAnchor}"
+                dominant-baseline="${dominantBaseline}"
+                font-family="${SVGPlotter.font.family}"
+                font-size="${size}"
+                font-weight="${fontWeight}"
+                font-style="${fontStyle}"
+                stroke="none"
+                fill="${this.color.toCSSColor()}"
+                transform="rotate(${rotate}, ${p.x}, ${p.y})">${lines[i]}</text>`;
         }
-    }
+    } */
     /**
      * U = Pen is up
      * D = Pen is down
