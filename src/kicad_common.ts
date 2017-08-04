@@ -140,6 +140,14 @@ export class Transform {
 		);
 	}
 
+	clone() {
+		return new Transform(
+			this.x1, this.x2,
+			this.y1, this.y2,
+			this.tx, this.ty
+		);
+	}
+
 	translate(tx: number, ty: number) {
 		return this.multiply(Transform.translate(tx, ty));
 	}

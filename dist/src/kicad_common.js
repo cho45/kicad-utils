@@ -118,6 +118,9 @@ class Transform {
         const c = Math.cos(radian);
         return new Transform(c, s, -s, c, 0, 0);
     }
+    clone() {
+        return new Transform(this.x1, this.x2, this.y1, this.y2, this.tx, this.ty);
+    }
     translate(tx, ty) {
         return this.multiply(Transform.translate(tx, ty));
     }

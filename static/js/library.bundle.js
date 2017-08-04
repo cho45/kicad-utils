@@ -1828,6 +1828,11 @@ var Transform = function () {
 
 
     _createClass(Transform, [{
+        key: "clone",
+        value: function clone() {
+            return new Transform(this.x1, this.x2, this.y1, this.y2, this.tx, this.ty);
+        }
+    }, {
         key: "translate",
         value: function translate(tx, ty) {
             return this.multiply(Transform.translate(tx, ty));
@@ -10561,9 +10566,44 @@ var TEMPLATE_SHAPES = (_TEMPLATE_SHAPES = {}, _defineProperty(_TEMPLATE_SHAPES, 
 var Plotter = function () {
     function Plotter() {
         _classCallCheck(this, Plotter);
+
+        this.fill = kicad_common_1.Fill.NO_FILL;
+        this.color = kicad_common_1.Color.BLACK;
+        this.transform = kicad_common_1.Transform.identify();
+        this.stateHistory = [];
     }
 
     _createClass(Plotter, [{
+        key: "save",
+        value: function save() {
+            this.stateHistory.push({
+                fill: this.fill,
+                color: this.color,
+                transform: this.transform.clone()
+            });
+        }
+    }, {
+        key: "translate",
+        value: function translate(tx, ty) {
+            this.transform = this.transform.translate(tx, ty);
+        }
+    }, {
+        key: "scale",
+        value: function scale(sx, sy) {
+            this.transform = this.transform.scale(sx, sy);
+        }
+    }, {
+        key: "rotate",
+        value: function rotate(radian) {
+            this.transform = this.transform.rotate(radian);
+        }
+    }, {
+        key: "restore",
+        value: function restore() {
+            var state = this.stateHistory.pop();
+            Object.assign(this, state);
+        }
+    }, {
         key: "setColor",
         value: function setColor(c) {
             this.color = c;
@@ -11217,6 +11257,7 @@ var CanvasPlotter = function (_Plotter) {
     }, {
         key: "circle",
         value: function circle(p, dia, fill, width) {
+            p = this.transform.transformCoordinate(p);
             this.setCurrentLineWidth(width);
             this.fill = fill;
             this.ctx.beginPath();
@@ -11230,6 +11271,7 @@ var CanvasPlotter = function (_Plotter) {
     }, {
         key: "arc",
         value: function arc(p, startAngle, endAngle, radius, fill, width) {
+            p = this.transform.transformCoordinate(p);
             this.setCurrentLineWidth(width);
             this.fill = fill;
             this.ctx.beginPath();
@@ -11255,6 +11297,7 @@ var CanvasPlotter = function (_Plotter) {
     }, {
         key: "text",
         value: function text(p, color, _text2, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
+            p = this.transform.transformCoordinate(p);
             this.setColor(color);
             if (hjustfy === kicad_common_1.TextHjustify.LEFT) {
                 this.ctx.textAlign = "left";
@@ -11288,6 +11331,7 @@ var CanvasPlotter = function (_Plotter) {
     }, {
         key: "penTo",
         value: function penTo(p, s) {
+            p = this.transform.transformCoordinate(p);
             if (s === "Z") {
                 if (this.fill === kicad_common_1.Fill.FILLED_SHAPE) {
                     // console.log('ctx.fill', p);
@@ -11331,6 +11375,7 @@ var CanvasPlotter = function (_Plotter) {
     }, {
         key: "image",
         value: function image(p, scale, originalWidth, originalHeight, data) {
+            p = this.transform.transformCoordinate(p);
             var start = kicad_common_1.Point.sub(p, { x: originalWidth / 2, y: originalHeight / 2 });
             var end = kicad_common_1.Point.add(p, { x: originalWidth / 2, y: originalHeight / 2 });
             this.rect(start, end, kicad_common_1.Fill.NO_FILL, DEFAULT_LINE_WIDTH);
@@ -11373,6 +11418,7 @@ var SVGPlotter = function (_Plotter2) {
         value: function circle(p, dia, fill, width) {
             this.setCurrentLineWidth(width);
             this.fill = fill;
+            p = this.transform.transformCoordinate(p);
             this.output += this.xmlTag(_templateObject, p.x, p.y, dia / 2);
             if (this.fill === kicad_common_1.Fill.NO_FILL) {
                 this.output += this.xmlTag(_templateObject2, this.color.toCSSColor(), this.lineWidth);
@@ -11391,6 +11437,7 @@ var SVGPlotter = function (_Plotter2) {
             }
             this.setCurrentLineWidth(width);
             this.fill = fill;
+            p = this.transform.transformCoordinate(p);
             var _ref2 = [-endAngle, -startAngle];
             startAngle = _ref2[0];
             endAngle = _ref2[1];
@@ -11432,6 +11479,7 @@ var SVGPlotter = function (_Plotter2) {
         key: "text",
         value: function text(p, color, _text3, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
             this.setColor(color);
+            p = this.transform.transformCoordinate(p);
             var textAnchor = void 0;
             if (hjustfy === kicad_common_1.TextHjustify.LEFT) {
                 textAnchor = "start";
@@ -11468,6 +11516,7 @@ var SVGPlotter = function (_Plotter2) {
         key: "penTo",
         value: function penTo(p, s) {
             var x = this.xmlTag;
+            p = this.transform.transformCoordinate(p);
             if (s === "Z") {
                 if (this.penState !== "Z") {
                     if (this.fill === kicad_common_1.Fill.NO_FILL) {
@@ -11501,6 +11550,7 @@ var SVGPlotter = function (_Plotter2) {
     }, {
         key: "image",
         value: function image(p, scale, originalWidth, originalHeight, data) {
+            p = this.transform.transformCoordinate(p);
             var width = originalWidth * scale;
             var height = originalHeight * scale;
             var start = kicad_common_1.Point.sub(p, { x: width / 2, y: height / 2 });

@@ -100,6 +100,32 @@ const TEMPLATE_SHAPES = {
  *
  */
 class Plotter {
+    constructor() {
+        this.fill = kicad_common_1.Fill.NO_FILL;
+        this.color = kicad_common_1.Color.BLACK;
+        this.transform = kicad_common_1.Transform.identify();
+        this.stateHistory = [];
+    }
+    save() {
+        this.stateHistory.push({
+            fill: this.fill,
+            color: this.color,
+            transform: this.transform.clone(),
+        });
+    }
+    translate(tx, ty) {
+        this.transform = this.transform.translate(tx, ty);
+    }
+    scale(sx, sy) {
+        this.transform = this.transform.scale(sx, sy);
+    }
+    rotate(radian) {
+        this.transform = this.transform.rotate(radian);
+    }
+    restore() {
+        const state = this.stateHistory.pop();
+        Object.assign(this, state);
+    }
     setColor(c) {
         this.color = c;
     }
@@ -646,6 +672,7 @@ class CanvasPlotter extends Plotter {
         this.finishTo(p1.x, p1.y);
     }
     circle(p, dia, fill, width) {
+        p = this.transform.transformCoordinate(p);
         this.setCurrentLineWidth(width);
         this.fill = fill;
         this.ctx.beginPath();
@@ -658,6 +685,7 @@ class CanvasPlotter extends Plotter {
         }
     }
     arc(p, startAngle, endAngle, radius, fill, width) {
+        p = this.transform.transformCoordinate(p);
         this.setCurrentLineWidth(width);
         this.fill = fill;
         this.ctx.beginPath();
@@ -680,6 +708,7 @@ class CanvasPlotter extends Plotter {
         this.finishPen();
     }
     text(p, color, text, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
+        p = this.transform.transformCoordinate(p);
         this.setColor(color);
         if (hjustfy === kicad_common_1.TextHjustify.LEFT) {
             this.ctx.textAlign = "left";
@@ -714,6 +743,7 @@ class CanvasPlotter extends Plotter {
      * Z = Pen is outof canvas
      */
     penTo(p, s) {
+        p = this.transform.transformCoordinate(p);
         if (s === "Z") {
             if (this.fill === kicad_common_1.Fill.FILLED_SHAPE) {
                 // console.log('ctx.fill', p);
@@ -754,6 +784,7 @@ class CanvasPlotter extends Plotter {
         this.ctx.lineWidth = w;
     }
     image(p, scale, originalWidth, originalHeight, data) {
+        p = this.transform.transformCoordinate(p);
         const start = kicad_common_1.Point.sub(p, { x: originalWidth / 2, y: originalHeight / 2 });
         const end = kicad_common_1.Point.add(p, { x: originalWidth / 2, y: originalHeight / 2 });
         this.rect(start, end, kicad_common_1.Fill.NO_FILL, DEFAULT_LINE_WIDTH);
@@ -780,6 +811,7 @@ class SVGPlotter extends Plotter {
     circle(p, dia, fill, width) {
         this.setCurrentLineWidth(width);
         this.fill = fill;
+        p = this.transform.transformCoordinate(p);
         this.output += this.xmlTag `<circle cx="${p.x}" cy="${p.y}" r="${dia / 2}" `;
         if (this.fill === kicad_common_1.Fill.NO_FILL) {
             this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
@@ -796,6 +828,7 @@ class SVGPlotter extends Plotter {
         }
         this.setCurrentLineWidth(width);
         this.fill = fill;
+        p = this.transform.transformCoordinate(p);
         [startAngle, endAngle] = [-endAngle, -startAngle];
         let start = new kicad_common_1.Point(radius, 0);
         kicad_common_1.RotatePoint(start, startAngle);
@@ -834,6 +867,7 @@ class SVGPlotter extends Plotter {
     }
     text(p, color, text, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
         this.setColor(color);
+        p = this.transform.transformCoordinate(p);
         let textAnchor;
         if (hjustfy === kicad_common_1.TextHjustify.LEFT) {
             textAnchor = "start";
@@ -880,6 +914,7 @@ class SVGPlotter extends Plotter {
      */
     penTo(p, s) {
         const x = this.xmlTag;
+        p = this.transform.transformCoordinate(p);
         if (s === "Z") {
             if (this.penState !== "Z") {
                 if (this.fill === kicad_common_1.Fill.NO_FILL) {
@@ -913,6 +948,7 @@ class SVGPlotter extends Plotter {
         this.lineWidth = w;
     }
     image(p, scale, originalWidth, originalHeight, data) {
+        p = this.transform.transformCoordinate(p);
         const width = originalWidth * scale;
         const height = originalHeight * scale;
         const start = kicad_common_1.Point.sub(p, { x: width / 2, y: height / 2 });

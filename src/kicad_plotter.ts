@@ -146,6 +146,19 @@ const TEMPLATE_SHAPES = {
 export abstract class Plotter {
 	fill: Fill;
 	color: Color;
+	transform: Transform;
+	stateHistory: Array<{
+		fill: Fill,
+		color: Color,
+		transform: Transform,
+	}>;
+
+	constructor() {
+		this.fill = Fill.NO_FILL;
+		this.color = Color.BLACK;
+		this.transform = Transform.identify();
+		this.stateHistory = [];
+	}
 
 	abstract rect(p1: Point, p2: Point, fill: Fill, width: number): void;
 	abstract circle(p: Point, dia: number, fill: Fill, width: number): void;
@@ -167,6 +180,31 @@ export abstract class Plotter {
 		multiline?: boolean,
 	): void;
 	abstract image(p: Point, scale: number, originalWidth:number, originalHeight:number, data: Uint8Array): void;
+
+	save(): void {
+		this.stateHistory.push({
+			fill: this.fill,
+			color: this.color,
+			transform: this.transform.clone(),
+		});
+	}
+
+	translate(tx: number, ty: number): void {
+		this.transform = this.transform.translate(tx, ty);
+	}
+
+	scale(sx: number, sy: number): void {
+		this.transform = this.transform.scale(sx, sy);
+	}
+
+	rotate(radian: number): void {
+		this.transform = this.transform.rotate(radian);
+	}
+
+	restore(): void {
+		const state = this.stateHistory.pop();
+		Object.assign(this, state);
+	}
 
 	setColor(c: Color): void {
 		this.color = c;
@@ -997,6 +1035,7 @@ export class CanvasPlotter extends Plotter {
 	}
 
 	circle(p: Point, dia: number, fill: Fill, width: number): void {
+		p = this.transform.transformCoordinate(p);
 		this.setCurrentLineWidth(width);
 		this.fill = fill;
 		this.ctx.beginPath();
@@ -1009,6 +1048,7 @@ export class CanvasPlotter extends Plotter {
 	}
 
 	arc(p: Point, startAngle: number, endAngle: number, radius: number, fill: Fill, width: number): void {
+		p = this.transform.transformCoordinate(p);
 		this.setCurrentLineWidth(width);
 		this.fill = fill;
 		this.ctx.beginPath();
@@ -1044,6 +1084,7 @@ export class CanvasPlotter extends Plotter {
 		bold: boolean,
 		multiline?: boolean,
 	): void {
+		p = this.transform.transformCoordinate(p);
 		this.setColor(color);
 		if (hjustfy === TextHjustify.LEFT) {
 			this.ctx.textAlign = "left";
@@ -1079,6 +1120,7 @@ export class CanvasPlotter extends Plotter {
 	 * Z = Pen is outof canvas
 	 */
 	penTo(p: Point, s: "U"|"D"|"Z"): void {
+		p = this.transform.transformCoordinate(p);
 		if (s === "Z") {
 			if (this.fill === Fill.FILLED_SHAPE) {
 				// console.log('ctx.fill', p);
@@ -1122,6 +1164,7 @@ export class CanvasPlotter extends Plotter {
 	}
 
 	image(p: Point, scale: number, originalWidth:number, originalHeight:number, data: Uint8Array): void {
+		p = this.transform.transformCoordinate(p);
 		const start = Point.sub(p, { x: originalWidth / 2, y: originalHeight / 2 });
 		const end = Point.add(p, { x: originalWidth / 2, y: originalHeight / 2 });
 		this.rect(start, end, Fill.NO_FILL, DEFAULT_LINE_WIDTH);
@@ -1155,6 +1198,8 @@ export class SVGPlotter extends Plotter {
 		this.setCurrentLineWidth(width);
 		this.fill = fill;
 
+		p = this.transform.transformCoordinate(p);
+
 		this.output += this.xmlTag `<circle cx="${p.x}" cy="${p.y}" r="${dia/2}" `;
 		if (this.fill === Fill.NO_FILL) {
 			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
@@ -1170,6 +1215,7 @@ export class SVGPlotter extends Plotter {
 		}
 		this.setCurrentLineWidth(width);
 		this.fill = fill;
+		p = this.transform.transformCoordinate(p);
 
 		[startAngle, endAngle] = [-endAngle, -startAngle];
 
@@ -1225,6 +1271,7 @@ export class SVGPlotter extends Plotter {
 		multiline?: boolean,
 	): void {
 		this.setColor(color);
+		p = this.transform.transformCoordinate(p);
 
 		let textAnchor;
 		if (hjustfy === TextHjustify.LEFT) {
@@ -1275,6 +1322,7 @@ export class SVGPlotter extends Plotter {
 	 */
 	penTo(p: Point, s: "U"|"D"|"Z"): void {
 		const x = this.xmlTag;
+		p = this.transform.transformCoordinate(p);
 		if (s === "Z") {
 			if (this.penState !== "Z") {
 				if (this.fill === Fill.NO_FILL) {
@@ -1309,6 +1357,7 @@ export class SVGPlotter extends Plotter {
 	}
 
 	image(p: Point, scale: number, originalWidth:number, originalHeight:number, data: Uint8Array): void {
+		p = this.transform.transformCoordinate(p);
 		const width = originalWidth * scale;
 		const height = originalHeight * scale;
 		const start = Point.sub(p, { x: width / 2, y: height / 2 });
