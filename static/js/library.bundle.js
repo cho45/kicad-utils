@@ -1938,6 +1938,17 @@ var Rect = function () {
             return this.pos2.y - this.pos1.y;
         }
     }, {
+        key: "normalize",
+        value: function normalize() {
+            var _ref4 = [Math.min(this.pos1.x, this.pos2.x), Math.min(this.pos1.y, this.pos2.y), Math.max(this.pos1.x, this.pos2.x), Math.max(this.pos1.y, this.pos2.y)];
+            this.pos1.x = _ref4[0];
+            this.pos1.y = _ref4[1];
+            this.pos2.x = _ref4[2];
+            this.pos2.y = _ref4[3];
+
+            return this;
+        }
+    }, {
         key: "merge",
         value: function merge(o) {
             return new Rect(Math.min(this.pos1.x, o.pos1.x), Math.min(this.pos1.y, o.pos1.y), Math.max(this.pos2.x, o.pos2.x), Math.max(this.pos2.y, o.pos2.y));
@@ -10433,7 +10444,7 @@ var _templateObject = _taggedTemplateLiteral(["<circle cx=\"", "\" cy=\"", "\" r
     _templateObject2 = _taggedTemplateLiteral([" style=\"stroke: ", "; fill: none; stroke-width: ", "\" stroke-linecap=\"round\"/>\n"], [" style=\"stroke: ", "; fill: none; stroke-width: ", "\" stroke-linecap=\"round\"/>\\n"]),
     _templateObject3 = _taggedTemplateLiteral([" style=\"stroke: ", "; fill: ", "; stroke-width: ", "\" stroke-linecap=\"round\"/>\n"], [" style=\"stroke: ", "; fill: ", "; stroke-width: ", "\" stroke-linecap=\"round\"/>\\n"]),
     _templateObject4 = _taggedTemplateLiteral(["<path d=\"M", " ", " A", " ", " 0.0 ", " ", " ", " ", "\""], ["<path d=\"M", " ", " A", " ", " 0.0 ", " ", " ", " ", "\""]),
-    _templateObject5 = _taggedTemplateLiteral(["<text x=\"", "\" y=\"", "\"\n\t\t\t\ttext-anchor=\"", "\"\n\t\t\t\tdominant-baseline=\"", "\"\n\t\t\t\tfont-family=\"monospace\"\n\t\t\t\tfont-size=\"", "\"\n\t\t\t\tfont-weight=\"", "\"\n\t\t\t\tfont-style=\"", "\"\n\t\t\t\tstroke=\"none\"\n\t\t\t\tfill=\"", "\"\n\t\t\t\ttransform=\"rotate(", ", ", ", ", ")\">", "</text>"], ["<text x=\"", "\" y=\"", "\"\n\t\t\t\ttext-anchor=\"", "\"\n\t\t\t\tdominant-baseline=\"", "\"\n\t\t\t\tfont-family=\"monospace\"\n\t\t\t\tfont-size=\"", "\"\n\t\t\t\tfont-weight=\"", "\"\n\t\t\t\tfont-style=\"", "\"\n\t\t\t\tstroke=\"none\"\n\t\t\t\tfill=\"", "\"\n\t\t\t\ttransform=\"rotate(", ", ", ", ", ")\">", "</text>"]),
+    _templateObject5 = _taggedTemplateLiteral(["<text x=\"", "\" y=\"", "\"\n\t\t\t\ttext-anchor=\"", "\"\n\t\t\t\tdominant-baseline=\"", "\"\n\t\t\t\tfont-family=\"", "\"\n\t\t\t\tfont-size=\"", "\"\n\t\t\t\tfont-weight=\"", "\"\n\t\t\t\tfont-style=\"", "\"\n\t\t\t\tstroke=\"none\"\n\t\t\t\tfill=\"", "\"\n\t\t\t\ttransform=\"rotate(", ", ", ", ", ")\">", "</text>"], ["<text x=\"", "\" y=\"", "\"\n\t\t\t\ttext-anchor=\"", "\"\n\t\t\t\tdominant-baseline=\"", "\"\n\t\t\t\tfont-family=\"", "\"\n\t\t\t\tfont-size=\"", "\"\n\t\t\t\tfont-weight=\"", "\"\n\t\t\t\tfont-style=\"", "\"\n\t\t\t\tstroke=\"none\"\n\t\t\t\tfill=\"", "\"\n\t\t\t\ttransform=\"rotate(", ", ", ", ", ")\">", "</text>"]),
     _templateObject6 = _taggedTemplateLiteral(["\" style=\"stroke: ", "; fill: none; stroke-width: ", "\" stroke-linecap=\"round\"/>\n"], ["\" style=\"stroke: ", "; fill: none; stroke-width: ", "\" stroke-linecap=\"round\"/>\\n"]),
     _templateObject7 = _taggedTemplateLiteral(["\" style=\"stroke: ", "; fill: ", "; stroke-width: ", "\" stroke-linecap=\"round\"/>\n"], ["\" style=\"stroke: ", "; fill: ", "; stroke-width: ", "\" stroke-linecap=\"round\"/>\\n"]),
     _templateObject8 = _taggedTemplateLiteral(["<path d=\"M", " ", "\n"], ["<path d=\"M", " ", "\\n"]),
@@ -11391,7 +11402,7 @@ var SVGPlotter = function (_Plotter2) {
             var lines = _text3.split(/\n/);
             for (var i = 0, len = lines.length; i < len; i++) {
                 var y = p.y + i * size * 1.2;
-                this.output += this.xmlTag(_templateObject5, p.x, y, textAnchor, dominantBaseline, size, fontWeight, fontStyle, this.color.toCSSColor(), rotate, p.x, p.y, lines[i]);
+                this.output += this.xmlTag(_templateObject5, p.x, y, textAnchor, dominantBaseline, SVGPlotter.font.family, size, fontWeight, fontStyle, this.color.toCSSColor(), rotate, p.x, p.y, lines[i]);
             }
         }
         /**
@@ -11492,6 +11503,10 @@ var SVGPlotter = function (_Plotter2) {
     return SVGPlotter;
 }(Plotter);
 
+SVGPlotter.font = {
+    family: '"Lucida Console", Monaco, monospace',
+    widthRatio: 0.60009765625
+};
 exports.SVGPlotter = SVGPlotter;
 
 /***/ }),

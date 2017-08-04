@@ -864,7 +864,7 @@ class SVGPlotter extends Plotter {
             this.output += this.xmlTag `<text x="${p.x}" y="${y}"
 				text-anchor="${textAnchor}"
 				dominant-baseline="${dominantBaseline}"
-				font-family="monospace"
+				font-family="${SVGPlotter.font.family}"
 				font-size="${size}"
 				font-weight="${fontWeight}"
 				font-style="${fontStyle}"
@@ -962,5 +962,9 @@ class SVGPlotter extends Plotter {
         return String(s).replace(/[<>&]/g, (_) => map[_]);
     }
 }
+SVGPlotter.font = {
+    family: '"Lucida Console", Monaco, monospace',
+    widthRatio: 0.60009765625,
+};
 exports.SVGPlotter = SVGPlotter;
 //# sourceMappingURL=kicad_plotter.js.map

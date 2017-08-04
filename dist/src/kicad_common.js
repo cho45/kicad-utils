@@ -180,6 +180,20 @@ class Rect {
     getHeight() {
         return this.pos2.y - this.pos1.y;
     }
+    normalize() {
+        [
+            this.pos1.x,
+            this.pos1.y,
+            this.pos2.x,
+            this.pos2.y,
+        ] = [
+            Math.min(this.pos1.x, this.pos2.x),
+            Math.min(this.pos1.y, this.pos2.y),
+            Math.max(this.pos1.x, this.pos2.x),
+            Math.max(this.pos1.y, this.pos2.y),
+        ];
+        return this;
+    }
     merge(o) {
         return new Rect(Math.min(this.pos1.x, o.pos1.x), Math.min(this.pos1.y, o.pos1.y), Math.max(this.pos2.x, o.pos2.x), Math.max(this.pos2.y, o.pos2.y));
     }

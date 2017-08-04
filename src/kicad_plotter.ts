@@ -1132,6 +1132,11 @@ export class SVGPlotter extends Plotter {
 	penState: "U"|"D"|"Z";
 	lineWidth: number;
 	output: string;
+	
+	static font = {
+		family: '"Lucida Console", Monaco, monospace',
+		widthRatio: 0.60009765625,
+	};
 
 	constructor() {
 		super();
@@ -1258,7 +1263,7 @@ export class SVGPlotter extends Plotter {
 			this.output += this.xmlTag `<text x="${p.x}" y="${y}"
 				text-anchor="${textAnchor}"
 				dominant-baseline="${dominantBaseline}"
-				font-family="monospace"
+				font-family="${SVGPlotter.font.family}"
 				font-size="${size}"
 				font-weight="${fontWeight}"
 				font-style="${fontStyle}"
