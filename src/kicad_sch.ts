@@ -262,7 +262,7 @@ export class Field extends SchItem {
 	angle: TextAngle;
 	posx: number;
 	posy: number;
-	width: number;
+	size: number;
 	visibility: boolean;
 	hjustify: TextHjustify;
 	vjustify: TextVjustify;
@@ -280,8 +280,8 @@ export class Field extends SchItem {
 		this.angle = tokens[i++] === 'V' ? TextAngle.VERT : TextAngle.HORIZ;
 		this.posx = Number(tokens[i++]);
 		this.posy = Number(tokens[i++]);
-		this.width = Number(tokens[i++]);
-		this.visibility = Number(tokens[i++]) !== 0;
+		this.size = Number(tokens[i++]);
+		this.visibility = Number(tokens[i++]) === 0;
 		this.hjustify = tokens[i++] as TextHjustify;
 		let char3 = tokens[i++];
 		this.vjustify = char3[0] as TextVjustify;

@@ -4665,8 +4665,8 @@ var Field = function (_SchItem3) {
         _this3.angle = tokens[i++] === 'V' ? kicad_common_1.TextAngle.VERT : kicad_common_1.TextAngle.HORIZ;
         _this3.posx = Number(tokens[i++]);
         _this3.posy = Number(tokens[i++]);
-        _this3.width = Number(tokens[i++]);
-        _this3.visibility = Number(tokens[i++]) !== 0;
+        _this3.size = Number(tokens[i++]);
+        _this3.visibility = Number(tokens[i++]) === 0;
         _this3.hjustify = tokens[i++];
         var char3 = tokens[i++];
         _this3.vjustify = char3[0];
@@ -10528,6 +10528,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -10541,6 +10543,7 @@ var TXT_MARGIN = 4;
 var PIN_TXT_MARGIN = 4;
 var DEFAULT_LINE_WIDTH = 6;
 var DEFAULT_LINE_WIDTH_BUS = 12;
+var DEFAULT_SIZE_TEXT = 60;
 var SCH_COLORS = {
     LAYER_WIRE: kicad_common_1.Color.GREEN,
     LAYER_BUS: kicad_common_1.Color.BLUE,
@@ -10993,6 +10996,58 @@ var Plotter = function () {
                             continue;
                         }
                         this.plotLibComponent(component, item.unit, item.convert, item.transform, item.fields[0].text, item.fields[1].text);
+                        //				for (let field of item.fields) {
+                        //					if (!field.text) continue;
+                        //					if (!field.visibility) continue;
+                        //					if (field.number >= 2) continue;
+                        //					console.log(field);
+                        //
+                        //					let orientation = component.field.textOrientation;
+                        //					if (item.transform.y1) {
+                        //						if (orientation === TextAngle.HORIZ) {
+                        //							orientation = TextAngle.VERT;
+                        //						} else {
+                        //							orientation = TextAngle.HORIZ;
+                        //						}
+                        //					}
+                        //
+                        //					const pos = { x: field.posx, y: field.posy};
+                        //					this.text(
+                        //						pos,
+                        //						SCH_COLORS.LAYER_REFERENCEPART,
+                        //						field.text,
+                        //						orientation,
+                        //						field.size,
+                        //						TextHjustify.CENTER,
+                        //						TextVjustify.CENTER,
+                        //						DEFAULT_LINE_WIDTH,
+                        //						field.italic,
+                        //						field.bold,
+                        //					);
+                        //
+                        //					/*
+                        //					const size = field.size || DEFAULT_SIZE_TEXT;
+                        //					const rect = this.getTextBox(field, size, DEFAULT_LINE_WIDTH, false);
+                        //
+                        //					const origin = { x: item.posx, y: item.posy };
+                        //					const pos = Point.sub({ x: field.posx, y: field.posy }, origin);
+                        //					const begin = Point.sub( rect.pos1, origin);
+                        //					const end = Point.sub(rect.pos2, origin);
+                        //
+                        //					this.text(
+                        //						pos,
+                        //						SCH_COLORS.LAYER_REFERENCEPART,
+                        //						field.text,
+                        //						orientation,
+                        //						size,
+                        //						TextHjustify.CENTER,
+                        //						TextVjustify.CENTER,
+                        //						DEFAULT_LINE_WIDTH,
+                        //						field.italic,
+                        //						field.bold
+                        //					);
+                        //					*/
+                        //				}
                     } else if (item instanceof kicad_sch_1.Sheet) {
                         this.setColor(SCH_COLORS.LAYER_SHEET);
                         this.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
@@ -11244,6 +11299,33 @@ var Plotter = function () {
             }
             this.text(p, color, item.text, item.orientation, item.size, item.hjustify, item.vjustify, DEFAULT_LINE_WIDTH, item.italic, item.bold);
         }
+    }, {
+        key: "getTextBox",
+        value: function getTextBox(text, size, lineWidth, invertY) {
+            var _this = this;
+
+            var lines = text.text.split(/\n/).map(function (line) {
+                return _this.font.computeTextLineSize(text.text, size, lineWidth);
+            });
+            var dx = Math.max.apply(Math, _toConsumableArray(lines));
+            var dy = this.font.getInterline(size, lineWidth) * lines.length;
+            var pos = { x: text.posx, y: text.posy };
+            if (invertY) {
+                pos.y = -pos.y;
+            }
+            var rect = new kicad_common_1.Rect(pos.x, pos.y, pos.x + dx, pos.y + dy);
+            if (text.hjustify === kicad_common_1.TextHjustify.LEFT) {} else if (text.hjustify === kicad_common_1.TextHjustify.CENTER) {
+                rect.pos1.x -= rect.width / 2;
+            } else if (text.hjustify === kicad_common_1.TextHjustify.RIGHT) {
+                rect.pos1.x -= rect.width;
+            }
+            if (text.vjustify === kicad_common_1.TextVjustify.TOP) {} else if (text.vjustify === kicad_common_1.TextVjustify.CENTER) {
+                rect.pos1.y -= dx / 2;
+            } else if (text.vjustify === kicad_common_1.TextVjustify.BOTTOM) {
+                rect.pos1.y -= dx;
+            }
+            return rect;
+        }
     }]);
 
     return Plotter;
@@ -11257,14 +11339,14 @@ var CanvasPlotter = function (_Plotter) {
     function CanvasPlotter(ctx) {
         _classCallCheck(this, CanvasPlotter);
 
-        var _this = _possibleConstructorReturn(this, (CanvasPlotter.__proto__ || Object.getPrototypeOf(CanvasPlotter)).call(this));
+        var _this2 = _possibleConstructorReturn(this, (CanvasPlotter.__proto__ || Object.getPrototypeOf(CanvasPlotter)).call(this));
 
-        _this.ctx = ctx;
-        _this.penState = "Z";
-        _this.fill = kicad_common_1.Fill.NO_FILL;
-        _this.ctx.lineCap = "round";
-        _this.ctx.strokeStyle = "#000";
-        return _this;
+        _this2.ctx = ctx;
+        _this2.penState = "Z";
+        _this2.fill = kicad_common_1.Fill.NO_FILL;
+        _this2.ctx.lineCap = "round";
+        _this2.ctx.strokeStyle = "#000";
+        return _this2;
     }
 
     _createClass(CanvasPlotter, [{
@@ -11432,13 +11514,13 @@ var SVGPlotter = function (_Plotter2) {
     function SVGPlotter() {
         _classCallCheck(this, SVGPlotter);
 
-        var _this2 = _possibleConstructorReturn(this, (SVGPlotter.__proto__ || Object.getPrototypeOf(SVGPlotter)).call(this));
+        var _this3 = _possibleConstructorReturn(this, (SVGPlotter.__proto__ || Object.getPrototypeOf(SVGPlotter)).call(this));
 
-        _this2.penState = "Z";
-        _this2.output = "";
-        _this2.lineWidth = DEFAULT_LINE_WIDTH;
-        _this2.color = kicad_common_1.Color.BLACK;
-        return _this2;
+        _this3.penState = "Z";
+        _this3.output = "";
+        _this3.lineWidth = DEFAULT_LINE_WIDTH;
+        _this3.color = kicad_common_1.Color.BLACK;
+        return _this3;
     }
 
     _createClass(SVGPlotter, [{
@@ -12065,14 +12147,37 @@ var StrokeFont = function () {
     }, {
         key: "computeTextLineSize",
         value: function computeTextLineSize(line, size, lineWidth) {
+            var italic = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+
+            return this.computeStringBoundaryLimits(line, size, lineWidth, italic).width;
+        }
+    }, {
+        key: "computeStringBoundaryLimits",
+        value: function computeStringBoundaryLimits(line, size, lineWidth) {
+            var italic = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+
+            var ymax = 0;
+            var ymin = 0;
             var width = 0;
             for (var i = 0, len = line.length; i < len; i++) {
                 var c = line.charCodeAt(i);
                 var n = c - ' '.charCodeAt(0);
                 var glyph = this.glyphs[n] || this.glyphs['?'.charCodeAt(0) - ' '.charCodeAt(0)];
-                width += glyph.boundingBox.width * size;
+                width += glyph.boundingBox.width;
+                ymax = Math.max(ymax, glyph.boundingBox.pos1.y, glyph.boundingBox.pos2.y);
+                ymin = Math.min(ymax, glyph.boundingBox.pos1.y, glyph.boundingBox.pos2.y);
             }
-            return width + lineWidth;
+            width = width * size + lineWidth;
+            var height = size + lineWidth;
+            if (italic) {
+                width += height * ITALIC_TILT;
+            }
+            return {
+                width: width,
+                height: height,
+                topLimit: ymax * size,
+                bottom: ymin * size
+            };
         }
     }, {
         key: "drawGlyph",

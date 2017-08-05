@@ -114,15 +114,38 @@ export class StrokeFont {
 		return (size * INTERLINE_PITCH_RATIO ) + lineWidth;
 	}
 
-	computeTextLineSize(line: string, size: number, lineWidth: number): number {
+	computeTextLineSize(line: string, size: number, lineWidth: number, italic: boolean = false): number {
+		return this.computeStringBoundaryLimits(line, size, lineWidth, italic).width;
+	}
+
+	computeStringBoundaryLimits(line: string, size: number, lineWidth: number, italic: boolean = false) {
+		let ymax = 0;
+		let ymin = 0;
+
 		let width = 0;
 		for (let i = 0, len = line.length; i < len; i++) {
 			const c = line.charCodeAt(i);
 			const n = c - ' '.charCodeAt(0);
 			const glyph = this.glyphs[n] || this.glyphs['?'.charCodeAt(0) - ' '.charCodeAt(0)];
-			width += glyph.boundingBox.width * size;
+			width += glyph.boundingBox.width;
+			ymax = Math.max(ymax, glyph.boundingBox.pos1.y, glyph.boundingBox.pos2.y);
+			ymin = Math.min(ymax, glyph.boundingBox.pos1.y, glyph.boundingBox.pos2.y);
 		}
-		return width + lineWidth;
+
+		width = width * size + lineWidth;
+
+		let height = size + lineWidth;
+
+		if (italic) {
+			width += height * ITALIC_TILT;
+		}
+
+		return {
+			width,
+			height,
+			topLimit: ymax * size,
+			bottom: ymin * size,
+		};
 	}
 
 	drawGlyph(plotter: Plotter, p: Point, glyph: Glyph, size: number) {

@@ -229,8 +229,8 @@ class Field extends SchItem {
         this.angle = tokens[i++] === 'V' ? kicad_common_1.TextAngle.VERT : kicad_common_1.TextAngle.HORIZ;
         this.posx = Number(tokens[i++]);
         this.posy = Number(tokens[i++]);
-        this.width = Number(tokens[i++]);
-        this.visibility = Number(tokens[i++]) !== 0;
+        this.size = Number(tokens[i++]);
+        this.visibility = Number(tokens[i++]) === 0;
         this.hjustify = tokens[i++];
         let char3 = tokens[i++];
         this.vjustify = char3[0];

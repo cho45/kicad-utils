@@ -165,14 +165,14 @@ describe("Schematic.load", () => {
 		{
 			const item = sch.items[0] as SchComponent;
 			assert( item.fields[0].text === '#PWR05' );
-			assert( item.fields[0].visibility === true);
+			assert( item.fields[0].visibility === false);
 			assert( item.fields[0].hjustify === TextHjustify.CENTER);
 			assert( item.fields[0].vjustify === TextVjustify.CENTER);
 			assert( item.fields[0].italic == false);
 			assert( item.fields[0].bold === false);
 
 			assert( item.fields[1].text === 'VDD' );
-			assert( item.fields[1].visibility === false);
+			assert( item.fields[1].visibility === true);
 			assert( item.fields[1].hjustify === TextHjustify.CENTER);
 			assert( item.fields[1].vjustify === TextVjustify.CENTER);
 			assert( item.fields[1].italic == true);

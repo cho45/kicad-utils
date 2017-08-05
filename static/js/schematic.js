@@ -33,7 +33,8 @@ const app = new Vue({
 		},
 
 		onSubmit: function () {
-			const urls = this.url.replace(/^\s+|\s+$/g, '').split(/\s+/).map( (u) => ({ name: u, url: u }));
+			const urls = this.url.replace(/^\s+|\s+$/g, '').split(/\s+/).map( (u) => ({ name: u, url: u.replace(/github\.com\/(.+)\/blob\/(.+)/, 'raw.githubusercontent.com/$1/$2') }));
+			console.log(urls);
 			if (!urls.length) {
 				this.status = "url is required";
 				return;

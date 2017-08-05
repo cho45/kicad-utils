@@ -40,6 +40,7 @@ import {
 
 	Transform,
 	Point,
+	Rect,
 	Net,
 	Color,
 	ColorDefinition,
@@ -79,6 +80,7 @@ const TXT_MARGIN = 4;
 const PIN_TXT_MARGIN = 4;
 const DEFAULT_LINE_WIDTH = 6;
 const DEFAULT_LINE_WIDTH_BUS = 12;
+const DEFAULT_SIZE_TEXT =  60;
 
 const SCH_COLORS = {
 	LAYER_WIRE:                 Color.GREEN,
@@ -743,6 +745,58 @@ export abstract class Plotter {
 					continue;
 				}
 				this.plotLibComponent(component, item.unit, item.convert, item.transform, item.fields[0].text, item.fields[1].text);
+//				for (let field of item.fields) {
+//					if (!field.text) continue;
+//					if (!field.visibility) continue;
+//					if (field.number >= 2) continue;
+//					console.log(field);
+//
+//					let orientation = component.field.textOrientation;
+//					if (item.transform.y1) {
+//						if (orientation === TextAngle.HORIZ) {
+//							orientation = TextAngle.VERT;
+//						} else {
+//							orientation = TextAngle.HORIZ;
+//						}
+//					}
+//
+//					const pos = { x: field.posx, y: field.posy};
+//					this.text(
+//						pos,
+//						SCH_COLORS.LAYER_REFERENCEPART,
+//						field.text,
+//						orientation,
+//						field.size,
+//						TextHjustify.CENTER,
+//						TextVjustify.CENTER,
+//						DEFAULT_LINE_WIDTH,
+//						field.italic,
+//						field.bold,
+//					);
+//
+//					/*
+//					const size = field.size || DEFAULT_SIZE_TEXT;
+//					const rect = this.getTextBox(field, size, DEFAULT_LINE_WIDTH, false);
+//
+//					const origin = { x: item.posx, y: item.posy };
+//					const pos = Point.sub({ x: field.posx, y: field.posy }, origin);
+//					const begin = Point.sub( rect.pos1, origin);
+//					const end = Point.sub(rect.pos2, origin);
+//
+//					this.text(
+//						pos,
+//						SCH_COLORS.LAYER_REFERENCEPART,
+//						field.text,
+//						orientation,
+//						size,
+//						TextHjustify.CENTER,
+//						TextVjustify.CENTER,
+//						DEFAULT_LINE_WIDTH,
+//						field.italic,
+//						field.bold
+//					);
+//					*/
+//				}
 			} else
 			if (item instanceof Sheet) {
 				this.setColor(SCH_COLORS.LAYER_SHEET);
@@ -1030,6 +1084,44 @@ export abstract class Plotter {
 			item.italic,
 			item.bold
 		);
+	}
+
+	getTextBox(text: Field, size: number, lineWidth: number, invertY: boolean) {
+		let lines = text.text.split(/\n/).map( (line) => this.font.computeTextLineSize(text.text, size, lineWidth));
+
+		let dx = Math.max( ... lines );
+		let dy = this.font.getInterline(size, lineWidth) * lines.length;
+		let pos = { x: text.posx, y: text.posy };
+		if (invertY) {
+			pos.y = -pos.y;
+		}
+
+		let rect = new Rect(
+			pos.x,
+			pos.y,
+			pos.x + dx,
+			pos.y + dy
+		);
+
+		if (text.hjustify === TextHjustify.LEFT) {
+		} else
+		if (text.hjustify === TextHjustify.CENTER) {
+			rect.pos1.x -= rect.width / 2;
+		} else
+		if (text.hjustify === TextHjustify.RIGHT) {
+			rect.pos1.x -= rect.width;
+		}
+
+		if (text.vjustify === TextVjustify.TOP) {
+		} else
+		if (text.vjustify === TextVjustify.CENTER) {
+			rect.pos1.y -= dx / 2;
+		} else
+		if (text.vjustify === TextVjustify.BOTTOM) {
+			rect.pos1.y -= dx;
+		}
+
+		return rect;
 	}
 }
 
