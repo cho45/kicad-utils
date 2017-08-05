@@ -2,3 +2,4 @@ node_modules/
 dist/test/
 text.png
 text.svg
+tmp

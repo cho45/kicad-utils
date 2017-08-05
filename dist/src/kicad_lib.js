@@ -40,9 +40,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * eeschema/lib_arc.cpp
  */
 const kicad_common_1 = require("./kicad_common");
+class ParseError extends Error {
+    constructor(message, lines) {
+        super(message);
+        this.lines = lines;
+    }
+}
+exports.ParseError = ParseError;
 class Library {
     static load(content) {
-        const lines = content.split(/\n/);
+        const lines = content.split(/\r?\n/);
         const lib = new this();
         lib.parse(lines);
         return lib;
@@ -51,6 +58,7 @@ class Library {
         this.components = [];
     }
     parse(lines) {
+        const totalLines = lines.length;
         const version = lines.shift();
         const LIBRARY_HEADER = "EESchema-LIBRARY Version ";
         const SUPPORTED_VERSION = 2.3;
@@ -62,19 +70,28 @@ class Library {
             throw "library format version is greater than supported version: " +
                 this.version + '>' + SUPPORTED_VERSION;
         }
-        let line;
-        while ((line = lines.shift()) !== undefined) {
-            if (line[0] === '#')
-                continue;
-            if (line === "")
-                continue;
-            const tokens = line.split(/ +/);
-            if (tokens[0] === 'DEF') {
-                this.components.push(new LibComponent(tokens.slice(1)).parse(lines));
+        try {
+            let line;
+            while ((line = lines.shift()) !== undefined) {
+                if (line[0] === '#')
+                    continue;
+                if (line === "")
+                    continue;
+                const tokens = line.split(/ +/);
+                if (tokens[0] === 'DEF') {
+                    this.components.push(new LibComponent(tokens.slice(1)).parse(lines));
+                }
+                else {
+                    throw new ParseError('unknown token', lines);
+                }
             }
-            else {
-                throw 'unknown token ' + tokens[0];
+        }
+        catch (e) {
+            if (e instanceof ParseError) {
+                e.lineNumber = totalLines - e.lines.length + 1;
+                e.message += ' at line ' + e.lineNumber;
             }
+            throw e;
         }
     }
     findByName(name) {
@@ -125,7 +142,7 @@ class LibComponent {
                 }
             }
             else {
-                throw 'unknown token ' + tokens[0];
+                throw new ParseError('unknown token ' + tokens.join(' '), lines);
             }
         }
         if (this.name[0] === "~") {
@@ -198,7 +215,7 @@ class Draw {
                 this.objects.push(new DrawPin(tokens.slice(1)));
             }
             else {
-                throw "unknown token " + tokens[0];
+                throw new ParseError('unknown token', lines);
             }
         }
         return this;

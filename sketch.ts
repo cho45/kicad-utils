@@ -17,11 +17,14 @@ function ensure<T>(arg: T | null | undefined): T {
 //	const sch = Schematic.load(fs.readFileSync('../keyboard-schematic/Root.sch', 'utf-8'));
 //	const lib = Library.load(fs.readFileSync('../keyboard-schematic/KeyModule-L-cache.lib', 'utf-8'));
 //	const sch = Schematic.load(fs.readFileSync('../keyboard-schematic/KeyModule-L.sch', 'utf-8'));
-	const lib = Library.load(fs.readFileSync('../keyboard-schematic/Root-cache.lib', 'utf-8'));
-	const sch = Schematic.load(fs.readFileSync('../keyboard-schematic/_keymodule_l.sch', 'utf-8'));
+//	const lib = Library.load(fs.readFileSync('../keyboard-schematic/Root-cache.lib', 'utf-8'));
+//	const sch = Schematic.load(fs.readFileSync('../keyboard-schematic/_keymodule_l.sch', 'utf-8'));
 //	const lib = Library.load(fs.readFileSync('../schematic-test/schematic-test-cache.lib', 'utf-8'));
 //	const sch = Schematic.load(fs.readFileSync('../schematic-test/file59827D42.sch', 'utf-8'));
 //	const sch = Schematic.load(fs.readFileSync('../schematic-test/schematic-test.sch', 'utf-8'));
+	//
+	const lib = Library.load(fs.readFileSync('tmp/TinyFPGA-A-Programmer-cache.lib', 'utf-8'));
+	const sch = Schematic.load(fs.readFileSync('tmp/TinyFPGA-A-Programmer.sch', 'utf-8'));
 	console.log(sch);
 	console.log(lib.findByName("GND"));
 

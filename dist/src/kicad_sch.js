@@ -39,7 +39,7 @@ var TextOrientationType;
 ;
 class Schematic {
     static load(content) {
-        const lines = content.split(/\n/);
+        const lines = content.split(/\r?\n/);
         const sch = new this();
         sch.parse(lines);
         return sch;

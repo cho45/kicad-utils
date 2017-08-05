@@ -52,7 +52,7 @@ export class Schematic {
 	version: number;
 
 	static load(content: string): Schematic {
-		const lines = content.split(/\n/);
+		const lines = content.split(/\r?\n/);
 		const sch = new this();
 		sch.parse(lines);
 		return sch;

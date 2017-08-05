@@ -52,12 +52,19 @@ import {
 	ReadDelimitedText,
 } from "./kicad_common";
 
+export class ParseError extends Error {
+	lineNumber: number;
+	constructor(message: string, public lines: Array<string>) {
+		super(message);
+	}
+}
+
 export class Library {
 	version: number;
 	components: Array<LibComponent>;
 
 	static load(content: string): Library {
-		const lines = content.split(/\n/);
+		const lines = content.split(/\r?\n/);
 		const lib = new this();
 		lib.parse(lines);
 		return lib;
@@ -68,6 +75,7 @@ export class Library {
 	}
 
 	parse(lines: Array<string>): void {
+		const totalLines = lines.length;
 		const version = lines.shift();
 		const LIBRARY_HEADER = "EESchema-LIBRARY Version ";
 		const SUPPORTED_VERSION = 2.3;
@@ -80,16 +88,24 @@ export class Library {
 				this.version + '>' + SUPPORTED_VERSION;
 		}
 
-		let line;
-		while ( (line = lines.shift()) !== undefined ) {
-			if (line[0] === '#') continue;
-			if (line === "") continue;
-			const tokens = line.split(/ +/);
-			if (tokens[0] === 'DEF') {
-				this.components.push(new LibComponent(tokens.slice(1)).parse(lines));
-			} else {
-				throw 'unknown token ' + tokens[0];
+		try {
+			let line;
+			while ( (line = lines.shift()) !== undefined ) {
+				if (line[0] === '#') continue;
+				if (line === "") continue;
+				const tokens = line.split(/ +/);
+				if (tokens[0] === 'DEF') {
+					this.components.push(new LibComponent(tokens.slice(1)).parse(lines));
+				} else {
+					throw new ParseError('unknown token', lines);
+				}
 			}
+		} catch (e) {
+			if (e instanceof ParseError) {
+				e.lineNumber = totalLines - e.lines.length + 1;
+				e.message += ' at line ' + e.lineNumber;
+			}
+			throw e;
 		}
 	}
 
@@ -154,7 +170,7 @@ export class LibComponent {
 					this.fplist.push(tokens[0]);
 				}
 			} else {
-				throw 'unknown token ' + tokens[0];
+				throw new ParseError('unknown token ' + tokens.join(' '), lines);
 			}
 		}
 
@@ -250,7 +266,7 @@ export class Draw {
 			if (tokens[0] === 'X') { // PIN
 				this.objects.push(new DrawPin(tokens.slice(1)));
 			} else {
-				throw "unknown token " + tokens[0];
+				throw new ParseError('unknown token', lines);
 			}
 		}
 		return this;

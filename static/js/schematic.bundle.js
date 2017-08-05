@@ -3872,11 +3872,11 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
@@ -3892,11 +3892,28 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 var kicad_common_1 = __webpack_require__(48);
 
+var ParseError = function (_Error) {
+    _inherits(ParseError, _Error);
+
+    function ParseError(message, lines) {
+        _classCallCheck(this, ParseError);
+
+        var _this = _possibleConstructorReturn(this, (ParseError.__proto__ || Object.getPrototypeOf(ParseError)).call(this, message));
+
+        _this.lines = lines;
+        return _this;
+    }
+
+    return ParseError;
+}(Error);
+
+exports.ParseError = ParseError;
+
 var Library = function () {
     _createClass(Library, null, [{
         key: "load",
         value: function load(content) {
-            var lines = content.split(/\n/);
+            var lines = content.split(/\r?\n/);
             var lib = new this();
             lib.parse(lines);
             return lib;
@@ -3912,6 +3929,7 @@ var Library = function () {
     _createClass(Library, [{
         key: "parse",
         value: function parse(lines) {
+            var totalLines = lines.length;
             var version = lines.shift();
             var LIBRARY_HEADER = "EESchema-LIBRARY Version ";
             var SUPPORTED_VERSION = 2.3;
@@ -3922,16 +3940,24 @@ var Library = function () {
             if (this.version > SUPPORTED_VERSION) {
                 throw "library format version is greater than supported version: " + this.version + '>' + SUPPORTED_VERSION;
             }
-            var line = void 0;
-            while ((line = lines.shift()) !== undefined) {
-                if (line[0] === '#') continue;
-                if (line === "") continue;
-                var tokens = line.split(/ +/);
-                if (tokens[0] === 'DEF') {
-                    this.components.push(new LibComponent(tokens.slice(1)).parse(lines));
-                } else {
-                    throw 'unknown token ' + tokens[0];
+            try {
+                var line = void 0;
+                while ((line = lines.shift()) !== undefined) {
+                    if (line[0] === '#') continue;
+                    if (line === "") continue;
+                    var tokens = line.split(/ +/);
+                    if (tokens[0] === 'DEF') {
+                        this.components.push(new LibComponent(tokens.slice(1)).parse(lines));
+                    } else {
+                        throw new ParseError('unknown token', lines);
+                    }
                 }
+            } catch (e) {
+                if (e instanceof ParseError) {
+                    e.lineNumber = totalLines - e.lines.length + 1;
+                    e.message += ' at line ' + e.lineNumber;
+                }
+                throw e;
             }
         }
     }, {
@@ -3989,7 +4015,7 @@ var LibComponent = function () {
                         this.fplist.push(tokens[0]);
                     }
                 } else {
-                    throw 'unknown token ' + tokens[0];
+                    throw new ParseError('unknown token ' + tokens.join(' '), lines);
                 }
             }
             if (this.name[0] === "~") {
@@ -4068,7 +4094,7 @@ var Draw = function () {
                 } else if (tokens[0] === 'X') {
                     this.objects.push(new DrawPin(tokens.slice(1)));
                 } else {
-                    throw "unknown token " + tokens[0];
+                    throw new ParseError('unknown token', lines);
                 }
             }
             return this;
@@ -4126,22 +4152,22 @@ var DrawArc = function (_DrawObject) {
     function DrawArc(params) {
         _classCallCheck(this, DrawArc);
 
-        var _this = _possibleConstructorReturn(this, (DrawArc.__proto__ || Object.getPrototypeOf(DrawArc)).call(this));
+        var _this2 = _possibleConstructorReturn(this, (DrawArc.__proto__ || Object.getPrototypeOf(DrawArc)).call(this));
 
-        _this.posx = Number(params[0]);
-        _this.posy = Number(params[1]);
-        _this.radius = Number(params[2]);
-        _this.startAngle = Number(params[3]);
-        _this.endAngle = Number(params[4]);
-        _this.unit = Number(params[5]);
-        _this.convert = Number(params[6]);
-        _this.lineWidth = Number(params[7]);
-        _this.fill = params[8] || kicad_common_1.Fill.NO_FILL;
-        _this.startx = Number(params[9]);
-        _this.starty = Number(params[10]);
-        _this.endx = Number(params[11]);
-        _this.endy = Number(params[12]);
-        return _this;
+        _this2.posx = Number(params[0]);
+        _this2.posy = Number(params[1]);
+        _this2.radius = Number(params[2]);
+        _this2.startAngle = Number(params[3]);
+        _this2.endAngle = Number(params[4]);
+        _this2.unit = Number(params[5]);
+        _this2.convert = Number(params[6]);
+        _this2.lineWidth = Number(params[7]);
+        _this2.fill = params[8] || kicad_common_1.Fill.NO_FILL;
+        _this2.startx = Number(params[9]);
+        _this2.starty = Number(params[10]);
+        _this2.endx = Number(params[11]);
+        _this2.endy = Number(params[12]);
+        return _this2;
     }
 
     _createClass(DrawArc, [{
@@ -4206,16 +4232,16 @@ var DrawCircle = function (_DrawObject2) {
     function DrawCircle(params) {
         _classCallCheck(this, DrawCircle);
 
-        var _this2 = _possibleConstructorReturn(this, (DrawCircle.__proto__ || Object.getPrototypeOf(DrawCircle)).call(this));
+        var _this3 = _possibleConstructorReturn(this, (DrawCircle.__proto__ || Object.getPrototypeOf(DrawCircle)).call(this));
 
-        _this2.posx = Number(params[0]);
-        _this2.posy = Number(params[1]);
-        _this2.radius = Number(params[2]);
-        _this2.unit = Number(params[3]);
-        _this2.convert = Number(params[4]);
-        _this2.lineWidth = Number(params[5]);
-        _this2.fill = params[6] || kicad_common_1.Fill.NO_FILL;
-        return _this2;
+        _this3.posx = Number(params[0]);
+        _this3.posy = Number(params[1]);
+        _this3.radius = Number(params[2]);
+        _this3.unit = Number(params[3]);
+        _this3.convert = Number(params[4]);
+        _this3.lineWidth = Number(params[5]);
+        _this3.fill = params[6] || kicad_common_1.Fill.NO_FILL;
+        return _this3;
     }
 
     _createClass(DrawCircle, [{
@@ -4239,17 +4265,17 @@ var DrawPolyline = function (_DrawObject3) {
     function DrawPolyline(params) {
         _classCallCheck(this, DrawPolyline);
 
-        var _this3 = _possibleConstructorReturn(this, (DrawPolyline.__proto__ || Object.getPrototypeOf(DrawPolyline)).call(this));
+        var _this4 = _possibleConstructorReturn(this, (DrawPolyline.__proto__ || Object.getPrototypeOf(DrawPolyline)).call(this));
 
-        _this3.pointCount = Number(params[0]);
-        _this3.unit = Number(params[1]);
-        _this3.convert = Number(params[2]);
-        _this3.lineWidth = Number(params[3]);
-        _this3.points = params.slice(4, 4 + _this3.pointCount * 2).map(function (i) {
+        _this4.pointCount = Number(params[0]);
+        _this4.unit = Number(params[1]);
+        _this4.convert = Number(params[2]);
+        _this4.lineWidth = Number(params[3]);
+        _this4.points = params.slice(4, 4 + _this4.pointCount * 2).map(function (i) {
             return Number(i);
         });
-        _this3.fill = params[4 + _this3.pointCount * 2] || kicad_common_1.Fill.NO_FILL;
-        return _this3;
+        _this4.fill = params[4 + _this4.pointCount * 2] || kicad_common_1.Fill.NO_FILL;
+        return _this4;
     }
 
     _createClass(DrawPolyline, [{
@@ -4287,17 +4313,17 @@ var DrawSquare = function (_DrawObject4) {
     function DrawSquare(params) {
         _classCallCheck(this, DrawSquare);
 
-        var _this4 = _possibleConstructorReturn(this, (DrawSquare.__proto__ || Object.getPrototypeOf(DrawSquare)).call(this));
+        var _this5 = _possibleConstructorReturn(this, (DrawSquare.__proto__ || Object.getPrototypeOf(DrawSquare)).call(this));
 
-        _this4.startx = Number(params[0]);
-        _this4.starty = Number(params[1]);
-        _this4.endx = Number(params[2]);
-        _this4.endy = Number(params[3]);
-        _this4.unit = Number(params[4]);
-        _this4.convert = Number(params[5]);
-        _this4.lineWidth = Number(params[6]);
-        _this4.fill = params[7] || kicad_common_1.Fill.NO_FILL;
-        return _this4;
+        _this5.startx = Number(params[0]);
+        _this5.starty = Number(params[1]);
+        _this5.endx = Number(params[2]);
+        _this5.endy = Number(params[3]);
+        _this5.unit = Number(params[4]);
+        _this5.convert = Number(params[5]);
+        _this5.lineWidth = Number(params[6]);
+        _this5.fill = params[7] || kicad_common_1.Fill.NO_FILL;
+        return _this5;
     }
 
     _createClass(DrawSquare, [{
@@ -4321,27 +4347,27 @@ var DrawText = function (_DrawObject5) {
     function DrawText(params) {
         _classCallCheck(this, DrawText);
 
-        var _this5 = _possibleConstructorReturn(this, (DrawText.__proto__ || Object.getPrototypeOf(DrawText)).call(this));
+        var _this6 = _possibleConstructorReturn(this, (DrawText.__proto__ || Object.getPrototypeOf(DrawText)).call(this));
 
-        _this5.angle = Number(params[0]);
-        _this5.posx = Number(params[1]);
-        _this5.posy = Number(params[2]);
-        _this5.textSize = Number(params[3]);
-        _this5.textType = Number(params[4]);
-        _this5.unit = Number(params[5]);
-        _this5.convert = Number(params[6]);
+        _this6.angle = Number(params[0]);
+        _this6.posx = Number(params[1]);
+        _this6.posy = Number(params[2]);
+        _this6.textSize = Number(params[3]);
+        _this6.textType = Number(params[4]);
+        _this6.unit = Number(params[5]);
+        _this6.convert = Number(params[6]);
         if (params[7][0] === '"') {
             // quoted
-            _this5.text = params[7].slice(1, -1).replace(/''/g, '"');
+            _this6.text = params[7].slice(1, -1).replace(/''/g, '"');
         } else {
             // not quoted
-            _this5.text = params[7].replace(/~/g, ' ');
+            _this6.text = params[7].replace(/~/g, ' ');
         }
-        _this5.italic = params[8] === 'Italic';
-        _this5.bold = Number(params[9]) > 0;
-        _this5.hjustify = params[10];
-        _this5.vjustify = params[11];
-        return _this5;
+        _this6.italic = params[8] === 'Italic';
+        _this6.bold = Number(params[9]) > 0;
+        _this6.hjustify = params[10];
+        _this6.vjustify = params[11];
+        return _this6;
     }
 
     _createClass(DrawText, [{
@@ -4363,24 +4389,24 @@ var DrawPin = function (_DrawObject6) {
     function DrawPin(params) {
         _classCallCheck(this, DrawPin);
 
-        var _this6 = _possibleConstructorReturn(this, (DrawPin.__proto__ || Object.getPrototypeOf(DrawPin)).call(this));
+        var _this7 = _possibleConstructorReturn(this, (DrawPin.__proto__ || Object.getPrototypeOf(DrawPin)).call(this));
 
-        _this6.name = params[0];
-        _this6.num = params[1];
-        _this6.posx = Number(params[2]);
-        _this6.posy = Number(params[3]);
-        _this6.length = Number(params[4]);
-        _this6.orientation = params[5];
-        _this6.nameTextSize = Number(params[6]);
-        _this6.numTextSize = Number(params[7]);
-        _this6.unit = Number(params[8]);
-        _this6.convert = Number(params[9]);
-        _this6.pinType = params[10];
-        _this6.attributes = (params[11] || '').split('');
-        _this6.visibility = _this6.attributes.every(function (i) {
+        _this7.name = params[0];
+        _this7.num = params[1];
+        _this7.posx = Number(params[2]);
+        _this7.posy = Number(params[3]);
+        _this7.length = Number(params[4]);
+        _this7.orientation = params[5];
+        _this7.nameTextSize = Number(params[6]);
+        _this7.numTextSize = Number(params[7]);
+        _this7.unit = Number(params[8]);
+        _this7.convert = Number(params[9]);
+        _this7.pinType = params[10];
+        _this7.attributes = (params[11] || '').split('');
+        _this7.visibility = _this7.attributes.every(function (i) {
             return i !== 'N';
         });
-        return _this6;
+        return _this7;
     }
 
     _createClass(DrawPin, [{
@@ -4458,7 +4484,7 @@ var Schematic = function () {
     _createClass(Schematic, null, [{
         key: "load",
         value: function load(content) {
-            var lines = content.split(/\n/);
+            var lines = content.split(/\r?\n/);
             var sch = new this();
             sch.parse(lines);
             return sch;
