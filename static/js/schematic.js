@@ -19,6 +19,12 @@ const app = new Vue({
 	},
 
 	created: function () {
+		if (location.search) {
+			const params = new URLSearchParams(location.search);
+			if (params.has('url')) {
+				this.url = params.get('url');
+			}
+		}
 	},
 
 	mounted: function () {
@@ -39,6 +45,9 @@ const app = new Vue({
 				this.status = "url is required";
 				return;
 			}
+			const params = new URLSearchParams();
+			params.set('url', this.url);
+			history.pushState(null, '', '?' + params);
 			this.loadFiles(urls);
 		},
 

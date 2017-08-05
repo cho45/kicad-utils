@@ -13,6 +13,7 @@
     "express": "^4.15.3",
     "minimist": "^1.2.0",
     "options": "0.0.6",
+    "url-search-params-polyfill": "^2.0.0",
     "whatwg-fetch": "^2.0.3"
   },
   "devDependencies": {
