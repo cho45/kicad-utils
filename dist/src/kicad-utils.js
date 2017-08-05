@@ -7,4 +7,5 @@ __export(require("./kicad_common"));
 __export(require("./kicad_plotter"));
 __export(require("./kicad_lib"));
 __export(require("./kicad_sch"));
+__export(require("./kicad_strokefont"));
 //# sourceMappingURL=kicad-utils.js.map

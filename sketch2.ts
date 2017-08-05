@@ -14,7 +14,7 @@ import { Plotter, CanvasPlotter } from "./src/kicad_plotter";
 
 import * as fs from "fs";
 {
-	const font = new StrokeFont();
+	const font = StrokeFont.instance;
 
 	const width = 2000, height = 2000;
 	const Canvas = require('canvas');

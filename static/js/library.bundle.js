@@ -1411,7 +1411,7 @@ module.exports = function(it){
 "use strict";
 
 /*
- * This program source code file is part of kicad-js.
+ * This program source code file is part of kicad-utils
  * Copyright (C) 2017 cho45 <cho45@lowreal.net>.
  *
  * And this program source code file is imported from KiCad, a free EDA CAD application.
@@ -3840,7 +3840,7 @@ module.exports = function(iter, ITERATOR){
 "use strict";
 
 /*
- * This program source code file is part of kicad-js.
+ * This program source code file is part of kicad-utils.
  * Copyright (C) 2017 cho45 <cho45@lowreal.net>.
  *
  * And this program source code file is imported from KiCad, a free EDA CAD application.
@@ -4403,7 +4403,7 @@ exports.DrawPin = DrawPin;
 "use strict";
 
 /*
- * This program source code file is part of kicad-js.
+ * This program source code file is part of kicad-utils.
  * Copyright (C) 2017 cho45 <cho45@lowreal.net>.
  *
  * And this program source code file is imported from KiCad, a free EDA CAD application.
@@ -10477,6 +10477,7 @@ __export(__webpack_require__(48));
 __export(__webpack_require__(302));
 __export(__webpack_require__(115));
 __export(__webpack_require__(116));
+__export(__webpack_require__(303));
 
 /***/ }),
 /* 302 */
@@ -10485,7 +10486,7 @@ __export(__webpack_require__(116));
 "use strict";
 
 /*
- * This program source code file is part of kicad-js.
+ * This program source code file is part of kicad-utils.
  * Copyright (C) 2017 cho45 <cho45@lowreal.net>.
  *
  * And this program source code file is imported from KiCad, a free EDA CAD application.
@@ -11789,7 +11790,7 @@ exports.SVGPlotter = SVGPlotter;
 "use strict";
 
 /*
- * This program source code file is part of kicad-js.
+ * This program source code file is part of kicad-utils.
  * Copyright (C) 2017 cho45 <cho45@lowreal.net>.
  *
  * And this program source code file is imported from KiCad, a free EDA CAD application.
@@ -12139,7 +12140,7 @@ exports.StrokeFont = StrokeFont;
 "use strict";
 
 /*
- * This program source code file is part of kicad-js.
+ * This program source code file is part of kicad-utils.
  * Copyright (C) 2017 cho45 <cho45@lowreal.net>.
  *
  * And this program source code file is imported from KiCad, a free EDA CAD application.

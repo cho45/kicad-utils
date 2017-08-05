@@ -6,7 +6,7 @@ const kicad_strokefont_1 = require("./src/kicad_strokefont");
 const kicad_plotter_1 = require("./src/kicad_plotter");
 const fs = require("fs");
 {
-    const font = new kicad_strokefont_1.StrokeFont();
+    const font = kicad_strokefont_1.StrokeFont.instance;
     const width = 2000, height = 2000;
     const Canvas = require('canvas');
     const canvas = Canvas.createCanvas ? Canvas.createCanvas(width, height) : new Canvas(width, height);

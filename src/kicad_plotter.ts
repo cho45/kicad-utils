@@ -1,5 +1,5 @@
 /*
- * This program source code file is part of kicad-js.
+ * This program source code file is part of kicad-utils.
  * Copyright (C) 2017 cho45 <cho45@lowreal.net>.
  *
  * And this program source code file is imported from KiCad, a free EDA CAD application.
