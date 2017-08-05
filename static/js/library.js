@@ -16,11 +16,17 @@ const app = new Vue({
 	},
 
 	created: function () {
+		if (location.search) {
+			const params = new URLSearchParams(location.search);
+			if (params.has('url')) {
+				this.url = params.get('url');
+			}
+		}
 	},
 
 	mounted: function () {
 		console.log(this.$refs);
-		this.loadLibrary((location.search || "").substring(1) || '/lib/device.lib');
+		this.onSubmit();
 	},
 
 	methods: {
@@ -28,6 +34,9 @@ const app = new Vue({
 			const file = this.$refs.fileInput.files[0];
 			this.fileName = file.name;
 			const objectURL = window.URL.createObjectURL(file);
+			const params = new URLSearchParams();
+			params.set('url', this.url);
+			history.pushState(null, '', '?' + params);
 			this.loadLibrary(objectURL);
 		},
 
@@ -57,7 +66,6 @@ const app = new Vue({
 			const canvasElements = this.$refs.canvas;
 			for (let canvas of canvasElements) {
 				const name = canvas.getAttribute('data-name');
-				console.log(canvas, name);
 				const component = lib.findByName(name);
 				const rect = component.draw.getBoundingRect();
 				if (!rect) {
@@ -71,7 +79,7 @@ const app = new Vue({
 				canvas.height = 500;
 
 				const scale = Math.min(canvas.width / width, canvas.height / height);
-				console.log('plot', component.name, rect, width, height, scale);
+				// console.log('plot', component.name, rect, width, height, scale);
 
 				const ctx = canvas.getContext('2d');
 				ctx.translate(canvas.width / 2, canvas.height / 2);
