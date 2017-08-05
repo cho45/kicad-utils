@@ -725,6 +725,7 @@ class CanvasPlotter extends Plotter {
         this.penState = "Z";
         this.fill = kicad_common_1.Fill.NO_FILL;
         this.ctx.lineCap = "round";
+        this.ctx.lineJoin = 'round';
         this.ctx.strokeStyle = "#000";
     }
     rect(p1, p2, fill, width) {
@@ -892,10 +893,10 @@ class SVGPlotter extends Plotter {
         p = this.transform.transformCoordinate(p);
         this.output += this.xmlTag `<circle cx="${p.x}" cy="${p.y}" r="${dia / 2}" `;
         if (this.fill === kicad_common_1.Fill.NO_FILL) {
-            this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+            this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${this.lineWidth}"/>\n`;
         }
         else {
-            this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+            this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${this.lineWidth}" />\n`;
         }
     }
     arc(p, startAngle, endAngle, radius, fill, width) {
@@ -928,10 +929,10 @@ class SVGPlotter extends Plotter {
         const x = this.xmlTag;
         this.output += this.xmlTag `<path d="M${start.x} ${start.y} A${radius} ${radius} 0.0 ${isLargeArc ? 1 : 0} ${isSweep ? 1 : 0} ${end.x} ${end.y}"`;
         if (this.fill === kicad_common_1.Fill.NO_FILL) {
-            this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+            this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${this.lineWidth}" />\n`;
         }
         else {
-            this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+            this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${this.lineWidth}" />\n`;
         }
     }
     polyline(points, fill, width) {
@@ -1012,10 +1013,10 @@ class SVGPlotter extends Plotter {
         if (s === "Z") {
             if (this.penState !== "Z") {
                 if (this.fill === kicad_common_1.Fill.NO_FILL) {
-                    this.output += this.xmlTag `" style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+                    this.output += this.xmlTag `" style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${this.lineWidth}" />\n`;
                 }
                 else {
-                    this.output += this.xmlTag `" style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${this.lineWidth}" stroke-linecap="round"/>\n`;
+                    this.output += this.xmlTag `" style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${this.lineWidth}" />\n`;
                 }
             }
             else {
@@ -1069,7 +1070,9 @@ class SVGPlotter extends Plotter {
 			xmlns="http://www.w3.org/2000/svg"
 			xmlns:xlink="http://www.w3.org/1999/xlink"
 			version="1.1">`;
+        this.output += this.xmlTag `<g stroke-linejoin="round" stroke-linecap="round">`;
         super.plotSchematic(sch, libs);
+        this.output += this.xmlTag `</g>`;
         this.output += `</svg>`;
     }
     xmlTag(literals, ...placeholders) {

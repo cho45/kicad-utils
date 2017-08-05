@@ -32,14 +32,16 @@ import * as fs from "fs";
 	ctx.lineTo(canvas.width, canvas.height / 2);
 	ctx.stroke();
 	ctx.lineCap = "round";
+	ctx.lineJoin = 'round';
+
 
 	// ctx.translate(canvas.width / 2, canvas.height / 2);
 
 	const plotter = new CanvasPlotter(ctx);
 
-	const text = 'jeyjmc';
+	const text = 'jeyjmcNV';
 	const size = 100;
-	const lineWidth = 0;
+	const lineWidth = 20;
 	const bold = false;
 	const italic = false;
 	const pos = { x: canvas.width / 2, y: canvas.height / 2 };

@@ -11202,16 +11202,19 @@ var _createClass = function () { function defineProperties(target, props) { for 
 var _kicad_common_1$Net$I, _kicad_common_1$Net$O, _kicad_common_1$Net$U, _kicad_common_1$Net$B, _kicad_common_1$Net$T, _TEMPLATE_SHAPES;
 
 var _templateObject = _taggedTemplateLiteral(["<circle cx=\"", "\" cy=\"", "\" r=\"", "\" "], ["<circle cx=\"", "\" cy=\"", "\" r=\"", "\" "]),
-    _templateObject2 = _taggedTemplateLiteral([" style=\"stroke: ", "; fill: none; stroke-width: ", "\" stroke-linecap=\"round\"/>\n"], [" style=\"stroke: ", "; fill: none; stroke-width: ", "\" stroke-linecap=\"round\"/>\\n"]),
-    _templateObject3 = _taggedTemplateLiteral([" style=\"stroke: ", "; fill: ", "; stroke-width: ", "\" stroke-linecap=\"round\"/>\n"], [" style=\"stroke: ", "; fill: ", "; stroke-width: ", "\" stroke-linecap=\"round\"/>\\n"]),
+    _templateObject2 = _taggedTemplateLiteral([" style=\"stroke: ", "; fill: none; stroke-width: ", "\"/>\n"], [" style=\"stroke: ", "; fill: none; stroke-width: ", "\"/>\\n"]),
+    _templateObject3 = _taggedTemplateLiteral([" style=\"stroke: ", "; fill: ", "; stroke-width: ", "\" />\n"], [" style=\"stroke: ", "; fill: ", "; stroke-width: ", "\" />\\n"]),
     _templateObject4 = _taggedTemplateLiteral(["<path d=\"M", " ", " A", " ", " 0.0 ", " ", " ", " ", "\""], ["<path d=\"M", " ", " A", " ", " 0.0 ", " ", " ", " ", "\""]),
-    _templateObject5 = _taggedTemplateLiteral(["\" style=\"stroke: ", "; fill: none; stroke-width: ", "\" stroke-linecap=\"round\"/>\n"], ["\" style=\"stroke: ", "; fill: none; stroke-width: ", "\" stroke-linecap=\"round\"/>\\n"]),
-    _templateObject6 = _taggedTemplateLiteral(["\" style=\"stroke: ", "; fill: ", "; stroke-width: ", "\" stroke-linecap=\"round\"/>\n"], ["\" style=\"stroke: ", "; fill: ", "; stroke-width: ", "\" stroke-linecap=\"round\"/>\\n"]),
-    _templateObject7 = _taggedTemplateLiteral(["<path d=\"M", " ", "\n"], ["<path d=\"M", " ", "\\n"]),
-    _templateObject8 = _taggedTemplateLiteral(["M", " ", "\n"], ["M", " ", "\\n"]),
-    _templateObject9 = _taggedTemplateLiteral(["L", " ", "\n"], ["L", " ", "\\n"]),
-    _templateObject10 = _taggedTemplateLiteral(["<image\n\t\t\txlink:href=\"", "\"\n\t\t\tx=\"", "\"\n\t\t\ty=\"", "\"\n\t\t\twidth=\"", "\"\n\t\t\theight=\"", "\"\n\t\t\t/>"], ["<image\n\t\t\txlink:href=\"", "\"\n\t\t\tx=\"", "\"\n\t\t\ty=\"", "\"\n\t\t\twidth=\"", "\"\n\t\t\theight=\"", "\"\n\t\t\t/>"]),
-    _templateObject11 = _taggedTemplateLiteral(["<svg preserveAspectRatio=\"xMinYMin\"\n\t\t\twidth=\"", "\"\n\t\t\theight=\"", "\"\n\t\t\tviewBox=\"0 0 ", " ", "\"\n\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\txmlns:xlink=\"http://www.w3.org/1999/xlink\"\n\t\t\tversion=\"1.1\">"], ["<svg preserveAspectRatio=\"xMinYMin\"\n\t\t\twidth=\"", "\"\n\t\t\theight=\"", "\"\n\t\t\tviewBox=\"0 0 ", " ", "\"\n\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\txmlns:xlink=\"http://www.w3.org/1999/xlink\"\n\t\t\tversion=\"1.1\">"]);
+    _templateObject5 = _taggedTemplateLiteral([" style=\"stroke: ", "; fill: none; stroke-width: ", "\" />\n"], [" style=\"stroke: ", "; fill: none; stroke-width: ", "\" />\\n"]),
+    _templateObject6 = _taggedTemplateLiteral(["\" style=\"stroke: ", "; fill: none; stroke-width: ", "\" />\n"], ["\" style=\"stroke: ", "; fill: none; stroke-width: ", "\" />\\n"]),
+    _templateObject7 = _taggedTemplateLiteral(["\" style=\"stroke: ", "; fill: ", "; stroke-width: ", "\" />\n"], ["\" style=\"stroke: ", "; fill: ", "; stroke-width: ", "\" />\\n"]),
+    _templateObject8 = _taggedTemplateLiteral(["<path d=\"M", " ", "\n"], ["<path d=\"M", " ", "\\n"]),
+    _templateObject9 = _taggedTemplateLiteral(["M", " ", "\n"], ["M", " ", "\\n"]),
+    _templateObject10 = _taggedTemplateLiteral(["L", " ", "\n"], ["L", " ", "\\n"]),
+    _templateObject11 = _taggedTemplateLiteral(["<image\n\t\t\txlink:href=\"", "\"\n\t\t\tx=\"", "\"\n\t\t\ty=\"", "\"\n\t\t\twidth=\"", "\"\n\t\t\theight=\"", "\"\n\t\t\t/>"], ["<image\n\t\t\txlink:href=\"", "\"\n\t\t\tx=\"", "\"\n\t\t\ty=\"", "\"\n\t\t\twidth=\"", "\"\n\t\t\theight=\"", "\"\n\t\t\t/>"]),
+    _templateObject12 = _taggedTemplateLiteral(["<svg preserveAspectRatio=\"xMinYMin\"\n\t\t\twidth=\"", "\"\n\t\t\theight=\"", "\"\n\t\t\tviewBox=\"0 0 ", " ", "\"\n\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\txmlns:xlink=\"http://www.w3.org/1999/xlink\"\n\t\t\tversion=\"1.1\">"], ["<svg preserveAspectRatio=\"xMinYMin\"\n\t\t\twidth=\"", "\"\n\t\t\theight=\"", "\"\n\t\t\tviewBox=\"0 0 ", " ", "\"\n\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\txmlns:xlink=\"http://www.w3.org/1999/xlink\"\n\t\t\tversion=\"1.1\">"]),
+    _templateObject13 = _taggedTemplateLiteral(["<g stroke-linejoin=\"round\" stroke-linecap=\"round\">"], ["<g stroke-linejoin=\"round\" stroke-linecap=\"round\">"]),
+    _templateObject14 = _taggedTemplateLiteral(["</g>"], ["</g>"]);
 
 function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
@@ -12029,6 +12032,7 @@ var CanvasPlotter = function (_Plotter) {
         _this2.penState = "Z";
         _this2.fill = kicad_common_1.Fill.NO_FILL;
         _this2.ctx.lineCap = "round";
+        _this2.ctx.lineJoin = 'round';
         _this2.ctx.strokeStyle = "#000";
         return _this2;
     }
@@ -12264,7 +12268,7 @@ var SVGPlotter = function (_Plotter2) {
             var x = this.xmlTag;
             this.output += this.xmlTag(_templateObject4, start.x, start.y, radius, radius, isLargeArc ? 1 : 0, isSweep ? 1 : 0, end.x, end.y);
             if (this.fill === kicad_common_1.Fill.NO_FILL) {
-                this.output += this.xmlTag(_templateObject2, this.color.toCSSColor(), this.lineWidth);
+                this.output += this.xmlTag(_templateObject5, this.color.toCSSColor(), this.lineWidth);
             } else {
                 this.output += this.xmlTag(_templateObject3, this.color.toCSSColor(), this.color.toCSSColor(), this.lineWidth);
             }
@@ -12349,9 +12353,9 @@ var SVGPlotter = function (_Plotter2) {
             if (s === "Z") {
                 if (this.penState !== "Z") {
                     if (this.fill === kicad_common_1.Fill.NO_FILL) {
-                        this.output += this.xmlTag(_templateObject5, this.color.toCSSColor(), this.lineWidth);
+                        this.output += this.xmlTag(_templateObject6, this.color.toCSSColor(), this.lineWidth);
                     } else {
-                        this.output += this.xmlTag(_templateObject6, this.color.toCSSColor(), this.color.toCSSColor(), this.lineWidth);
+                        this.output += this.xmlTag(_templateObject7, this.color.toCSSColor(), this.color.toCSSColor(), this.lineWidth);
                     }
                 } else {
                     throw "invalid pen state Z -> Z";
@@ -12361,12 +12365,12 @@ var SVGPlotter = function (_Plotter2) {
             }
             // s is U | D
             if (this.penState === "Z") {
-                this.output += this.xmlTag(_templateObject7, p.x, p.y);
+                this.output += this.xmlTag(_templateObject8, p.x, p.y);
             } else {
                 if (s === "U") {
-                    this.output += this.xmlTag(_templateObject8, p.x, p.y);
-                } else {
                     this.output += this.xmlTag(_templateObject9, p.x, p.y);
+                } else {
+                    this.output += this.xmlTag(_templateObject10, p.x, p.y);
                 }
             }
             this.penState = s;
@@ -12390,15 +12394,17 @@ var SVGPlotter = function (_Plotter2) {
             /*
             this.rect(start, end, Fill.NO_FILL, DEFAULT_LINE_WIDTH);
             */
-            this.output += this.xmlTag(_templateObject10, url, start.x, start.y, width, height);
+            this.output += this.xmlTag(_templateObject11, url, start.x, start.y, width, height);
         }
     }, {
         key: "plotSchematic",
         value: function plotSchematic(sch, libs) {
             var width = sch.descr.width;
             var height = sch.descr.height;
-            this.output = this.xmlTag(_templateObject11, width, height, sch.descr.width, sch.descr.height);
+            this.output = this.xmlTag(_templateObject12, width, height, sch.descr.width, sch.descr.height);
+            this.output += this.xmlTag(_templateObject13);
             _get(SVGPlotter.prototype.__proto__ || Object.getPrototypeOf(SVGPlotter.prototype), "plotSchematic", this).call(this, sch, libs);
+            this.output += this.xmlTag(_templateObject14);
             this.output += "</svg>";
         }
     }, {
