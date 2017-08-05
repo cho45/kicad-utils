@@ -467,27 +467,6 @@ class Plotter {
                     const textHeight = this.font.getInterline(size, DEFAULT_LINE_WIDTH);
                     const relative = kicad_common_1.Point.sub({ x: field.posx, y: field.posy }, { x: item.posx, y: item.posy });
                     let textpos = item.transform.transformCoordinate(relative);
-                    //					{
-                    //						const rect = this.getTextBox(field, size, DEFAULT_LINE_WIDTH, false);
-                    //
-                    //						const origin = { x: item.posx, y: item.posy };
-                    //						// relative point to component origin
-                    //						const pos    = Point.sub({ x: field.posx, y: field.posy }, origin);
-                    //						const begin  = Point.sub(rect.pos1, origin);
-                    //						const end    = Point.sub(rect.pos2, origin);
-                    ////						RotatePointWithCenter(begin, pos, orientation);
-                    ////						RotatePointWithCenter(end, pos, orientation);
-                    ////						begin.y = -(begin.y - pos.y) + pos.y;
-                    ////						end.y = -(end.y - pos.y) + pos.y;
-                    //
-                    //						rect.pos1 = Point.add(item.transform.transformCoordinate(begin), origin);
-                    //						rect.pos2 = Point.add(item.transform.transformCoordinate(end), origin);
-                    //
-                    //						center = {
-                    //							x: rect.pos1.x + rect.width / 2,
-                    //							y: rect.pos1.y + rect.height / 2
-                    //						};
-                    //					}
                     this.text(textpos, SCH_COLORS.LAYER_REFERENCEPART, field.text, orientation, size, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, DEFAULT_LINE_WIDTH, field.italic, field.bold);
                 }
             }
