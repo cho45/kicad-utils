@@ -1,6 +1,6 @@
 {
   "name": "kicad-utils",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "description": "",
   "main": "dist/src/kicad-utils.js",
   "bin": {
