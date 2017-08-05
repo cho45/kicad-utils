@@ -71,6 +71,18 @@ export function RotatePoint(p: Point, angle: number): Point {
 	return p;
 }
 
+export function RotatePointWithCenter(p: Point, center: Point, angle: number): Point {
+	const t = {
+		x: p.x - center.x,
+		y: p.y - center.y,
+	}
+	RotatePoint(t, angle);
+
+	p.x = t.x + center.x;
+	p.y = t.y + center.y;
+	return p;
+}
+
 export function MM2MIL(mm: number) {
 	return mm / 0.0254;
 }

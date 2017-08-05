@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 303);
+/******/ 	return __webpack_require__(__webpack_require__.s = 305);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -154,7 +154,7 @@ module.exports = function(it){
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var store      = __webpack_require__(48)('wks')
+var store      = __webpack_require__(49)('wks')
   , uid        = __webpack_require__(31)
   , Symbol     = __webpack_require__(2).Symbol
   , USE_SYMBOL = typeof Symbol == 'function';
@@ -515,7 +515,7 @@ if(__webpack_require__(6)){
     , global              = __webpack_require__(2)
     , fails               = __webpack_require__(3)
     , $export             = __webpack_require__(0)
-    , $typed              = __webpack_require__(57)
+    , $typed              = __webpack_require__(58)
     , $buffer             = __webpack_require__(85)
     , ctx                 = __webpack_require__(25)
     , anInstance          = __webpack_require__(38)
@@ -539,11 +539,11 @@ if(__webpack_require__(6)){
     , uid                 = __webpack_require__(31)
     , wks                 = __webpack_require__(5)
     , createArrayMethod   = __webpack_require__(23)
-    , createArrayIncludes = __webpack_require__(49)
+    , createArrayIncludes = __webpack_require__(50)
     , speciesConstructor  = __webpack_require__(82)
     , ArrayIterators      = __webpack_require__(81)
     , Iterators           = __webpack_require__(42)
-    , $iterDetect         = __webpack_require__(53)
+    , $iterDetect         = __webpack_require__(54)
     , setSpecies          = __webpack_require__(37)
     , arrayFill           = __webpack_require__(80)
     , arrayCopyWithin     = __webpack_require__(102)
@@ -995,7 +995,7 @@ if(__webpack_require__(6)){
 
 var Map     = __webpack_require__(105)
   , $export = __webpack_require__(0)
-  , shared  = __webpack_require__(48)('metadata')
+  , shared  = __webpack_require__(49)('metadata')
   , store   = shared.store || (shared.store = new (__webpack_require__(108)));
 
 var getOrCreateMetadataMap = function(target, targetKey, create){
@@ -1408,296 +1408,6 @@ module.exports = function(it){
 /* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var global = __webpack_require__(2)
-  , SHARED = '__core-js_shared__'
-  , store  = global[SHARED] || (global[SHARED] = {});
-module.exports = function(key){
-  return store[key] || (store[key] = {});
-};
-
-/***/ }),
-/* 49 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// false -> Array#indexOf
-// true  -> Array#includes
-var toIObject = __webpack_require__(14)
-  , toLength  = __webpack_require__(8)
-  , toIndex   = __webpack_require__(34);
-module.exports = function(IS_INCLUDES){
-  return function($this, el, fromIndex){
-    var O      = toIObject($this)
-      , length = toLength(O.length)
-      , index  = toIndex(fromIndex, length)
-      , value;
-    // Array#includes uses SameValueZero equality algorithm
-    if(IS_INCLUDES && el != el)while(length > index){
-      value = O[index++];
-      if(value != value)return true;
-    // Array#toIndex ignores holes, Array#includes - not
-    } else for(;length > index; index++)if(IS_INCLUDES || index in O){
-      if(O[index] === el)return IS_INCLUDES || index || 0;
-    } return !IS_INCLUDES && -1;
-  };
-};
-
-/***/ }),
-/* 50 */
-/***/ (function(module, exports) {
-
-exports.f = Object.getOwnPropertySymbols;
-
-/***/ }),
-/* 51 */
-/***/ (function(module, exports) {
-
-// fast apply, http://jsperf.lnkit.com/fast-apply/5
-module.exports = function(fn, args, that){
-  var un = that === undefined;
-  switch(args.length){
-    case 0: return un ? fn()
-                      : fn.call(that);
-    case 1: return un ? fn(args[0])
-                      : fn.call(that, args[0]);
-    case 2: return un ? fn(args[0], args[1])
-                      : fn.call(that, args[0], args[1]);
-    case 3: return un ? fn(args[0], args[1], args[2])
-                      : fn.call(that, args[0], args[1], args[2]);
-    case 4: return un ? fn(args[0], args[1], args[2], args[3])
-                      : fn.call(that, args[0], args[1], args[2], args[3]);
-  } return              fn.apply(that, args);
-};
-
-/***/ }),
-/* 52 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// 7.2.8 IsRegExp(argument)
-var isObject = __webpack_require__(4)
-  , cof      = __webpack_require__(18)
-  , MATCH    = __webpack_require__(5)('match');
-module.exports = function(it){
-  var isRegExp;
-  return isObject(it) && ((isRegExp = it[MATCH]) !== undefined ? !!isRegExp : cof(it) == 'RegExp');
-};
-
-/***/ }),
-/* 53 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var ITERATOR     = __webpack_require__(5)('iterator')
-  , SAFE_CLOSING = false;
-
-try {
-  var riter = [7][ITERATOR]();
-  riter['return'] = function(){ SAFE_CLOSING = true; };
-  Array.from(riter, function(){ throw 2; });
-} catch(e){ /* empty */ }
-
-module.exports = function(exec, skipClosing){
-  if(!skipClosing && !SAFE_CLOSING)return false;
-  var safe = false;
-  try {
-    var arr  = [7]
-      , iter = arr[ITERATOR]();
-    iter.next = function(){ return {done: safe = true}; };
-    arr[ITERATOR] = function(){ return iter; };
-    exec(arr);
-  } catch(e){ /* empty */ }
-  return safe;
-};
-
-/***/ }),
-/* 54 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-// 21.2.5.3 get RegExp.prototype.flags
-var anObject = __webpack_require__(1);
-module.exports = function(){
-  var that   = anObject(this)
-    , result = '';
-  if(that.global)     result += 'g';
-  if(that.ignoreCase) result += 'i';
-  if(that.multiline)  result += 'm';
-  if(that.unicode)    result += 'u';
-  if(that.sticky)     result += 'y';
-  return result;
-};
-
-/***/ }),
-/* 55 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var hide     = __webpack_require__(11)
-  , redefine = __webpack_require__(12)
-  , fails    = __webpack_require__(3)
-  , defined  = __webpack_require__(19)
-  , wks      = __webpack_require__(5);
-
-module.exports = function(KEY, length, exec){
-  var SYMBOL   = wks(KEY)
-    , fns      = exec(defined, SYMBOL, ''[KEY])
-    , strfn    = fns[0]
-    , rxfn     = fns[1];
-  if(fails(function(){
-    var O = {};
-    O[SYMBOL] = function(){ return 7; };
-    return ''[KEY](O) != 7;
-  })){
-    redefine(String.prototype, KEY, strfn);
-    hide(RegExp.prototype, SYMBOL, length == 2
-      // 21.2.5.8 RegExp.prototype[@@replace](string, replaceValue)
-      // 21.2.5.11 RegExp.prototype[@@split](string, limit)
-      ? function(string, arg){ return rxfn.call(string, this, arg); }
-      // 21.2.5.6 RegExp.prototype[@@match](string)
-      // 21.2.5.9 RegExp.prototype[@@search](string)
-      : function(string){ return rxfn.call(string, this); }
-    );
-  }
-};
-
-/***/ }),
-/* 56 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var global            = __webpack_require__(2)
-  , $export           = __webpack_require__(0)
-  , redefine          = __webpack_require__(12)
-  , redefineAll       = __webpack_require__(39)
-  , meta              = __webpack_require__(29)
-  , forOf             = __webpack_require__(44)
-  , anInstance        = __webpack_require__(38)
-  , isObject          = __webpack_require__(4)
-  , fails             = __webpack_require__(3)
-  , $iterDetect       = __webpack_require__(53)
-  , setToStringTag    = __webpack_require__(40)
-  , inheritIfRequired = __webpack_require__(68);
-
-module.exports = function(NAME, wrapper, methods, common, IS_MAP, IS_WEAK){
-  var Base  = global[NAME]
-    , C     = Base
-    , ADDER = IS_MAP ? 'set' : 'add'
-    , proto = C && C.prototype
-    , O     = {};
-  var fixMethod = function(KEY){
-    var fn = proto[KEY];
-    redefine(proto, KEY,
-      KEY == 'delete' ? function(a){
-        return IS_WEAK && !isObject(a) ? false : fn.call(this, a === 0 ? 0 : a);
-      } : KEY == 'has' ? function has(a){
-        return IS_WEAK && !isObject(a) ? false : fn.call(this, a === 0 ? 0 : a);
-      } : KEY == 'get' ? function get(a){
-        return IS_WEAK && !isObject(a) ? undefined : fn.call(this, a === 0 ? 0 : a);
-      } : KEY == 'add' ? function add(a){ fn.call(this, a === 0 ? 0 : a); return this; }
-        : function set(a, b){ fn.call(this, a === 0 ? 0 : a, b); return this; }
-    );
-  };
-  if(typeof C != 'function' || !(IS_WEAK || proto.forEach && !fails(function(){
-    new C().entries().next();
-  }))){
-    // create collection constructor
-    C = common.getConstructor(wrapper, NAME, IS_MAP, ADDER);
-    redefineAll(C.prototype, methods);
-    meta.NEED = true;
-  } else {
-    var instance             = new C
-      // early implementations not supports chaining
-      , HASNT_CHAINING       = instance[ADDER](IS_WEAK ? {} : -0, 1) != instance
-      // V8 ~  Chromium 40- weak-collections throws on primitives, but should return false
-      , THROWS_ON_PRIMITIVES = fails(function(){ instance.has(1); })
-      // most early implementations doesn't supports iterables, most modern - not close it correctly
-      , ACCEPT_ITERABLES     = $iterDetect(function(iter){ new C(iter); }) // eslint-disable-line no-new
-      // for early implementations -0 and +0 not the same
-      , BUGGY_ZERO = !IS_WEAK && fails(function(){
-        // V8 ~ Chromium 42- fails only with 5+ elements
-        var $instance = new C()
-          , index     = 5;
-        while(index--)$instance[ADDER](index, index);
-        return !$instance.has(-0);
-      });
-    if(!ACCEPT_ITERABLES){ 
-      C = wrapper(function(target, iterable){
-        anInstance(target, C, NAME);
-        var that = inheritIfRequired(new Base, target, C);
-        if(iterable != undefined)forOf(iterable, IS_MAP, that[ADDER], that);
-        return that;
-      });
-      C.prototype = proto;
-      proto.constructor = C;
-    }
-    if(THROWS_ON_PRIMITIVES || BUGGY_ZERO){
-      fixMethod('delete');
-      fixMethod('has');
-      IS_MAP && fixMethod('get');
-    }
-    if(BUGGY_ZERO || HASNT_CHAINING)fixMethod(ADDER);
-    // weak collections should not contains .clear method
-    if(IS_WEAK && proto.clear)delete proto.clear;
-  }
-
-  setToStringTag(C, NAME);
-
-  O[NAME] = C;
-  $export($export.G + $export.W + $export.F * (C != Base), O);
-
-  if(!IS_WEAK)common.setStrong(C, NAME, IS_MAP);
-
-  return C;
-};
-
-/***/ }),
-/* 57 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var global = __webpack_require__(2)
-  , hide   = __webpack_require__(11)
-  , uid    = __webpack_require__(31)
-  , TYPED  = uid('typed_array')
-  , VIEW   = uid('view')
-  , ABV    = !!(global.ArrayBuffer && global.DataView)
-  , CONSTR = ABV
-  , i = 0, l = 9, Typed;
-
-var TypedArrayConstructors = (
-  'Int8Array,Uint8Array,Uint8ClampedArray,Int16Array,Uint16Array,Int32Array,Uint32Array,Float32Array,Float64Array'
-).split(',');
-
-while(i < l){
-  if(Typed = global[TypedArrayConstructors[i++]]){
-    hide(Typed.prototype, TYPED, true);
-    hide(Typed.prototype, VIEW, true);
-  } else CONSTR = false;
-}
-
-module.exports = {
-  ABV:    ABV,
-  CONSTR: CONSTR,
-  TYPED:  TYPED,
-  VIEW:   VIEW
-};
-
-/***/ }),
-/* 58 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// Forced replacement prototype accessors methods
-module.exports = __webpack_require__(32)|| !__webpack_require__(3)(function(){
-  var K = Math.random();
-  // In FF throws only define methods
-  __defineSetter__.call(null, K, function(){ /* empty */});
-  delete __webpack_require__(2)[K];
-});
-
-/***/ }),
-/* 59 */
-/***/ (function(module, exports, __webpack_require__) {
-
 "use strict";
 
 /*
@@ -1788,6 +1498,17 @@ function RotatePoint(p, angle) {
     return p;
 }
 exports.RotatePoint = RotatePoint;
+function RotatePointWithCenter(p, center, angle) {
+    var t = {
+        x: p.x - center.x,
+        y: p.y - center.y
+    };
+    RotatePoint(t, angle);
+    p.x = t.x + center.x;
+    p.y = t.y + center.y;
+    return p;
+}
+exports.RotatePointWithCenter = RotatePointWithCenter;
 function MM2MIL(mm) {
     return mm / 0.0254;
 }
@@ -2211,6 +1932,296 @@ var Net;
 })(Net = exports.Net || (exports.Net = {}));
 
 /***/ }),
+/* 49 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var global = __webpack_require__(2)
+  , SHARED = '__core-js_shared__'
+  , store  = global[SHARED] || (global[SHARED] = {});
+module.exports = function(key){
+  return store[key] || (store[key] = {});
+};
+
+/***/ }),
+/* 50 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// false -> Array#indexOf
+// true  -> Array#includes
+var toIObject = __webpack_require__(14)
+  , toLength  = __webpack_require__(8)
+  , toIndex   = __webpack_require__(34);
+module.exports = function(IS_INCLUDES){
+  return function($this, el, fromIndex){
+    var O      = toIObject($this)
+      , length = toLength(O.length)
+      , index  = toIndex(fromIndex, length)
+      , value;
+    // Array#includes uses SameValueZero equality algorithm
+    if(IS_INCLUDES && el != el)while(length > index){
+      value = O[index++];
+      if(value != value)return true;
+    // Array#toIndex ignores holes, Array#includes - not
+    } else for(;length > index; index++)if(IS_INCLUDES || index in O){
+      if(O[index] === el)return IS_INCLUDES || index || 0;
+    } return !IS_INCLUDES && -1;
+  };
+};
+
+/***/ }),
+/* 51 */
+/***/ (function(module, exports) {
+
+exports.f = Object.getOwnPropertySymbols;
+
+/***/ }),
+/* 52 */
+/***/ (function(module, exports) {
+
+// fast apply, http://jsperf.lnkit.com/fast-apply/5
+module.exports = function(fn, args, that){
+  var un = that === undefined;
+  switch(args.length){
+    case 0: return un ? fn()
+                      : fn.call(that);
+    case 1: return un ? fn(args[0])
+                      : fn.call(that, args[0]);
+    case 2: return un ? fn(args[0], args[1])
+                      : fn.call(that, args[0], args[1]);
+    case 3: return un ? fn(args[0], args[1], args[2])
+                      : fn.call(that, args[0], args[1], args[2]);
+    case 4: return un ? fn(args[0], args[1], args[2], args[3])
+                      : fn.call(that, args[0], args[1], args[2], args[3]);
+  } return              fn.apply(that, args);
+};
+
+/***/ }),
+/* 53 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// 7.2.8 IsRegExp(argument)
+var isObject = __webpack_require__(4)
+  , cof      = __webpack_require__(18)
+  , MATCH    = __webpack_require__(5)('match');
+module.exports = function(it){
+  var isRegExp;
+  return isObject(it) && ((isRegExp = it[MATCH]) !== undefined ? !!isRegExp : cof(it) == 'RegExp');
+};
+
+/***/ }),
+/* 54 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var ITERATOR     = __webpack_require__(5)('iterator')
+  , SAFE_CLOSING = false;
+
+try {
+  var riter = [7][ITERATOR]();
+  riter['return'] = function(){ SAFE_CLOSING = true; };
+  Array.from(riter, function(){ throw 2; });
+} catch(e){ /* empty */ }
+
+module.exports = function(exec, skipClosing){
+  if(!skipClosing && !SAFE_CLOSING)return false;
+  var safe = false;
+  try {
+    var arr  = [7]
+      , iter = arr[ITERATOR]();
+    iter.next = function(){ return {done: safe = true}; };
+    arr[ITERATOR] = function(){ return iter; };
+    exec(arr);
+  } catch(e){ /* empty */ }
+  return safe;
+};
+
+/***/ }),
+/* 55 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+// 21.2.5.3 get RegExp.prototype.flags
+var anObject = __webpack_require__(1);
+module.exports = function(){
+  var that   = anObject(this)
+    , result = '';
+  if(that.global)     result += 'g';
+  if(that.ignoreCase) result += 'i';
+  if(that.multiline)  result += 'm';
+  if(that.unicode)    result += 'u';
+  if(that.sticky)     result += 'y';
+  return result;
+};
+
+/***/ }),
+/* 56 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var hide     = __webpack_require__(11)
+  , redefine = __webpack_require__(12)
+  , fails    = __webpack_require__(3)
+  , defined  = __webpack_require__(19)
+  , wks      = __webpack_require__(5);
+
+module.exports = function(KEY, length, exec){
+  var SYMBOL   = wks(KEY)
+    , fns      = exec(defined, SYMBOL, ''[KEY])
+    , strfn    = fns[0]
+    , rxfn     = fns[1];
+  if(fails(function(){
+    var O = {};
+    O[SYMBOL] = function(){ return 7; };
+    return ''[KEY](O) != 7;
+  })){
+    redefine(String.prototype, KEY, strfn);
+    hide(RegExp.prototype, SYMBOL, length == 2
+      // 21.2.5.8 RegExp.prototype[@@replace](string, replaceValue)
+      // 21.2.5.11 RegExp.prototype[@@split](string, limit)
+      ? function(string, arg){ return rxfn.call(string, this, arg); }
+      // 21.2.5.6 RegExp.prototype[@@match](string)
+      // 21.2.5.9 RegExp.prototype[@@search](string)
+      : function(string){ return rxfn.call(string, this); }
+    );
+  }
+};
+
+/***/ }),
+/* 57 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var global            = __webpack_require__(2)
+  , $export           = __webpack_require__(0)
+  , redefine          = __webpack_require__(12)
+  , redefineAll       = __webpack_require__(39)
+  , meta              = __webpack_require__(29)
+  , forOf             = __webpack_require__(44)
+  , anInstance        = __webpack_require__(38)
+  , isObject          = __webpack_require__(4)
+  , fails             = __webpack_require__(3)
+  , $iterDetect       = __webpack_require__(54)
+  , setToStringTag    = __webpack_require__(40)
+  , inheritIfRequired = __webpack_require__(68);
+
+module.exports = function(NAME, wrapper, methods, common, IS_MAP, IS_WEAK){
+  var Base  = global[NAME]
+    , C     = Base
+    , ADDER = IS_MAP ? 'set' : 'add'
+    , proto = C && C.prototype
+    , O     = {};
+  var fixMethod = function(KEY){
+    var fn = proto[KEY];
+    redefine(proto, KEY,
+      KEY == 'delete' ? function(a){
+        return IS_WEAK && !isObject(a) ? false : fn.call(this, a === 0 ? 0 : a);
+      } : KEY == 'has' ? function has(a){
+        return IS_WEAK && !isObject(a) ? false : fn.call(this, a === 0 ? 0 : a);
+      } : KEY == 'get' ? function get(a){
+        return IS_WEAK && !isObject(a) ? undefined : fn.call(this, a === 0 ? 0 : a);
+      } : KEY == 'add' ? function add(a){ fn.call(this, a === 0 ? 0 : a); return this; }
+        : function set(a, b){ fn.call(this, a === 0 ? 0 : a, b); return this; }
+    );
+  };
+  if(typeof C != 'function' || !(IS_WEAK || proto.forEach && !fails(function(){
+    new C().entries().next();
+  }))){
+    // create collection constructor
+    C = common.getConstructor(wrapper, NAME, IS_MAP, ADDER);
+    redefineAll(C.prototype, methods);
+    meta.NEED = true;
+  } else {
+    var instance             = new C
+      // early implementations not supports chaining
+      , HASNT_CHAINING       = instance[ADDER](IS_WEAK ? {} : -0, 1) != instance
+      // V8 ~  Chromium 40- weak-collections throws on primitives, but should return false
+      , THROWS_ON_PRIMITIVES = fails(function(){ instance.has(1); })
+      // most early implementations doesn't supports iterables, most modern - not close it correctly
+      , ACCEPT_ITERABLES     = $iterDetect(function(iter){ new C(iter); }) // eslint-disable-line no-new
+      // for early implementations -0 and +0 not the same
+      , BUGGY_ZERO = !IS_WEAK && fails(function(){
+        // V8 ~ Chromium 42- fails only with 5+ elements
+        var $instance = new C()
+          , index     = 5;
+        while(index--)$instance[ADDER](index, index);
+        return !$instance.has(-0);
+      });
+    if(!ACCEPT_ITERABLES){ 
+      C = wrapper(function(target, iterable){
+        anInstance(target, C, NAME);
+        var that = inheritIfRequired(new Base, target, C);
+        if(iterable != undefined)forOf(iterable, IS_MAP, that[ADDER], that);
+        return that;
+      });
+      C.prototype = proto;
+      proto.constructor = C;
+    }
+    if(THROWS_ON_PRIMITIVES || BUGGY_ZERO){
+      fixMethod('delete');
+      fixMethod('has');
+      IS_MAP && fixMethod('get');
+    }
+    if(BUGGY_ZERO || HASNT_CHAINING)fixMethod(ADDER);
+    // weak collections should not contains .clear method
+    if(IS_WEAK && proto.clear)delete proto.clear;
+  }
+
+  setToStringTag(C, NAME);
+
+  O[NAME] = C;
+  $export($export.G + $export.W + $export.F * (C != Base), O);
+
+  if(!IS_WEAK)common.setStrong(C, NAME, IS_MAP);
+
+  return C;
+};
+
+/***/ }),
+/* 58 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var global = __webpack_require__(2)
+  , hide   = __webpack_require__(11)
+  , uid    = __webpack_require__(31)
+  , TYPED  = uid('typed_array')
+  , VIEW   = uid('view')
+  , ABV    = !!(global.ArrayBuffer && global.DataView)
+  , CONSTR = ABV
+  , i = 0, l = 9, Typed;
+
+var TypedArrayConstructors = (
+  'Int8Array,Uint8Array,Uint8ClampedArray,Int16Array,Uint16Array,Int32Array,Uint32Array,Float32Array,Float64Array'
+).split(',');
+
+while(i < l){
+  if(Typed = global[TypedArrayConstructors[i++]]){
+    hide(Typed.prototype, TYPED, true);
+    hide(Typed.prototype, VIEW, true);
+  } else CONSTR = false;
+}
+
+module.exports = {
+  ABV:    ABV,
+  CONSTR: CONSTR,
+  TYPED:  TYPED,
+  VIEW:   VIEW
+};
+
+/***/ }),
+/* 59 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// Forced replacement prototype accessors methods
+module.exports = __webpack_require__(32)|| !__webpack_require__(3)(function(){
+  var K = Math.random();
+  // In FF throws only define methods
+  __defineSetter__.call(null, K, function(){ /* empty */});
+  delete __webpack_require__(2)[K];
+});
+
+/***/ }),
 /* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2240,7 +2251,7 @@ module.exports = function(name){
 /* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var shared = __webpack_require__(48)('keys')
+var shared = __webpack_require__(49)('keys')
   , uid    = __webpack_require__(31);
 module.exports = function(key){
   return shared[key] || (shared[key] = uid(key));
@@ -2485,7 +2496,7 @@ module.exports = function(Constructor, NAME, next){
 /***/ (function(module, exports, __webpack_require__) {
 
 // helper for String#{startsWith, endsWith, includes}
-var isRegExp = __webpack_require__(52)
+var isRegExp = __webpack_require__(53)
   , defined  = __webpack_require__(19);
 
 module.exports = function(that, searchString, NAME){
@@ -2629,7 +2640,7 @@ module.exports = function(O, D){
 /***/ (function(module, exports, __webpack_require__) {
 
 var ctx                = __webpack_require__(25)
-  , invoke             = __webpack_require__(51)
+  , invoke             = __webpack_require__(52)
   , html               = __webpack_require__(65)
   , cel                = __webpack_require__(60)
   , global             = __webpack_require__(2)
@@ -2786,7 +2797,7 @@ module.exports = function(){
 var global         = __webpack_require__(2)
   , DESCRIPTORS    = __webpack_require__(6)
   , LIBRARY        = __webpack_require__(32)
-  , $typed         = __webpack_require__(57)
+  , $typed         = __webpack_require__(58)
   , hide           = __webpack_require__(11)
   , redefineAll    = __webpack_require__(39)
   , fails          = __webpack_require__(3)
@@ -3103,7 +3114,7 @@ exports.f = __webpack_require__(5);
 
 var has          = __webpack_require__(10)
   , toIObject    = __webpack_require__(14)
-  , arrayIndexOf = __webpack_require__(49)(false)
+  , arrayIndexOf = __webpack_require__(50)(false)
   , IE_PROTO     = __webpack_require__(62)('IE_PROTO');
 
 module.exports = function(object, names){
@@ -3170,7 +3181,7 @@ module.exports.f = function getOwnPropertyNames(it){
 
 // 19.1.2.1 Object.assign(target, source, ...)
 var getKeys  = __webpack_require__(33)
-  , gOPS     = __webpack_require__(50)
+  , gOPS     = __webpack_require__(51)
   , pIE      = __webpack_require__(46)
   , toObject = __webpack_require__(9)
   , IObject  = __webpack_require__(45)
@@ -3218,7 +3229,7 @@ module.exports = Object.is || function is(x, y){
 
 var aFunction  = __webpack_require__(13)
   , isObject   = __webpack_require__(4)
-  , invoke     = __webpack_require__(51)
+  , invoke     = __webpack_require__(52)
   , arraySlice = [].slice
   , factories  = {};
 
@@ -3394,7 +3405,7 @@ module.exports = function(done, value){
 // 21.2.5.3 get RegExp.prototype.flags()
 if(__webpack_require__(6) && /./g.flags != 'g')__webpack_require__(7).f(RegExp.prototype, 'flags', {
   configurable: true,
-  get: __webpack_require__(54)
+  get: __webpack_require__(55)
 });
 
 /***/ }),
@@ -3406,7 +3417,7 @@ if(__webpack_require__(6) && /./g.flags != 'g')__webpack_require__(7).f(RegExp.p
 var strong = __webpack_require__(106);
 
 // 23.1 Map Objects
-module.exports = __webpack_require__(56)('Map', function(get){
+module.exports = __webpack_require__(57)('Map', function(get){
   return function Map(){ return get(this, arguments.length > 0 ? arguments[0] : undefined); };
 }, {
   // 23.1.3.6 Map.prototype.get(key)
@@ -3577,7 +3588,7 @@ module.exports = {
 var strong = __webpack_require__(106);
 
 // 23.2 Set Objects
-module.exports = __webpack_require__(56)('Set', function(get){
+module.exports = __webpack_require__(57)('Set', function(get){
   return function Set(){ return get(this, arguments.length > 0 ? arguments[0] : undefined); };
 }, {
   // 23.2.3.1 Set.prototype.add(value)
@@ -3626,7 +3637,7 @@ var methods = {
 };
 
 // 23.3 WeakMap Objects
-var $WeakMap = module.exports = __webpack_require__(56)('WeakMap', wrapper, methods, weak, true, true);
+var $WeakMap = module.exports = __webpack_require__(57)('WeakMap', wrapper, methods, weak, true, true);
 
 // IE11 WeakMap frozen keys fix
 if(new $WeakMap().set((Object.freeze || Object)(tmp), 7).get(tmp) != 7){
@@ -3743,7 +3754,7 @@ module.exports = {
 
 // all object keys, includes non-enumerable and symbols
 var gOPN     = __webpack_require__(36)
-  , gOPS     = __webpack_require__(50)
+  , gOPS     = __webpack_require__(51)
   , anObject = __webpack_require__(1)
   , Reflect  = __webpack_require__(2).Reflect;
 module.exports = Reflect && Reflect.ownKeys || function ownKeys(it){
@@ -3879,7 +3890,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * eeschema/lib_circle.cpp
  * eeschema/lib_arc.cpp
  */
-var kicad_common_1 = __webpack_require__(59);
+var kicad_common_1 = __webpack_require__(48);
 
 var Library = function () {
     _createClass(Library, null, [{
@@ -4433,7 +4444,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var kicad_common_1 = __webpack_require__(59);
+var kicad_common_1 = __webpack_require__(48);
 var TextOrientationType;
 (function (TextOrientationType) {
     TextOrientationType[TextOrientationType["HORIZ_LEFT"] = 0] = "HORIZ_LEFT";
@@ -5338,7 +5349,7 @@ var global         = __webpack_require__(2)
   , redefine       = __webpack_require__(12)
   , META           = __webpack_require__(29).KEY
   , $fails         = __webpack_require__(3)
-  , shared         = __webpack_require__(48)
+  , shared         = __webpack_require__(49)
   , setToStringTag = __webpack_require__(40)
   , uid            = __webpack_require__(31)
   , wks            = __webpack_require__(5)
@@ -5480,7 +5491,7 @@ if(!USE_NATIVE){
   $DP.f   = $defineProperty;
   __webpack_require__(36).f = gOPNExt.f = $getOwnPropertyNames;
   __webpack_require__(46).f  = $propertyIsEnumerable;
-  __webpack_require__(50).f = $getOwnPropertySymbols;
+  __webpack_require__(51).f = $getOwnPropertySymbols;
 
   if(DESCRIPTORS && !__webpack_require__(32)){
     redefine(ObjectProto, 'propertyIsEnumerable', $propertyIsEnumerable, true);
@@ -5586,7 +5597,7 @@ module.exports = function(object, el){
 
 // all enumerable object keys, includes symbols
 var getKeys = __webpack_require__(33)
-  , gOPS    = __webpack_require__(50)
+  , gOPS    = __webpack_require__(51)
   , pIE     = __webpack_require__(46);
 module.exports = function(it){
   var result     = getKeys(it)
@@ -6945,7 +6956,7 @@ var ctx            = __webpack_require__(25)
   , createProperty = __webpack_require__(78)
   , getIterFn      = __webpack_require__(79);
 
-$export($export.S + $export.F * !__webpack_require__(53)(function(iter){ Array.from(iter); }), 'Array', {
+$export($export.S + $export.F * !__webpack_require__(54)(function(iter){ Array.from(iter); }), 'Array', {
   // 22.1.2.1 Array.from(arrayLike, mapfn = undefined, thisArg = undefined)
   from: function from(arrayLike/*, mapfn = undefined, thisArg = undefined*/){
     var O       = toObject(arrayLike)
@@ -7232,7 +7243,7 @@ $export($export.P + $export.F * !__webpack_require__(20)([].reduceRight, true), 
 "use strict";
 
 var $export       = __webpack_require__(0)
-  , $indexOf      = __webpack_require__(49)(false)
+  , $indexOf      = __webpack_require__(50)(false)
   , $native       = [].indexOf
   , NEGATIVE_ZERO = !!$native && 1 / [1].indexOf(1, -0) < 0;
 
@@ -7350,8 +7361,8 @@ var global            = __webpack_require__(2)
   , inheritIfRequired = __webpack_require__(68)
   , dP                = __webpack_require__(7).f
   , gOPN              = __webpack_require__(36).f
-  , isRegExp          = __webpack_require__(52)
-  , $flags            = __webpack_require__(54)
+  , isRegExp          = __webpack_require__(53)
+  , $flags            = __webpack_require__(55)
   , $RegExp           = global.RegExp
   , Base              = $RegExp
   , proto             = $RegExp.prototype
@@ -7398,7 +7409,7 @@ __webpack_require__(37)('RegExp');
 
 __webpack_require__(104);
 var anObject    = __webpack_require__(1)
-  , $flags      = __webpack_require__(54)
+  , $flags      = __webpack_require__(55)
   , DESCRIPTORS = __webpack_require__(6)
   , TO_STRING   = 'toString'
   , $toString   = /./[TO_STRING];
@@ -7426,7 +7437,7 @@ if(__webpack_require__(3)(function(){ return $toString.call({source: 'a', flags:
 /***/ (function(module, exports, __webpack_require__) {
 
 // @@match logic
-__webpack_require__(55)('match', 1, function(defined, MATCH, $match){
+__webpack_require__(56)('match', 1, function(defined, MATCH, $match){
   // 21.1.3.11 String.prototype.match(regexp)
   return [function match(regexp){
     'use strict';
@@ -7441,7 +7452,7 @@ __webpack_require__(55)('match', 1, function(defined, MATCH, $match){
 /***/ (function(module, exports, __webpack_require__) {
 
 // @@replace logic
-__webpack_require__(55)('replace', 2, function(defined, REPLACE, $replace){
+__webpack_require__(56)('replace', 2, function(defined, REPLACE, $replace){
   // 21.1.3.14 String.prototype.replace(searchValue, replaceValue)
   return [function replace(searchValue, replaceValue){
     'use strict';
@@ -7458,7 +7469,7 @@ __webpack_require__(55)('replace', 2, function(defined, REPLACE, $replace){
 /***/ (function(module, exports, __webpack_require__) {
 
 // @@search logic
-__webpack_require__(55)('search', 1, function(defined, SEARCH, $search){
+__webpack_require__(56)('search', 1, function(defined, SEARCH, $search){
   // 21.1.3.15 String.prototype.search(regexp)
   return [function search(regexp){
     'use strict';
@@ -7473,9 +7484,9 @@ __webpack_require__(55)('search', 1, function(defined, SEARCH, $search){
 /***/ (function(module, exports, __webpack_require__) {
 
 // @@split logic
-__webpack_require__(55)('split', 2, function(defined, SPLIT, $split){
+__webpack_require__(56)('split', 2, function(defined, SPLIT, $split){
   'use strict';
-  var isRegExp   = __webpack_require__(52)
+  var isRegExp   = __webpack_require__(53)
     , _split     = $split
     , $push      = [].push
     , $SPLIT     = 'split'
@@ -7803,7 +7814,7 @@ $export($export.S + $export.F * (LIBRARY || !USE_NATIVE), PROMISE, {
     return capability.promise;
   }
 });
-$export($export.S + $export.F * !(USE_NATIVE && __webpack_require__(53)(function(iter){
+$export($export.S + $export.F * !(USE_NATIVE && __webpack_require__(54)(function(iter){
   $Promise.all(iter)['catch'](empty);
 })), PROMISE, {
   // 25.4.4.1 Promise.all(iterable)
@@ -7857,7 +7868,7 @@ $export($export.S + $export.F * !(USE_NATIVE && __webpack_require__(53)(function
 var weak = __webpack_require__(109);
 
 // 23.4 WeakSet Objects
-__webpack_require__(56)('WeakSet', function(get){
+__webpack_require__(57)('WeakSet', function(get){
   return function WeakSet(){ return get(this, arguments.length > 0 ? arguments[0] : undefined); };
 }, {
   // 23.4.3.1 WeakSet.prototype.add(value)
@@ -7873,7 +7884,7 @@ __webpack_require__(56)('WeakSet', function(get){
 "use strict";
 
 var $export      = __webpack_require__(0)
-  , $typed       = __webpack_require__(57)
+  , $typed       = __webpack_require__(58)
   , buffer       = __webpack_require__(85)
   , anObject     = __webpack_require__(1)
   , toIndex      = __webpack_require__(34)
@@ -7923,7 +7934,7 @@ __webpack_require__(37)(ARRAY_BUFFER);
 /***/ (function(module, exports, __webpack_require__) {
 
 var $export = __webpack_require__(0);
-$export($export.G + $export.W + $export.F * !__webpack_require__(57).ABV, {
+$export($export.G + $export.W + $export.F * !__webpack_require__(58).ABV, {
   DataView: __webpack_require__(85).DataView
 });
 
@@ -8344,7 +8355,7 @@ if(setProto)$export($export.S, 'Reflect', {
 
 // https://github.com/tc39/Array.prototype.includes
 var $export   = __webpack_require__(0)
-  , $includes = __webpack_require__(49)(true);
+  , $includes = __webpack_require__(50)(true);
 
 $export($export.P, 'Array', {
   includes: function includes(el /*, fromIndex = 0 */){
@@ -8438,8 +8449,8 @@ __webpack_require__(41)('trimRight', function($trim){
 var $export     = __webpack_require__(0)
   , defined     = __webpack_require__(19)
   , toLength    = __webpack_require__(8)
-  , isRegExp    = __webpack_require__(52)
-  , getFlags    = __webpack_require__(54)
+  , isRegExp    = __webpack_require__(53)
+  , getFlags    = __webpack_require__(55)
   , RegExpProto = RegExp.prototype;
 
 var $RegExpStringIterator = function(regexp, string){
@@ -8540,7 +8551,7 @@ var $export         = __webpack_require__(0)
   , $defineProperty = __webpack_require__(7);
 
 // B.2.2.2 Object.prototype.__defineGetter__(P, getter)
-__webpack_require__(6) && $export($export.P + __webpack_require__(58), 'Object', {
+__webpack_require__(6) && $export($export.P + __webpack_require__(59), 'Object', {
   __defineGetter__: function __defineGetter__(P, getter){
     $defineProperty.f(toObject(this), P, {get: aFunction(getter), enumerable: true, configurable: true});
   }
@@ -8558,7 +8569,7 @@ var $export         = __webpack_require__(0)
   , $defineProperty = __webpack_require__(7);
 
 // B.2.2.3 Object.prototype.__defineSetter__(P, setter)
-__webpack_require__(6) && $export($export.P + __webpack_require__(58), 'Object', {
+__webpack_require__(6) && $export($export.P + __webpack_require__(59), 'Object', {
   __defineSetter__: function __defineSetter__(P, setter){
     $defineProperty.f(toObject(this), P, {set: aFunction(setter), enumerable: true, configurable: true});
   }
@@ -8577,7 +8588,7 @@ var $export                  = __webpack_require__(0)
   , getOwnPropertyDescriptor = __webpack_require__(16).f;
 
 // B.2.2.4 Object.prototype.__lookupGetter__(P)
-__webpack_require__(6) && $export($export.P + __webpack_require__(58), 'Object', {
+__webpack_require__(6) && $export($export.P + __webpack_require__(59), 'Object', {
   __lookupGetter__: function __lookupGetter__(P){
     var O = toObject(this)
       , K = toPrimitive(P, true)
@@ -8601,7 +8612,7 @@ var $export                  = __webpack_require__(0)
   , getOwnPropertyDescriptor = __webpack_require__(16).f;
 
 // B.2.2.5 Object.prototype.__lookupSetter__(P)
-__webpack_require__(6) && $export($export.P + __webpack_require__(58), 'Object', {
+__webpack_require__(6) && $export($export.P + __webpack_require__(59), 'Object', {
   __lookupSetter__: function __lookupSetter__(P){
     var O = toObject(this)
       , K = toPrimitive(P, true)
@@ -9117,7 +9128,7 @@ __webpack_require__(37)('Observable');
 // ie9- setTimeout & setInterval additional parameters fix
 var global     = __webpack_require__(2)
   , $export    = __webpack_require__(0)
-  , invoke     = __webpack_require__(51)
+  , invoke     = __webpack_require__(52)
   , partial    = __webpack_require__(292)
   , navigator  = global.navigator
   , MSIE       = !!navigator && /MSIE .\./.test(navigator.userAgent); // <- dirty ie9- check
@@ -9142,7 +9153,7 @@ $export($export.G + $export.B + $export.F * MSIE, {
 "use strict";
 
 var path      = __webpack_require__(293)
-  , invoke    = __webpack_require__(51)
+  , invoke    = __webpack_require__(52)
   , aFunction = __webpack_require__(13);
 module.exports = function(/* ...pargs */){
   var fn     = aFunction(this)
@@ -10462,7 +10473,7 @@ function __export(m) {
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(59));
+__export(__webpack_require__(48));
 __export(__webpack_require__(302));
 __export(__webpack_require__(115));
 __export(__webpack_require__(116));
@@ -10535,10 +10546,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var kicad_common_1 = __webpack_require__(59);
+var kicad_common_1 = __webpack_require__(48);
 var kicad_lib_1 = __webpack_require__(115);
 var kicad_sch_1 = __webpack_require__(116);
-var kicad_strokefont_1 = __webpack_require__(307);
+var kicad_strokefont_1 = __webpack_require__(303);
 var TXT_MARGIN = 4;
 var PIN_TXT_MARGIN = 4;
 var DEFAULT_LINE_WIDTH = 6;
@@ -10673,36 +10684,60 @@ var Plotter = function () {
     }, {
         key: "plotLibComponent",
         value: function plotLibComponent(component, unit, convert, transform, reference, name) {
+            /*
             if (component.field && component.field.visibility) {
-                var pos = transform.transformCoordinate({ x: component.field.posx, y: component.field.posy });
-                var orientation = component.field.textOrientation;
+                const pos = transform.transformCoordinate({ x: component.field.posx, y: component.field.posy});
+                let orientation = component.field.textOrientation;
                 if (transform.y1) {
-                    if (orientation === kicad_common_1.TextAngle.HORIZ) {
-                        orientation = kicad_common_1.TextAngle.VERT;
+                    if (orientation === TextAngle.HORIZ) {
+                        orientation = TextAngle.VERT;
                     } else {
-                        orientation = kicad_common_1.TextAngle.HORIZ;
+                        orientation = TextAngle.HORIZ;
                     }
                 }
-                var text = typeof reference !== 'undefined' ? reference : component.field.reference;
-                var width = 0; //this.font.computeTextLineSize(text, component.field.textSize, DEFAULT_LINE_WIDTH);
-                var height = 0; //this.font.getInterline(component.field.textSize, DEFAULT_LINE_WIDTH);
-                this.text(kicad_common_1.Point.add({ x: width / 2, y: height / 2 }, pos), SCH_COLORS.LAYER_REFERENCEPART, text, orientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, DEFAULT_LINE_WIDTH, component.field.italic, component.field.bold);
+                 let text  = (typeof reference !== 'undefined') ? reference : component.field.reference;
+                const width  = 0;//this.font.computeTextLineSize(text, component.field.textSize, DEFAULT_LINE_WIDTH);
+                const height = 0;//this.font.getInterline(component.field.textSize, DEFAULT_LINE_WIDTH);
+                 this.text(
+                    Point.add({ x: width / 2, y: height /2 }, pos),
+                    SCH_COLORS.LAYER_REFERENCEPART,
+                    text,
+                    orientation,
+                    component.field.textSize,
+                    TextHjustify.CENTER,
+                    TextVjustify.CENTER,
+                    DEFAULT_LINE_WIDTH,
+                    component.field.italic,
+                    component.field.bold,
+                );
             }
-            if (component.fields[0] && component.fields[0].visibility) {
-                var _pos = transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy });
-                var _orientation = component.fields[0].textOrientation;
+             if (component.fields[0] && component.fields[0].visibility) {
+                const pos = transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy});
+                let orientation = component.fields[0].textOrientation;
                 if (transform.y1) {
-                    if (_orientation === kicad_common_1.TextAngle.HORIZ) {
-                        _orientation = kicad_common_1.TextAngle.VERT;
+                    if (orientation === TextAngle.HORIZ) {
+                        orientation = TextAngle.VERT;
                     } else {
-                        _orientation = kicad_common_1.TextAngle.HORIZ;
+                        orientation = TextAngle.HORIZ;
                     }
                 }
-                var _text2 = typeof name !== 'undefined' ? name : component.fields[0].name;
-                var _width = 0; // this.font.computeTextLineSize(text, component.fields[0].textSize, DEFAULT_LINE_WIDTH);
-                var _height = 0; // this.font.getInterline(component.fields[0].textSize, DEFAULT_LINE_WIDTH);
-                this.text(kicad_common_1.Point.add({ x: _width / 2, y: _height / 2 }, _pos), SCH_COLORS.LAYER_VALUEPART, _text2, _orientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, DEFAULT_LINE_WIDTH, component.fields[0].italic, component.fields[0].bold);
+                let text  = (typeof name !== 'undefined') ? name : component.fields[0].name;
+                const width  = 0; // this.font.computeTextLineSize(text, component.fields[0].textSize, DEFAULT_LINE_WIDTH);
+                const height = 0; // this.font.getInterline(component.fields[0].textSize, DEFAULT_LINE_WIDTH);
+                this.text(
+                    Point.add({ x: width / 2, y: height / 2 }, pos),
+                    SCH_COLORS.LAYER_VALUEPART,
+                    text,
+                    orientation,
+                    component.fields[0].textSize,
+                    TextHjustify.CENTER,
+                    TextVjustify.CENTER,
+                    DEFAULT_LINE_WIDTH,
+                    component.fields[0].italic,
+                    component.fields[0].bold
+                );
             }
+            */
             this.setColor(SCH_COLORS.LAYER_DEVICE);
             var _iteratorNormalCompletion = true;
             var _didIteratorError = false;
@@ -10996,86 +11031,52 @@ var Plotter = function () {
                             continue;
                         }
                         this.plotLibComponent(component, item.unit, item.convert, item.transform, item.fields[0].text, item.fields[1].text);
-                        //				for (let field of item.fields) {
-                        //					if (!field.text) continue;
-                        //					if (!field.visibility) continue;
-                        //					if (field.number >= 2) continue;
-                        //					console.log(field);
-                        //
-                        //					let orientation = component.field.textOrientation;
-                        //					if (item.transform.y1) {
-                        //						if (orientation === TextAngle.HORIZ) {
-                        //							orientation = TextAngle.VERT;
-                        //						} else {
-                        //							orientation = TextAngle.HORIZ;
-                        //						}
-                        //					}
-                        //
-                        //					const pos = { x: field.posx, y: field.posy};
-                        //					this.text(
-                        //						pos,
-                        //						SCH_COLORS.LAYER_REFERENCEPART,
-                        //						field.text,
-                        //						orientation,
-                        //						field.size,
-                        //						TextHjustify.CENTER,
-                        //						TextVjustify.CENTER,
-                        //						DEFAULT_LINE_WIDTH,
-                        //						field.italic,
-                        //						field.bold,
-                        //					);
-                        //
-                        //					/*
-                        //					const size = field.size || DEFAULT_SIZE_TEXT;
-                        //					const rect = this.getTextBox(field, size, DEFAULT_LINE_WIDTH, false);
-                        //
-                        //					const origin = { x: item.posx, y: item.posy };
-                        //					const pos = Point.sub({ x: field.posx, y: field.posy }, origin);
-                        //					const begin = Point.sub( rect.pos1, origin);
-                        //					const end = Point.sub(rect.pos2, origin);
-                        //
-                        //					this.text(
-                        //						pos,
-                        //						SCH_COLORS.LAYER_REFERENCEPART,
-                        //						field.text,
-                        //						orientation,
-                        //						size,
-                        //						TextHjustify.CENTER,
-                        //						TextVjustify.CENTER,
-                        //						DEFAULT_LINE_WIDTH,
-                        //						field.italic,
-                        //						field.bold
-                        //					);
-                        //					*/
-                        //				}
-                    } else if (item instanceof kicad_sch_1.Sheet) {
-                        this.setColor(SCH_COLORS.LAYER_SHEET);
-                        this.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
-                        this.fill = kicad_common_1.Fill.NO_FILL;
-                        this.moveTo(item.posx, item.posy);
-                        this.lineTo(item.posx, item.posy + item.sizey);
-                        this.lineTo(item.posx + item.sizex, item.posy + item.sizey);
-                        this.lineTo(item.posx + item.sizex, item.posy);
-                        this.finishTo(item.posx, item.posy);
-                        this.text({ x: item.posx, y: item.posy - 4 }, SCH_COLORS.LAYER_SHEETNAME, item.sheetName, 0, item.sheetNameSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.BOTTOM, DEFAULT_LINE_WIDTH, false, false);
-                        this.text({ x: item.posx, y: item.posy + item.sizey + 4 }, SCH_COLORS.LAYER_SHEETFILENAME, item.fileName, 0, item.fileNameSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.TOP, DEFAULT_LINE_WIDTH, false, false);
-                        this.setColor(SCH_COLORS.LAYER_SHEETLABEL);
                         var _iteratorNormalCompletion4 = true;
                         var _didIteratorError4 = false;
                         var _iteratorError4 = undefined;
 
                         try {
-                            for (var _iterator4 = item.sheetPins[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-                                var pin = _step4.value;
+                            for (var _iterator4 = item.fields[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                                var field = _step4.value;
 
-                                var tmp = pin.shape;
-                                if (pin.shape === kicad_common_1.Net.INPUT) {
-                                    pin.shape = kicad_common_1.Net.OUTPUT;
-                                } else if (pin.shape === kicad_common_1.Net.OUTPUT) {
-                                    pin.shape = kicad_common_1.Net.INPUT;
+                                if (!field.text) continue;
+                                if (!field.visibility) continue;
+                                if (field.number >= 2) continue;
+                                var orientation = field.angle;
+                                if (item.transform.y1) {
+                                    if (orientation === kicad_common_1.TextAngle.HORIZ) {
+                                        orientation = kicad_common_1.TextAngle.VERT;
+                                    } else {
+                                        orientation = kicad_common_1.TextAngle.HORIZ;
+                                    }
                                 }
-                                this.plotSchTextHierarchicalLabel(pin);
-                                pin.shape = tmp;
+                                var size = field.size || DEFAULT_SIZE_TEXT;
+                                var textWidth = this.font.computeTextLineSize(field.text, size, DEFAULT_LINE_WIDTH);
+                                var textHeight = this.font.getInterline(size, DEFAULT_LINE_WIDTH);
+                                var relative = kicad_common_1.Point.sub({ x: field.posx, y: field.posy }, { x: item.posx, y: item.posy });
+                                var textpos = item.transform.transformCoordinate(relative);
+                                //					{
+                                //						const rect = this.getTextBox(field, size, DEFAULT_LINE_WIDTH, false);
+                                //
+                                //						const origin = { x: item.posx, y: item.posy };
+                                //						// relative point to component origin
+                                //						const pos    = Point.sub({ x: field.posx, y: field.posy }, origin);
+                                //						const begin  = Point.sub(rect.pos1, origin);
+                                //						const end    = Point.sub(rect.pos2, origin);
+                                ////						RotatePointWithCenter(begin, pos, orientation);
+                                ////						RotatePointWithCenter(end, pos, orientation);
+                                ////						begin.y = -(begin.y - pos.y) + pos.y;
+                                ////						end.y = -(end.y - pos.y) + pos.y;
+                                //
+                                //						rect.pos1 = Point.add(item.transform.transformCoordinate(begin), origin);
+                                //						rect.pos2 = Point.add(item.transform.transformCoordinate(end), origin);
+                                //
+                                //						center = {
+                                //							x: rect.pos1.x + rect.width / 2,
+                                //							y: rect.pos1.y + rect.height / 2
+                                //						};
+                                //					}
+                                this.text(textpos, SCH_COLORS.LAYER_REFERENCEPART, field.text, orientation, size, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, DEFAULT_LINE_WIDTH, field.italic, field.bold);
                             }
                         } catch (err) {
                             _didIteratorError4 = true;
@@ -11088,6 +11089,49 @@ var Plotter = function () {
                             } finally {
                                 if (_didIteratorError4) {
                                     throw _iteratorError4;
+                                }
+                            }
+                        }
+                    } else if (item instanceof kicad_sch_1.Sheet) {
+                        this.setColor(SCH_COLORS.LAYER_SHEET);
+                        this.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
+                        this.fill = kicad_common_1.Fill.NO_FILL;
+                        this.moveTo(item.posx, item.posy);
+                        this.lineTo(item.posx, item.posy + item.sizey);
+                        this.lineTo(item.posx + item.sizex, item.posy + item.sizey);
+                        this.lineTo(item.posx + item.sizex, item.posy);
+                        this.finishTo(item.posx, item.posy);
+                        this.text({ x: item.posx, y: item.posy - 4 }, SCH_COLORS.LAYER_SHEETNAME, item.sheetName, 0, item.sheetNameSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.BOTTOM, DEFAULT_LINE_WIDTH, false, false);
+                        this.text({ x: item.posx, y: item.posy + item.sizey + 4 }, SCH_COLORS.LAYER_SHEETFILENAME, item.fileName, 0, item.fileNameSize, kicad_common_1.TextHjustify.LEFT, kicad_common_1.TextVjustify.TOP, DEFAULT_LINE_WIDTH, false, false);
+                        this.setColor(SCH_COLORS.LAYER_SHEETLABEL);
+                        var _iteratorNormalCompletion5 = true;
+                        var _didIteratorError5 = false;
+                        var _iteratorError5 = undefined;
+
+                        try {
+                            for (var _iterator5 = item.sheetPins[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                                var pin = _step5.value;
+
+                                var tmp = pin.shape;
+                                if (pin.shape === kicad_common_1.Net.INPUT) {
+                                    pin.shape = kicad_common_1.Net.OUTPUT;
+                                } else if (pin.shape === kicad_common_1.Net.OUTPUT) {
+                                    pin.shape = kicad_common_1.Net.INPUT;
+                                }
+                                this.plotSchTextHierarchicalLabel(pin);
+                                pin.shape = tmp;
+                            }
+                        } catch (err) {
+                            _didIteratorError5 = true;
+                            _iteratorError5 = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                                    _iterator5.return();
+                                }
+                            } finally {
+                                if (_didIteratorError5) {
+                                    throw _iteratorError5;
                                 }
                             }
                         }
@@ -11191,13 +11235,13 @@ var Plotter = function () {
                 } else if (item.orientationType === kicad_sch_1.TextOrientationType.BOTTOM) {
                     angle = 900;
                 }
-                var _iteratorNormalCompletion5 = true;
-                var _didIteratorError5 = false;
-                var _iteratorError5 = undefined;
+                var _iteratorNormalCompletion6 = true;
+                var _didIteratorError6 = false;
+                var _iteratorError6 = undefined;
 
                 try {
-                    for (var _iterator5 = points[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-                        var p = _step5.value;
+                    for (var _iterator6 = points[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+                        var p = _step6.value;
 
                         p.x += xOffset;
                         if (angle) {
@@ -11207,16 +11251,16 @@ var Plotter = function () {
                         p.y += item.posy;
                     }
                 } catch (err) {
-                    _didIteratorError5 = true;
-                    _iteratorError5 = err;
+                    _didIteratorError6 = true;
+                    _iteratorError6 = err;
                 } finally {
                     try {
-                        if (!_iteratorNormalCompletion5 && _iterator5.return) {
-                            _iterator5.return();
+                        if (!_iteratorNormalCompletion6 && _iterator6.return) {
+                            _iterator6.return();
                         }
                     } finally {
-                        if (_didIteratorError5) {
-                            throw _iteratorError5;
+                        if (_didIteratorError6) {
+                            throw _iteratorError6;
                         }
                     }
                 }
@@ -11763,212 +11807,6 @@ exports.SVGPlotter = SVGPlotter;
 /* 303 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(117);
-__webpack_require__(300);
-module.exports = __webpack_require__(304);
-
-
-/***/ }),
-/* 304 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
-
-var _require = __webpack_require__(301),
-    Transform = _require.Transform,
-    CanvasPlotter = _require.CanvasPlotter,
-    Library = _require.Library;
-
-var app = new Vue({
-	el: '#app',
-	data: {
-		url: "https://raw.githubusercontent.com/KiCad/kicad-library/master/library/device.lib",
-		fileName: "",
-		status: "init",
-		lib: {},
-		components: []
-	},
-
-	created: function created() {},
-
-	mounted: function mounted() {
-		console.log(this.$refs);
-		if (location.search) {
-			this.loadLibrary(location.search.substring(1) || '/lib/device.lib');
-		}
-	},
-
-	methods: {
-		fileSelected: function fileSelected() {
-			var file = this.$refs.fileInput.files[0];
-			this.fileName = file.name;
-			var objectURL = window.URL.createObjectURL(file);
-			this.loadLibrary(objectURL);
-		},
-
-		onSubmit: function onSubmit() {
-			var _this = this;
-
-			var url = this.url;
-			if (!url) {
-				this.status = "url is required";
-				return;
-			}
-			this.loadLibrary(url).catch(function (e) {
-				_this.status = e;
-			});
-		},
-
-		loadLibrary: function () {
-			var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(url) {
-				var res, text, lib, canvasElements, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, canvas, name, component, rect, PADDING, width, height, scale, ctx, plotter;
-
-				return regeneratorRuntime.wrap(function _callee$(_context) {
-					while (1) {
-						switch (_context.prev = _context.next) {
-							case 0:
-								this.status = "loading";
-								console.log('loadLibrary');
-								_context.next = 4;
-								return fetch(url);
-
-							case 4:
-								res = _context.sent;
-								_context.next = 7;
-								return res.text();
-
-							case 7:
-								text = _context.sent;
-
-								this.status = "parsing";
-								lib = Library.load(text);
-
-								this.lib = lib;
-								this.components = lib.components;
-								_context.next = 14;
-								return Vue.nextTick();
-
-							case 14:
-								this.status = "rendering";
-								console.log(this.$refs);
-								canvasElements = this.$refs.canvas;
-								_iteratorNormalCompletion = true;
-								_didIteratorError = false;
-								_iteratorError = undefined;
-								_context.prev = 20;
-								_iterator = canvasElements[Symbol.iterator]();
-
-							case 22:
-								if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-									_context.next = 46;
-									break;
-								}
-
-								canvas = _step.value;
-								name = canvas.getAttribute('data-name');
-
-								console.log(canvas, name);
-								component = lib.findByName(name);
-								rect = component.draw.getBoundingRect();
-
-								if (rect) {
-									_context.next = 30;
-									break;
-								}
-
-								return _context.abrupt("return", "data:");
-
-							case 30:
-								PADDING = 500;
-								width = rect.getWidth() + PADDING, height = rect.getHeight() + PADDING;
-
-
-								canvas.width = 500;
-								canvas.height = 500;
-
-								scale = Math.min(canvas.width / width, canvas.height / height);
-
-								console.log('plot', component.name, rect, width, height, scale);
-
-								ctx = canvas.getContext('2d');
-
-								ctx.translate(canvas.width / 2, canvas.height / 2);
-								ctx.scale(scale, scale);
-								ctx.stokeStyle = '#000';
-								ctx.fillStyle = '#000';
-
-								plotter = new CanvasPlotter(ctx);
-
-								plotter.plotLibComponent(component, 1, 1, { x: 0, y: 0 }, new Transform());
-
-							case 43:
-								_iteratorNormalCompletion = true;
-								_context.next = 22;
-								break;
-
-							case 46:
-								_context.next = 52;
-								break;
-
-							case 48:
-								_context.prev = 48;
-								_context.t0 = _context["catch"](20);
-								_didIteratorError = true;
-								_iteratorError = _context.t0;
-
-							case 52:
-								_context.prev = 52;
-								_context.prev = 53;
-
-								if (!_iteratorNormalCompletion && _iterator.return) {
-									_iterator.return();
-								}
-
-							case 55:
-								_context.prev = 55;
-
-								if (!_didIteratorError) {
-									_context.next = 58;
-									break;
-								}
-
-								throw _iteratorError;
-
-							case 58:
-								return _context.finish(55);
-
-							case 59:
-								return _context.finish(52);
-
-							case 60:
-								this.status = "done";
-
-							case 61:
-							case "end":
-								return _context.stop();
-						}
-					}
-				}, _callee, this, [[20, 48, 52, 60], [53,, 55, 59]]);
-			}));
-
-			function loadLibrary(_x) {
-				return _ref.apply(this, arguments);
-			}
-
-			return loadLibrary;
-		}()
-	}
-});
-
-/***/ }),
-/* 305 */,
-/* 306 */,
-/* 307 */
-/***/ (function(module, exports, __webpack_require__) {
-
 "use strict";
 
 /*
@@ -12005,8 +11843,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var kicad_common_1 = __webpack_require__(59);
-var kicad_strokefont_data_1 = __webpack_require__(308);
+var kicad_common_1 = __webpack_require__(48);
+var kicad_strokefont_data_1 = __webpack_require__(304);
 var INTERLINE_PITCH_RATIO = 1.5;
 var OVERBAR_POSITION_FACTOR = 1.22;
 var BOLD_FACTOR = 1.3;
@@ -12283,7 +12121,7 @@ var StrokeFont = function () {
 exports.StrokeFont = StrokeFont;
 
 /***/ }),
-/* 308 */
+/* 304 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12495,6 +12333,210 @@ exports.STROKE_FONT = [
 "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[",
 /* // Miscellaneous Symbols and Arrows (2B00-2BFF) */
 "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K["];
+
+/***/ }),
+/* 305 */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(117);
+__webpack_require__(300);
+module.exports = __webpack_require__(306);
+
+
+/***/ }),
+/* 306 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+
+var _require = __webpack_require__(301),
+    Transform = _require.Transform,
+    CanvasPlotter = _require.CanvasPlotter,
+    Library = _require.Library;
+
+var app = new Vue({
+	el: '#app',
+	data: {
+		url: "https://raw.githubusercontent.com/KiCad/kicad-library/master/library/device.lib",
+		fileName: "",
+		status: "init",
+		lib: {},
+		components: []
+	},
+
+	created: function created() {},
+
+	mounted: function mounted() {
+		console.log(this.$refs);
+		if (location.search) {
+			this.loadLibrary(location.search.substring(1) || '/lib/device.lib');
+		}
+	},
+
+	methods: {
+		fileSelected: function fileSelected() {
+			var file = this.$refs.fileInput.files[0];
+			this.fileName = file.name;
+			var objectURL = window.URL.createObjectURL(file);
+			this.loadLibrary(objectURL);
+		},
+
+		onSubmit: function onSubmit() {
+			var _this = this;
+
+			var url = this.url;
+			if (!url) {
+				this.status = "url is required";
+				return;
+			}
+			this.loadLibrary(url).catch(function (e) {
+				_this.status = e;
+			});
+		},
+
+		loadLibrary: function () {
+			var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(url) {
+				var res, text, lib, canvasElements, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, canvas, name, component, rect, PADDING, width, height, scale, ctx, plotter;
+
+				return regeneratorRuntime.wrap(function _callee$(_context) {
+					while (1) {
+						switch (_context.prev = _context.next) {
+							case 0:
+								this.status = "loading";
+								console.log('loadLibrary');
+								_context.next = 4;
+								return fetch(url);
+
+							case 4:
+								res = _context.sent;
+								_context.next = 7;
+								return res.text();
+
+							case 7:
+								text = _context.sent;
+
+								this.status = "parsing";
+								lib = Library.load(text);
+
+								this.lib = lib;
+								this.components = lib.components;
+								_context.next = 14;
+								return Vue.nextTick();
+
+							case 14:
+								this.status = "rendering";
+								console.log(this.$refs);
+								canvasElements = this.$refs.canvas;
+								_iteratorNormalCompletion = true;
+								_didIteratorError = false;
+								_iteratorError = undefined;
+								_context.prev = 20;
+								_iterator = canvasElements[Symbol.iterator]();
+
+							case 22:
+								if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+									_context.next = 46;
+									break;
+								}
+
+								canvas = _step.value;
+								name = canvas.getAttribute('data-name');
+
+								console.log(canvas, name);
+								component = lib.findByName(name);
+								rect = component.draw.getBoundingRect();
+
+								if (rect) {
+									_context.next = 30;
+									break;
+								}
+
+								return _context.abrupt("return", "data:");
+
+							case 30:
+								PADDING = 500;
+								width = rect.getWidth() + PADDING, height = rect.getHeight() + PADDING;
+
+
+								canvas.width = 500;
+								canvas.height = 500;
+
+								scale = Math.min(canvas.width / width, canvas.height / height);
+
+								console.log('plot', component.name, rect, width, height, scale);
+
+								ctx = canvas.getContext('2d');
+
+								ctx.translate(canvas.width / 2, canvas.height / 2);
+								ctx.scale(scale, scale);
+								ctx.stokeStyle = '#000';
+								ctx.fillStyle = '#000';
+
+								plotter = new CanvasPlotter(ctx);
+
+								plotter.plotLibComponent(component, 1, 1, { x: 0, y: 0 }, new Transform());
+
+							case 43:
+								_iteratorNormalCompletion = true;
+								_context.next = 22;
+								break;
+
+							case 46:
+								_context.next = 52;
+								break;
+
+							case 48:
+								_context.prev = 48;
+								_context.t0 = _context["catch"](20);
+								_didIteratorError = true;
+								_iteratorError = _context.t0;
+
+							case 52:
+								_context.prev = 52;
+								_context.prev = 53;
+
+								if (!_iteratorNormalCompletion && _iterator.return) {
+									_iterator.return();
+								}
+
+							case 55:
+								_context.prev = 55;
+
+								if (!_didIteratorError) {
+									_context.next = 58;
+									break;
+								}
+
+								throw _iteratorError;
+
+							case 58:
+								return _context.finish(55);
+
+							case 59:
+								return _context.finish(52);
+
+							case 60:
+								this.status = "done";
+
+							case 61:
+							case "end":
+								return _context.stop();
+						}
+					}
+				}, _callee, this, [[20, 48, 52, 60], [53,, 55, 59]]);
+			}));
+
+			function loadLibrary(_x) {
+				return _ref.apply(this, arguments);
+			}
+
+			return loadLibrary;
+		}()
+	}
+});
 
 /***/ })
 /******/ ]);

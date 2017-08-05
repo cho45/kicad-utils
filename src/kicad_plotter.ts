@@ -31,6 +31,7 @@ import {
 	DECIDEG2RAD,
 	MM2MIL,
 	RotatePoint,
+	RotatePointWithCenter,
 
 	Fill,
 	TextHjustify,
@@ -273,6 +274,7 @@ export abstract class Plotter {
 	 * kicad-js implements plot methods to plotter instead of each library items for simplify parsing dependencies.
 	 */
 	plotLibComponent(component: LibComponent, unit: number, convert: number, transform: Transform, reference?: string, name?: string): void {
+		/*
 		if (component.field && component.field.visibility) {
 			const pos = transform.transformCoordinate({ x: component.field.posx, y: component.field.posy});
 			let orientation = component.field.textOrientation;
@@ -328,6 +330,7 @@ export abstract class Plotter {
 				component.fields[0].bold
 			);
 		}
+		*/
 
 		this.setColor(SCH_COLORS.LAYER_DEVICE);
 		for (let draw of component.draw.objects) {
@@ -745,58 +748,60 @@ export abstract class Plotter {
 					continue;
 				}
 				this.plotLibComponent(component, item.unit, item.convert, item.transform, item.fields[0].text, item.fields[1].text);
-//				for (let field of item.fields) {
-//					if (!field.text) continue;
-//					if (!field.visibility) continue;
-//					if (field.number >= 2) continue;
-//					console.log(field);
+				for (let field of item.fields) {
+					if (!field.text) continue;
+					if (!field.visibility) continue;
+					if (field.number >= 2) continue;
+
+					let orientation = field.angle;
+					if (item.transform.y1) {
+						if (orientation === TextAngle.HORIZ) {
+							orientation = TextAngle.VERT;
+						} else {
+							orientation = TextAngle.HORIZ;
+						}
+					}
+
+					const size = field.size || DEFAULT_SIZE_TEXT;
+					const textWidth  = this.font.computeTextLineSize(field.text, size, DEFAULT_LINE_WIDTH);
+					const textHeight = this.font.getInterline(size, DEFAULT_LINE_WIDTH);
+					const relative   = Point.sub({ x: field.posx, y: field.posy }, { x: item.posx, y: item.posy });
+					let textpos = item.transform.transformCoordinate(relative);
+//					{
+//						const rect = this.getTextBox(field, size, DEFAULT_LINE_WIDTH, false);
 //
-//					let orientation = component.field.textOrientation;
-//					if (item.transform.y1) {
-//						if (orientation === TextAngle.HORIZ) {
-//							orientation = TextAngle.VERT;
-//						} else {
-//							orientation = TextAngle.HORIZ;
-//						}
+//						const origin = { x: item.posx, y: item.posy };
+//						// relative point to component origin
+//						const pos    = Point.sub({ x: field.posx, y: field.posy }, origin);
+//						const begin  = Point.sub(rect.pos1, origin);
+//						const end    = Point.sub(rect.pos2, origin);
+////						RotatePointWithCenter(begin, pos, orientation);
+////						RotatePointWithCenter(end, pos, orientation);
+////						begin.y = -(begin.y - pos.y) + pos.y;
+////						end.y = -(end.y - pos.y) + pos.y;
+//
+//						rect.pos1 = Point.add(item.transform.transformCoordinate(begin), origin);
+//						rect.pos2 = Point.add(item.transform.transformCoordinate(end), origin);
+//
+//						center = {
+//							x: rect.pos1.x + rect.width / 2,
+//							y: rect.pos1.y + rect.height / 2
+//						};
 //					}
-//
-//					const pos = { x: field.posx, y: field.posy};
-//					this.text(
-//						pos,
-//						SCH_COLORS.LAYER_REFERENCEPART,
-//						field.text,
-//						orientation,
-//						field.size,
-//						TextHjustify.CENTER,
-//						TextVjustify.CENTER,
-//						DEFAULT_LINE_WIDTH,
-//						field.italic,
-//						field.bold,
-//					);
-//
-//					/*
-//					const size = field.size || DEFAULT_SIZE_TEXT;
-//					const rect = this.getTextBox(field, size, DEFAULT_LINE_WIDTH, false);
-//
-//					const origin = { x: item.posx, y: item.posy };
-//					const pos = Point.sub({ x: field.posx, y: field.posy }, origin);
-//					const begin = Point.sub( rect.pos1, origin);
-//					const end = Point.sub(rect.pos2, origin);
-//
-//					this.text(
-//						pos,
-//						SCH_COLORS.LAYER_REFERENCEPART,
-//						field.text,
-//						orientation,
-//						size,
-//						TextHjustify.CENTER,
-//						TextVjustify.CENTER,
-//						DEFAULT_LINE_WIDTH,
-//						field.italic,
-//						field.bold
-//					);
-//					*/
-//				}
+
+					this.text(
+						textpos,
+						SCH_COLORS.LAYER_REFERENCEPART,
+						field.text,
+						orientation,
+						size,
+						TextHjustify.CENTER,
+						TextVjustify.CENTER,
+						DEFAULT_LINE_WIDTH,
+						field.italic,
+						field.bold
+					);
+				}
 			} else
 			if (item instanceof Sheet) {
 				this.setColor(SCH_COLORS.LAYER_SHEET);

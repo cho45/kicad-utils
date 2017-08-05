@@ -75,6 +75,17 @@ function RotatePoint(p, angle) {
     return p;
 }
 exports.RotatePoint = RotatePoint;
+function RotatePointWithCenter(p, center, angle) {
+    const t = {
+        x: p.x - center.x,
+        y: p.y - center.y,
+    };
+    RotatePoint(t, angle);
+    p.x = t.x + center.x;
+    p.y = t.y + center.y;
+    return p;
+}
+exports.RotatePointWithCenter = RotatePointWithCenter;
 function MM2MIL(mm) {
     return mm / 0.0254;
 }
