@@ -463,8 +463,11 @@ export abstract class Plotter {
 			x1 += draw.length;
 		}
 
-		const nameOffset = PIN_TXT_MARGIN + DEFAULT_LINE_WIDTH / 2;
-		const numOffset  = PIN_TXT_MARGIN + DEFAULT_LINE_WIDTH / 2;
+		const nameLineWidth = this.font.clampTextPenSize(DEFAULT_LINE_WIDTH, draw.nameTextSize, false);
+		const numLineWidth = this.font.clampTextPenSize(DEFAULT_LINE_WIDTH, draw.numTextSize, false);
+
+		const nameOffset = PIN_TXT_MARGIN + (nameLineWidth + DEFAULT_LINE_WIDTH) / 2;
+		const numOffset  = PIN_TXT_MARGIN + (numLineWidth + DEFAULT_LINE_WIDTH) / 2;
 		const textInside = component.textOffset;
 
 		const isHorizontal = orientation === PinOrientation.LEFT || orientation === PinOrientation.RIGHT;
@@ -481,7 +484,7 @@ export abstract class Plotter {
 							draw.nameTextSize,
 							TextHjustify.LEFT,
 							TextVjustify.CENTER,
-							DEFAULT_LINE_WIDTH,
+							nameLineWidth,
 							false,
 							false
 						)
@@ -494,7 +497,7 @@ export abstract class Plotter {
 							draw.nameTextSize,
 							TextHjustify.RIGHT,
 							TextVjustify.CENTER,
-							DEFAULT_LINE_WIDTH,
+							nameLineWidth,
 							false,
 							false
 						)
@@ -503,14 +506,14 @@ export abstract class Plotter {
 
 				if (drawPinnumber) {
 					this.text(
-						{x: (x1 + pos.x) / 2, y: y1 + numOffset},
+						{x: (x1 + pos.x) / 2, y: y1 - numOffset},
 						SCH_COLORS.LAYER_PINNUM,
 						draw.num,
 						TextAngle.HORIZ,
 						draw.nameTextSize,
 						TextHjustify.CENTER,
 						TextVjustify.BOTTOM,
-						DEFAULT_LINE_WIDTH,
+						numLineWidth,
 						false,
 						false
 					)
@@ -526,7 +529,7 @@ export abstract class Plotter {
 							draw.nameTextSize,
 							TextHjustify.RIGHT,
 							TextVjustify.CENTER,
-							DEFAULT_LINE_WIDTH,
+							nameLineWidth,
 							false,
 							false
 						);
@@ -540,7 +543,7 @@ export abstract class Plotter {
 							draw.nameTextSize,
 							TextHjustify.CENTER,
 							TextVjustify.BOTTOM,
-							DEFAULT_LINE_WIDTH,
+							numLineWidth,
 							false,
 							false
 						);
@@ -555,7 +558,7 @@ export abstract class Plotter {
 							draw.nameTextSize,
 							TextHjustify.LEFT,
 							TextVjustify.CENTER,
-							DEFAULT_LINE_WIDTH,
+							nameLineWidth,
 							false,
 							false
 						);
@@ -569,7 +572,7 @@ export abstract class Plotter {
 							draw.nameTextSize,
 							TextHjustify.CENTER,
 							TextVjustify.BOTTOM,
-							DEFAULT_LINE_WIDTH,
+							numLineWidth,
 							false,
 							false
 						);
@@ -587,7 +590,7 @@ export abstract class Plotter {
 						draw.nameTextSize,
 						TextHjustify.CENTER,
 						TextVjustify.BOTTOM,
-						DEFAULT_LINE_WIDTH,
+						nameLineWidth,
 						false,
 						false
 					)
@@ -602,7 +605,7 @@ export abstract class Plotter {
 						draw.numTextSize,
 						TextHjustify.CENTER,
 						TextVjustify.TOP,
-						DEFAULT_LINE_WIDTH,
+						numLineWidth,
 						false,
 						false
 					)
@@ -617,7 +620,7 @@ export abstract class Plotter {
 						draw.nameTextSize,
 						TextHjustify.CENTER,
 						TextVjustify.BOTTOM,
-						DEFAULT_LINE_WIDTH,
+						nameLineWidth,
 						false,
 						false
 					)
@@ -632,7 +635,7 @@ export abstract class Plotter {
 						draw.numTextSize,
 						TextHjustify.CENTER,
 						TextVjustify.TOP,
-						DEFAULT_LINE_WIDTH,
+						numLineWidth,
 						false,
 						false
 					)
