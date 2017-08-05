@@ -16,6 +16,7 @@ const app = new Vue({
 		status: "init",
 		lib: {},
 		components: [],
+		results: [],
 	},
 
 	created: function () {
@@ -80,18 +81,32 @@ const app = new Vue({
 			}
 
 			const libs = libFiles.map( (file) => Library.load(file.content) );
-			const sch = Schematic.load(schFiles[0].content);
 
-			const svgPlotter = new SVGPlotter();
-			svgPlotter.plotSchematic(sch, libs);
-			const svg = svgPlotter.output;
+			this.results = [];
+			for (let schFile of schFiles) {
+				const sch = Schematic.load(schFile.content);
 
-			if (typeof Blob !== 'undefined') {
-				const blob = new Blob([svg], {type : 'image/svg+xml'});
-				this.$refs.img.src = URL.createObjectURL(blob);
-			} else {
-				this.$refs.img.src = 'data:image/svg+xml,' + encodeURIComponent(svg);
+				const svgPlotter = new SVGPlotter();
+				svgPlotter.plotSchematic(sch, libs);
+				const svg = svgPlotter.output;
+
+				let src;
+				if (typeof Blob !== 'undefined') {
+					const blob = new Blob([svg], {type : 'image/svg+xml'});
+					src = URL.createObjectURL(blob);
+				} else {
+					src = 'data:image/svg+xml,' + encodeURIComponent(svg);
+				}
+				this.results.push({
+					url: schFile.url,
+					src: src
+				});
 			}
+		},
+
+		basename: function (url) {
+			const matched = url.replace(/[#?].+$/, '').match(/[^/]+$/);
+			return decodeURIComponent(matched[0] || '');
 		}
 	}
 })

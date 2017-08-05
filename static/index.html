@@ -11,6 +11,18 @@
 		<ul>
 			<li><a href="./library.html">KiCAD Kibrary Viewer</a></li>
 			<li><a href="./schematic.html">KiCAD Schematic Viewer</a></li>
+
 		</ul>
+
+		<p>
+			bookmarklet:
+			<a href="" id="bookmarklet">Open with Schematic Viewer</a>
+		</p>
+
+		<script>
+			const script = `location="https://cho45.stfuawsc.com/kicad-utils/static/schematic.html?url="+encodeURIComponent(Array.from(document.querySelectorAll("a[href*='/blob/']")).map( (a) => a.href ).filter( (u) => u.match(/\\.(sch|lib)$/) ).join("\\n"))`;
+			const bookmarklet = 'javascript:' + encodeURIComponent(script);
+			document.getElementById('bookmarklet').href = bookmarklet;
+		</script>
 	</body>
 </html>

@@ -43,8 +43,9 @@
 				</form>
 			</div>
 			<p class="status">{{ status }}</p>
-			<div class="result">
-				<img ref="img">
+			<div class="result" v-for="result in results">
+				<h3>{{ basename(result.url.name) }}</h3>
+				<img v-bind:src="result.src">
 			</div>
 		</div>
 		<script src="./js/schematic.bundle.js"></script>

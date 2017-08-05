@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 308);
+/******/ 	return __webpack_require__(__webpack_require__.s = 307);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -12327,7 +12327,19 @@ exports.STROKE_FONT = [
 "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K[", "F^K[KFYFY[K["];
 
 /***/ }),
-/* 305 */
+/* 305 */,
+/* 306 */,
+/* 307 */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(308);
+__webpack_require__(118);
+__webpack_require__(301);
+module.exports = __webpack_require__(309);
+
+
+/***/ }),
+/* 308 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
@@ -12630,18 +12642,6 @@ exports.STROKE_FONT = [
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(86)))
 
 /***/ }),
-/* 306 */,
-/* 307 */,
-/* 308 */
-/***/ (function(module, exports, __webpack_require__) {
-
-__webpack_require__(305);
-__webpack_require__(118);
-__webpack_require__(301);
-module.exports = __webpack_require__(309);
-
-
-/***/ }),
 /* 309 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -12663,7 +12663,8 @@ var app = new Vue({
 		url: ["https://raw.githubusercontent.com/cho45/Keble/master/Root-cache.lib", "https://raw.githubusercontent.com/cho45/Keble/master/_keymodule_l.sch"].join("\n"),
 		status: "init",
 		lib: {},
-		components: []
+		components: [],
+		results: []
 	},
 
 	created: function created() {
@@ -12705,7 +12706,7 @@ var app = new Vue({
 
 		loadFiles: function () {
 			var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(urls) {
-				var res, text, files, schFiles, libFiles, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, file, libs, sch, svgPlotter, svg, blob;
+				var res, text, files, schFiles, libFiles, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, file, libs, _iteratorNormalCompletion2, _didIteratorError2, _iteratorError2, _iterator2, _step2, schFile, sch, svgPlotter, svg, src, blob;
 
 				return regeneratorRuntime.wrap(function _callee$(_context) {
 					while (1) {
@@ -12802,27 +12803,73 @@ var app = new Vue({
 								libs = libFiles.map(function (file) {
 									return Library.load(file.content);
 								});
-								sch = Schematic.load(schFiles[0].content);
-								svgPlotter = new SVGPlotter();
-
-								svgPlotter.plotSchematic(sch, libs);
-								svg = svgPlotter.output;
 
 
-								if (typeof Blob !== 'undefined') {
-									blob = new Blob([svg], { type: 'image/svg+xml' });
+								this.results = [];
+								_iteratorNormalCompletion2 = true;
+								_didIteratorError2 = false;
+								_iteratorError2 = undefined;
+								_context.prev = 39;
+								for (_iterator2 = schFiles[Symbol.iterator](); !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+									schFile = _step2.value;
+									sch = Schematic.load(schFile.content);
+									svgPlotter = new SVGPlotter();
 
-									this.$refs.img.src = URL.createObjectURL(blob);
-								} else {
-									this.$refs.img.src = 'data:image/svg+xml,' + encodeURIComponent(svg);
+									svgPlotter.plotSchematic(sch, libs);
+									svg = svgPlotter.output;
+									src = void 0;
+
+									if (typeof Blob !== 'undefined') {
+										blob = new Blob([svg], { type: 'image/svg+xml' });
+
+										src = URL.createObjectURL(blob);
+									} else {
+										src = 'data:image/svg+xml,' + encodeURIComponent(svg);
+									}
+									this.results.push({
+										url: schFile.url,
+										src: src
+									});
+								}
+								_context.next = 47;
+								break;
+
+							case 43:
+								_context.prev = 43;
+								_context.t1 = _context["catch"](39);
+								_didIteratorError2 = true;
+								_iteratorError2 = _context.t1;
+
+							case 47:
+								_context.prev = 47;
+								_context.prev = 48;
+
+								if (!_iteratorNormalCompletion2 && _iterator2.return) {
+									_iterator2.return();
 								}
 
-							case 40:
+							case 50:
+								_context.prev = 50;
+
+								if (!_didIteratorError2) {
+									_context.next = 53;
+									break;
+								}
+
+								throw _iteratorError2;
+
+							case 53:
+								return _context.finish(50);
+
+							case 54:
+								return _context.finish(47);
+
+							case 55:
 							case "end":
 								return _context.stop();
 						}
 					}
-				}, _callee, this, [[14, 18, 22, 30], [23,, 25, 29]]);
+				}, _callee, this, [[14, 18, 22, 30], [23,, 25, 29], [39, 43, 47, 55], [48,, 50, 54]]);
 			}));
 
 			function loadFiles(_x) {
@@ -12830,7 +12877,12 @@ var app = new Vue({
 			}
 
 			return loadFiles;
-		}()
+		}(),
+
+		basename: function basename(url) {
+			var matched = url.replace(/[#?].+$/, '').match(/[^/]+$/);
+			return decodeURIComponent(matched[0] || '');
+		}
 	}
 });
 

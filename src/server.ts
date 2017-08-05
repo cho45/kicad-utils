@@ -19,7 +19,7 @@ const root = args.shift() || ".";
 
 const server = http.createServer( function (req, res) {
 	console.log(req.method, req.url);
-	let base = (req.url || "/").replace(/[.]{1,2}\//g, '');
+	let base = (req.url || "/").replace(/[.]{1,2}\//g, '').replace(/\?.*$/, '');
 	if (base.endsWith("/")) base += "index.html";
 
 	const ext = path.extname(base).slice(1);
