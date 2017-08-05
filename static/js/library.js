@@ -34,9 +34,6 @@ const app = new Vue({
 			const file = this.$refs.fileInput.files[0];
 			this.fileName = file.name;
 			const objectURL = window.URL.createObjectURL(file);
-			const params = new URLSearchParams();
-			params.set('url', this.url);
-			history.pushState(null, '', '?' + params);
 			this.loadLibrary(objectURL);
 		},
 
@@ -46,6 +43,9 @@ const app = new Vue({
 				this.status = "url is required";
 				return;
 			}
+			const params = new URLSearchParams();
+			params.set('url', this.url);
+			history.pushState(null, '', '?' + params);
 			this.loadLibrary(url).catch( (e) => {
 				this.status = e;
 			});
