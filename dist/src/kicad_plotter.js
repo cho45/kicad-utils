@@ -107,13 +107,12 @@ class Plotter {
         this.color = kicad_common_1.Color.BLACK;
         this.transform = kicad_common_1.Transform.identify();
         this.stateHistory = [];
-        this.font = new kicad_strokefont_1.StrokeFont();
+        this.font = kicad_strokefont_1.StrokeFont.instance;
     }
     text(p, color, text, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
         this.setColor(color);
         this.fill = kicad_common_1.Fill.NO_FILL;
-        // p = this.transform.transformCoordinate(p);
-        this.font.drawText(this, p, text, size, width, orientation, hjustfy, vjustify);
+        this.font.drawText(this, p, text, size, width, orientation, hjustfy, vjustify, italic, bold);
     }
     save() {
         this.stateHistory.push({
@@ -170,64 +169,7 @@ class Plotter {
     /**
      * kicad-js implements plot methods to plotter instead of each library items for simplify parsing dependencies.
      */
-    plotLibComponent(component, unit, convert, transform, reference, name) {
-        /*
-        if (component.field && component.field.visibility) {
-            const pos = transform.transformCoordinate({ x: component.field.posx, y: component.field.posy});
-            let orientation = component.field.textOrientation;
-            if (transform.y1) {
-                if (orientation === TextAngle.HORIZ) {
-                    orientation = TextAngle.VERT;
-                } else {
-                    orientation = TextAngle.HORIZ;
-                }
-            }
-
-            let text  = (typeof reference !== 'undefined') ? reference : component.field.reference;
-            const width  = 0;//this.font.computeTextLineSize(text, component.field.textSize, DEFAULT_LINE_WIDTH);
-            const height = 0;//this.font.getInterline(component.field.textSize, DEFAULT_LINE_WIDTH);
-
-            this.text(
-                Point.add({ x: width / 2, y: height /2 }, pos),
-                SCH_COLORS.LAYER_REFERENCEPART,
-                text,
-                orientation,
-                component.field.textSize,
-                TextHjustify.CENTER,
-                TextVjustify.CENTER,
-                DEFAULT_LINE_WIDTH,
-                component.field.italic,
-                component.field.bold,
-            );
-        }
-
-        if (component.fields[0] && component.fields[0].visibility) {
-            const pos = transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy});
-            let orientation = component.fields[0].textOrientation;
-            if (transform.y1) {
-                if (orientation === TextAngle.HORIZ) {
-                    orientation = TextAngle.VERT;
-                } else {
-                    orientation = TextAngle.HORIZ;
-                }
-            }
-            let text  = (typeof name !== 'undefined') ? name : component.fields[0].name;
-            const width  = 0; // this.font.computeTextLineSize(text, component.fields[0].textSize, DEFAULT_LINE_WIDTH);
-            const height = 0; // this.font.getInterline(component.fields[0].textSize, DEFAULT_LINE_WIDTH);
-            this.text(
-                Point.add({ x: width / 2, y: height / 2 }, pos),
-                SCH_COLORS.LAYER_VALUEPART,
-                text,
-                orientation,
-                component.fields[0].textSize,
-                TextHjustify.CENTER,
-                TextVjustify.CENTER,
-                DEFAULT_LINE_WIDTH,
-                component.fields[0].italic,
-                component.fields[0].bold
-            );
-        }
-        */
+    plotLibComponent(component, unit, convert, transform) {
         this.setColor(SCH_COLORS.LAYER_DEVICE);
         for (let draw of component.draw.objects) {
             if (draw.unit !== 0 && unit !== draw.unit) {
@@ -258,6 +200,40 @@ class Plotter {
             else {
                 throw 'unknown draw object type: ' + draw.constructor.name;
             }
+        }
+    }
+    plotLibComponentField(component, unit, convert, transform) {
+        if (component.field && component.field.visibility) {
+            const pos = transform.transformCoordinate({ x: component.field.posx, y: component.field.posy });
+            let orientation = component.field.textOrientation;
+            if (transform.y1) {
+                if (orientation === kicad_common_1.TextAngle.HORIZ) {
+                    orientation = kicad_common_1.TextAngle.VERT;
+                }
+                else {
+                    orientation = kicad_common_1.TextAngle.HORIZ;
+                }
+            }
+            let text = component.field.reference;
+            const width = 0; //this.font.computeTextLineSize(text, component.field.textSize, DEFAULT_LINE_WIDTH);
+            const height = 0; //this.font.getInterline(component.field.textSize, DEFAULT_LINE_WIDTH);
+            this.text(kicad_common_1.Point.add({ x: width / 2, y: height / 2 }, pos), SCH_COLORS.LAYER_REFERENCEPART, text, orientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, DEFAULT_LINE_WIDTH, component.field.italic, component.field.bold);
+        }
+        if (component.fields[0] && component.fields[0].visibility) {
+            const pos = transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy });
+            let orientation = component.fields[0].textOrientation;
+            if (transform.y1) {
+                if (orientation === kicad_common_1.TextAngle.HORIZ) {
+                    orientation = kicad_common_1.TextAngle.VERT;
+                }
+                else {
+                    orientation = kicad_common_1.TextAngle.HORIZ;
+                }
+            }
+            let text = component.fields[0].name;
+            const width = 0; // this.font.computeTextLineSize(text, component.fields[0].textSize, DEFAULT_LINE_WIDTH);
+            const height = 0; // this.font.getInterline(component.fields[0].textSize, DEFAULT_LINE_WIDTH);
+            this.text(kicad_common_1.Point.add({ x: width / 2, y: height / 2 }, pos), SCH_COLORS.LAYER_VALUEPART, text, orientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, DEFAULT_LINE_WIDTH, component.fields[0].italic, component.fields[0].bold);
         }
     }
     plotDrawArc(draw, component, transform) {
@@ -469,7 +445,7 @@ class Plotter {
                     console.warn("component " + item.name + " is not found in libraries");
                     continue;
                 }
-                this.plotLibComponent(component, item.unit, item.convert, item.transform, item.fields[0].text, item.fields[1].text);
+                this.plotLibComponent(component, item.unit, item.convert, item.transform);
                 for (let field of item.fields) {
                     if (!field.text)
                         continue;

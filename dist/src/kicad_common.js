@@ -247,7 +247,7 @@ class Rect {
         return this;
     }
     merge(o) {
-        return new Rect(Math.min(this.pos1.x, o.pos1.x), Math.min(this.pos1.y, o.pos1.y), Math.max(this.pos2.x, o.pos2.x), Math.max(this.pos2.y, o.pos2.y));
+        return new Rect(Math.min(this.pos1.x, o.pos1.x, this.pos2.x, o.pos2.x), Math.min(this.pos1.y, o.pos1.y, this.pos2.y, o.pos2.y), Math.max(this.pos1.x, o.pos1.x, this.pos2.x, o.pos2.x), Math.max(this.pos1.y, o.pos1.y, this.pos2.y, o.pos2.y));
     }
     inflate(n) {
         this.pos1.x -= n;

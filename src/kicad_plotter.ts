@@ -166,7 +166,7 @@ export abstract class Plotter {
 		this.color = Color.BLACK;
 		this.transform = Transform.identify();
 		this.stateHistory = [];
-		this.font = new StrokeFont();
+		this.font = StrokeFont.instance;
 	}
 
 	abstract rect(p1: Point, p2: Point, fill: Fill, width: number): void;
@@ -192,7 +192,6 @@ export abstract class Plotter {
 	): void {
 		this.setColor(color);
 		this.fill = Fill.NO_FILL;
-		// p = this.transform.transformCoordinate(p);
 		this.font.drawText(
 			this,
 			p,
@@ -201,7 +200,9 @@ export abstract class Plotter {
 			width,
 			orientation,
 			hjustfy,
-			vjustify
+			vjustify,
+			italic,
+			bold
 		);
 	}
 
@@ -273,65 +274,7 @@ export abstract class Plotter {
 	/**
 	 * kicad-js implements plot methods to plotter instead of each library items for simplify parsing dependencies.
 	 */
-	plotLibComponent(component: LibComponent, unit: number, convert: number, transform: Transform, reference?: string, name?: string): void {
-		/*
-		if (component.field && component.field.visibility) {
-			const pos = transform.transformCoordinate({ x: component.field.posx, y: component.field.posy});
-			let orientation = component.field.textOrientation;
-			if (transform.y1) {
-				if (orientation === TextAngle.HORIZ) {
-					orientation = TextAngle.VERT;
-				} else {
-					orientation = TextAngle.HORIZ;
-				}
-			}
-
-			let text  = (typeof reference !== 'undefined') ? reference : component.field.reference;
-			const width  = 0;//this.font.computeTextLineSize(text, component.field.textSize, DEFAULT_LINE_WIDTH);
-			const height = 0;//this.font.getInterline(component.field.textSize, DEFAULT_LINE_WIDTH);
-
-			this.text(
-				Point.add({ x: width / 2, y: height /2 }, pos),
-				SCH_COLORS.LAYER_REFERENCEPART,
-				text,
-				orientation,
-				component.field.textSize,
-				TextHjustify.CENTER,
-				TextVjustify.CENTER,
-				DEFAULT_LINE_WIDTH,
-				component.field.italic,
-				component.field.bold,
-			);
-		}
-
-		if (component.fields[0] && component.fields[0].visibility) {
-			const pos = transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy});
-			let orientation = component.fields[0].textOrientation;
-			if (transform.y1) {
-				if (orientation === TextAngle.HORIZ) {
-					orientation = TextAngle.VERT;
-				} else {
-					orientation = TextAngle.HORIZ;
-				}
-			}
-			let text  = (typeof name !== 'undefined') ? name : component.fields[0].name;
-			const width  = 0; // this.font.computeTextLineSize(text, component.fields[0].textSize, DEFAULT_LINE_WIDTH);
-			const height = 0; // this.font.getInterline(component.fields[0].textSize, DEFAULT_LINE_WIDTH);
-			this.text(
-				Point.add({ x: width / 2, y: height / 2 }, pos),
-				SCH_COLORS.LAYER_VALUEPART,
-				text,
-				orientation,
-				component.fields[0].textSize,
-				TextHjustify.CENTER,
-				TextVjustify.CENTER,
-				DEFAULT_LINE_WIDTH,
-				component.fields[0].italic,
-				component.fields[0].bold
-			);
-		}
-		*/
-
+	plotLibComponent(component: LibComponent, unit: number, convert: number, transform: Transform): void {
 		this.setColor(SCH_COLORS.LAYER_DEVICE);
 		for (let draw of component.draw.objects) {
 			if (draw.unit !== 0 && unit !== draw.unit) {
@@ -360,6 +303,64 @@ export abstract class Plotter {
 			} else {
 				throw 'unknown draw object type: ' + draw.constructor.name;
 			}
+		}
+	}
+
+	plotLibComponentField(component: LibComponent, unit: number, convert: number, transform: Transform): void {
+		if (component.field && component.field.visibility) {
+			const pos = transform.transformCoordinate({ x: component.field.posx, y: component.field.posy});
+			let orientation = component.field.textOrientation;
+			if (transform.y1) {
+				if (orientation === TextAngle.HORIZ) {
+					orientation = TextAngle.VERT;
+				} else {
+					orientation = TextAngle.HORIZ;
+				}
+			}
+
+			let text  = component.field.reference;
+			const width  = 0;//this.font.computeTextLineSize(text, component.field.textSize, DEFAULT_LINE_WIDTH);
+			const height = 0;//this.font.getInterline(component.field.textSize, DEFAULT_LINE_WIDTH);
+
+			this.text(
+				Point.add({ x: width / 2, y: height /2 }, pos),
+				SCH_COLORS.LAYER_REFERENCEPART,
+				text,
+				orientation,
+				component.field.textSize,
+				TextHjustify.CENTER,
+				TextVjustify.CENTER,
+				DEFAULT_LINE_WIDTH,
+				component.field.italic,
+				component.field.bold,
+			);
+		}
+
+		if (component.fields[0] && component.fields[0].visibility) {
+			const pos = transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy});
+			let orientation = component.fields[0].textOrientation;
+			if (transform.y1) {
+				if (orientation === TextAngle.HORIZ) {
+					orientation = TextAngle.VERT;
+				} else {
+					orientation = TextAngle.HORIZ;
+				}
+			}
+			let text  = component.fields[0].name;
+			const width  = 0; // this.font.computeTextLineSize(text, component.fields[0].textSize, DEFAULT_LINE_WIDTH);
+			const height = 0; // this.font.getInterline(component.fields[0].textSize, DEFAULT_LINE_WIDTH);
+			this.text(
+				Point.add({ x: width / 2, y: height / 2 }, pos),
+				SCH_COLORS.LAYER_VALUEPART,
+				text,
+				orientation,
+				component.fields[0].textSize,
+				TextHjustify.CENTER,
+				TextVjustify.CENTER,
+				DEFAULT_LINE_WIDTH,
+				component.fields[0].italic,
+				component.fields[0].bold
+			);
 		}
 	}
 
@@ -747,7 +748,7 @@ export abstract class Plotter {
 					console.warn("component " + item.name + " is not found in libraries");
 					continue;
 				}
-				this.plotLibComponent(component, item.unit, item.convert, item.transform, item.fields[0].text, item.fields[1].text);
+				this.plotLibComponent(component, item.unit, item.convert, item.transform);
 				for (let field of item.fields) {
 					if (!field.text) continue;
 					if (!field.visibility) continue;

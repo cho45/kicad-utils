@@ -72,7 +72,14 @@ export class Glyph {
 export class StrokeFont {
 	glyphs : Array< Glyph > = [];
 
-	constructor() {
+	private static _instance: StrokeFont;
+
+	public static get instance(): StrokeFont {
+		if (!this._instance) this._instance = new StrokeFont();
+		return this._instance;
+	}
+
+	private constructor() {
 		for (let def of STROKE_FONT) {
 			const glyph = new Glyph();
 			let points: Array<Point> = [];
@@ -129,7 +136,7 @@ export class StrokeFont {
 			const glyph = this.glyphs[n] || this.glyphs['?'.charCodeAt(0) - ' '.charCodeAt(0)];
 			width += glyph.boundingBox.width;
 			ymax = Math.max(ymax, glyph.boundingBox.pos1.y, glyph.boundingBox.pos2.y);
-			ymin = Math.min(ymax, glyph.boundingBox.pos1.y, glyph.boundingBox.pos2.y);
+			ymin = Math.min(ymin, glyph.boundingBox.pos1.y, glyph.boundingBox.pos2.y);
 		}
 
 		width = width * size + lineWidth;
@@ -144,63 +151,92 @@ export class StrokeFont {
 			width,
 			height,
 			topLimit: ymax * size,
-			bottom: ymin * size,
+			bottomLimit: ymin * size,
 		};
 	}
 
-	drawGlyph(plotter: Plotter, p: Point, glyph: Glyph, size: number) {
+	drawGlyph(plotter: Plotter, p: Point, glyph: Glyph, size: number, italic: boolean) {
 		for (let line of glyph.lines) {
-			plotter.moveTo(line[0].x * size + p.x, line[0].y * size + p.y);
+			{
+				let x = line[0].x * size + p.x;
+				let y = line[0].y * size + p.y;
+				if (italic) {
+					x -= y * ITALIC_TILT;
+				}
+				plotter.moveTo(x, y);
+			}
 			for (let i = 1, len = line.length; i < len; i++) {
 				const point = line[i];
-				plotter.lineTo(point.x * size + p.x, point.y * size + p.y);
+				let x = point.x * size + p.x;
+				let y = point.y * size + p.y;
+				if (italic) {
+					x -= y * ITALIC_TILT;
+				}
+				plotter.lineTo(x, y);
 			}
 			plotter.finishPen();
 		}
 	}
 
-	drawLineText(plotter: Plotter, p: Point, line: string, size: number, lineWidth: number, hjustify: TextHjustify, vjustify: TextVjustify) {
-		let offset = 0;
+	drawLineText(plotter: Plotter, p: Point, line: string, size: number, lineWidth: number, hjustify: TextHjustify, vjustify: TextVjustify, italic: boolean) {
+		let offset = lineWidth / 2;
+
 		if (hjustify === TextHjustify.LEFT) {
-			offset = 0;
+			offset += 0;
 		} else
 		if (hjustify === TextHjustify.CENTER) {
-			offset = -this.computeTextLineSize(line, size, lineWidth) / 2;
+			offset += -this.computeTextLineSize(line, size, lineWidth) / 2;
 		} else
 		if (hjustify === TextHjustify.RIGHT) {
-			offset = -this.computeTextLineSize(line, size, lineWidth);
+			offset += -this.computeTextLineSize(line, size, lineWidth);
 		}
 
 		for (let i = 0, len = line.length; i < len; i++) {
 			const c = line.charCodeAt(i);
 			const n = c - ' '.charCodeAt(0);
 			const glyph = this.glyphs[n];
-			this.drawGlyph(plotter, { x: offset + p.x, y: p.y }, glyph, size);
+			this.drawGlyph(plotter, { x: offset + p.x, y: p.y }, glyph, size, italic);
 			offset += glyph.boundingBox.pos2.x * size;
 		}
 	}
 
-	drawText(plotter: Plotter, p: Point, text: string, size: number, lineWidth: number, angle: number, hjustify: TextHjustify, vjustify: TextVjustify) {
+	drawText(plotter: Plotter, p: Point, text: string, size: number, lineWidth: number, angle: number, hjustify: TextHjustify, vjustify: TextVjustify, italic: boolean, bold: boolean) {
+		if (lineWidth === 0 && bold) {
+			lineWidth = size / 5.0;
+		}
+
+		lineWidth = this.clampTextPenSize(lineWidth, size, bold);
+
 		plotter.save();
-		plotter.setCurrentLineWidth(lineWidth);
+		plotter.setCurrentLineWidth(lineWidth * BOLD_FACTOR);
 		plotter.translate(p.x, p.y);
 		plotter.rotate(-DECIDEG2RAD(angle));
 		let offset = 0;
 		const lines = text.split(/\n/);
 		if (vjustify === TextVjustify.TOP) {
-			offset = (size * lines.length * INTERLINE_PITCH_RATIO);
+			offset = (size * lines.length);
 		} else
 		if (vjustify === TextVjustify.CENTER) {
-			offset = (size * lines.length * INTERLINE_PITCH_RATIO) / 2;
+			offset = (size * lines.length) / 2;
 		} else
 		if (vjustify === TextVjustify.BOTTOM) {
 			offset = 0;
 		}
 		for (let line of lines) {
-			this.drawLineText(plotter, { x: 0, y: offset}, line, size, lineWidth, hjustify, vjustify);
+			this.drawLineText(plotter, { x: 0, y: offset}, line, size, lineWidth, hjustify, vjustify, italic);
 			offset += size * INTERLINE_PITCH_RATIO + lineWidth;
 		}
 		plotter.restore();
+	}
+
+	clampTextPenSize(lineWidth: number, size: number, bold: boolean): number {
+		const scale = bold ? 4.0 : 6.0;
+		const max = Math.abs(size) / scale;
+		if (lineWidth > max) {
+			return max;
+		 } else {
+			 return lineWidth;
+		 }
 	}
 }
 

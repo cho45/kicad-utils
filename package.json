@@ -12,6 +12,7 @@
     "babel-polyfill": "^6.23.0",
     "express": "^4.15.3",
     "minimist": "^1.2.0",
+    "options": "0.0.6",
     "whatwg-fetch": "^2.0.3"
   },
   "devDependencies": {

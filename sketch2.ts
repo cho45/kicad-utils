@@ -16,17 +16,10 @@ import * as fs from "fs";
 {
 	const font = new StrokeFont();
 
-	const n = '%'.charCodeAt(0) - ' '.charCodeAt(0);
-	console.log(n);
-	const glyph = font.glyphs[n];
-	console.log(glyph);
-
-	const width = 500, height = 500;
+	const width = 2000, height = 2000;
 	const Canvas = require('canvas');
 	const canvas = Canvas.createCanvas ? Canvas.createCanvas(width, height) : new Canvas(width, height);
 	const ctx = canvas.getContext('2d');
-
-	let size = 18;
 
 	ctx.strokeStyle = "#666666";
 	ctx.lineWidth = 1;
@@ -44,7 +37,39 @@ import * as fs from "fs";
 
 	const plotter = new CanvasPlotter(ctx);
 
-	font.drawText(plotter, { x: canvas.width / 2, y: canvas.height / 2 }, 'foobar', 18, 3, TextAngle.VERT, TextHjustify.LEFT, TextVjustify.BOTTOM);
+	const text = 'jeyjmc';
+	const size = 100;
+	const lineWidth = 0;
+	const bold = false;
+	const italic = false;
+	const pos = { x: canvas.width / 2, y: canvas.height / 2 };
+	const vjustify = TextVjustify.CENTER;
+
+	{
+		const boundingbox = font.computeStringBoundaryLimits(text, size, lineWidth, italic);
+		ctx.save();
+		ctx.translate(pos.x, pos.y);
+		ctx.translate(0, size / 2);
+		ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
+		ctx.fillRect(0, 0, boundingbox.width, -boundingbox.height);
+		ctx.fillStyle = "rgba(0, 0, 255, 0.3)";
+		ctx.fillRect(0, 0, boundingbox.width, boundingbox.topLimit);
+		ctx.fillRect(0, 0, boundingbox.width, boundingbox.bottomLimit);
+		{
+			const n = text.charCodeAt(0) - ' '.charCodeAt(0);
+			const glyph = font.glyphs[n];
+			console.log(JSON.stringify(glyph));
+			ctx.fillStyle = "rgba(0, 255, 0, 0.3)";
+			ctx.fillRect(
+				glyph.boundingBox.pos1.x * size,
+				glyph.boundingBox.pos1.y * size,
+				glyph.boundingBox.width * size,
+				glyph.boundingBox.height * size
+			);
+			ctx.restore();
+		}
+	}
+	font.drawText(plotter, pos, text, size, lineWidth, TextAngle.HORIZ, TextHjustify.LEFT, vjustify, italic, bold);
 
 	const out = fs.createWriteStream('text.png'), stream = canvas.pngStream();
 	stream.on('data', function (chunk: any) {

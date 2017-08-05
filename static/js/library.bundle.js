@@ -1730,7 +1730,7 @@ var Rect = function () {
     }, {
         key: "merge",
         value: function merge(o) {
-            return new Rect(Math.min(this.pos1.x, o.pos1.x), Math.min(this.pos1.y, o.pos1.y), Math.max(this.pos2.x, o.pos2.x), Math.max(this.pos2.y, o.pos2.y));
+            return new Rect(Math.min(this.pos1.x, o.pos1.x, this.pos2.x, o.pos2.x), Math.min(this.pos1.y, o.pos1.y, this.pos2.y, o.pos2.y), Math.max(this.pos1.x, o.pos1.x, this.pos2.x, o.pos2.x), Math.max(this.pos1.y, o.pos1.y, this.pos2.y, o.pos2.y));
         }
     }, {
         key: "inflate",
@@ -10597,7 +10597,7 @@ var Plotter = function () {
         this.color = kicad_common_1.Color.BLACK;
         this.transform = kicad_common_1.Transform.identify();
         this.stateHistory = [];
-        this.font = new kicad_strokefont_1.StrokeFont();
+        this.font = kicad_strokefont_1.StrokeFont.instance;
     }
 
     _createClass(Plotter, [{
@@ -10605,8 +10605,7 @@ var Plotter = function () {
         value: function text(p, color, _text, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
             this.setColor(color);
             this.fill = kicad_common_1.Fill.NO_FILL;
-            // p = this.transform.transformCoordinate(p);
-            this.font.drawText(this, p, _text, size, width, orientation, hjustfy, vjustify);
+            this.font.drawText(this, p, _text, size, width, orientation, hjustfy, vjustify, italic, bold);
         }
     }, {
         key: "save",
@@ -10683,61 +10682,7 @@ var Plotter = function () {
 
     }, {
         key: "plotLibComponent",
-        value: function plotLibComponent(component, unit, convert, transform, reference, name) {
-            /*
-            if (component.field && component.field.visibility) {
-                const pos = transform.transformCoordinate({ x: component.field.posx, y: component.field.posy});
-                let orientation = component.field.textOrientation;
-                if (transform.y1) {
-                    if (orientation === TextAngle.HORIZ) {
-                        orientation = TextAngle.VERT;
-                    } else {
-                        orientation = TextAngle.HORIZ;
-                    }
-                }
-                 let text  = (typeof reference !== 'undefined') ? reference : component.field.reference;
-                const width  = 0;//this.font.computeTextLineSize(text, component.field.textSize, DEFAULT_LINE_WIDTH);
-                const height = 0;//this.font.getInterline(component.field.textSize, DEFAULT_LINE_WIDTH);
-                 this.text(
-                    Point.add({ x: width / 2, y: height /2 }, pos),
-                    SCH_COLORS.LAYER_REFERENCEPART,
-                    text,
-                    orientation,
-                    component.field.textSize,
-                    TextHjustify.CENTER,
-                    TextVjustify.CENTER,
-                    DEFAULT_LINE_WIDTH,
-                    component.field.italic,
-                    component.field.bold,
-                );
-            }
-             if (component.fields[0] && component.fields[0].visibility) {
-                const pos = transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy});
-                let orientation = component.fields[0].textOrientation;
-                if (transform.y1) {
-                    if (orientation === TextAngle.HORIZ) {
-                        orientation = TextAngle.VERT;
-                    } else {
-                        orientation = TextAngle.HORIZ;
-                    }
-                }
-                let text  = (typeof name !== 'undefined') ? name : component.fields[0].name;
-                const width  = 0; // this.font.computeTextLineSize(text, component.fields[0].textSize, DEFAULT_LINE_WIDTH);
-                const height = 0; // this.font.getInterline(component.fields[0].textSize, DEFAULT_LINE_WIDTH);
-                this.text(
-                    Point.add({ x: width / 2, y: height / 2 }, pos),
-                    SCH_COLORS.LAYER_VALUEPART,
-                    text,
-                    orientation,
-                    component.fields[0].textSize,
-                    TextHjustify.CENTER,
-                    TextVjustify.CENTER,
-                    DEFAULT_LINE_WIDTH,
-                    component.fields[0].italic,
-                    component.fields[0].bold
-                );
-            }
-            */
+        value: function plotLibComponent(component, unit, convert, transform) {
             this.setColor(SCH_COLORS.LAYER_DEVICE);
             var _iteratorNormalCompletion = true;
             var _didIteratorError = false;
@@ -10783,6 +10728,40 @@ var Plotter = function () {
                         throw _iteratorError;
                     }
                 }
+            }
+        }
+    }, {
+        key: "plotLibComponentField",
+        value: function plotLibComponentField(component, unit, convert, transform) {
+            if (component.field && component.field.visibility) {
+                var pos = transform.transformCoordinate({ x: component.field.posx, y: component.field.posy });
+                var orientation = component.field.textOrientation;
+                if (transform.y1) {
+                    if (orientation === kicad_common_1.TextAngle.HORIZ) {
+                        orientation = kicad_common_1.TextAngle.VERT;
+                    } else {
+                        orientation = kicad_common_1.TextAngle.HORIZ;
+                    }
+                }
+                var text = component.field.reference;
+                var width = 0; //this.font.computeTextLineSize(text, component.field.textSize, DEFAULT_LINE_WIDTH);
+                var height = 0; //this.font.getInterline(component.field.textSize, DEFAULT_LINE_WIDTH);
+                this.text(kicad_common_1.Point.add({ x: width / 2, y: height / 2 }, pos), SCH_COLORS.LAYER_REFERENCEPART, text, orientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, DEFAULT_LINE_WIDTH, component.field.italic, component.field.bold);
+            }
+            if (component.fields[0] && component.fields[0].visibility) {
+                var _pos = transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy });
+                var _orientation = component.fields[0].textOrientation;
+                if (transform.y1) {
+                    if (_orientation === kicad_common_1.TextAngle.HORIZ) {
+                        _orientation = kicad_common_1.TextAngle.VERT;
+                    } else {
+                        _orientation = kicad_common_1.TextAngle.HORIZ;
+                    }
+                }
+                var _text2 = component.fields[0].name;
+                var _width = 0; // this.font.computeTextLineSize(text, component.fields[0].textSize, DEFAULT_LINE_WIDTH);
+                var _height = 0; // this.font.getInterline(component.fields[0].textSize, DEFAULT_LINE_WIDTH);
+                this.text(kicad_common_1.Point.add({ x: _width / 2, y: _height / 2 }, _pos), SCH_COLORS.LAYER_VALUEPART, _text2, _orientation, component.fields[0].textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, DEFAULT_LINE_WIDTH, component.fields[0].italic, component.fields[0].bold);
             }
         }
     }, {
@@ -11030,7 +11009,7 @@ var Plotter = function () {
                             console.warn("component " + item.name + " is not found in libraries");
                             continue;
                         }
-                        this.plotLibComponent(component, item.unit, item.convert, item.transform, item.fields[0].text, item.fields[1].text);
+                        this.plotLibComponent(component, item.unit, item.convert, item.transform);
                         var _iteratorNormalCompletion4 = true;
                         var _didIteratorError4 = false;
                         var _iteratorError4 = undefined;
@@ -12003,7 +11982,7 @@ var StrokeFont = function () {
                 var glyph = this.glyphs[n] || this.glyphs['?'.charCodeAt(0) - ' '.charCodeAt(0)];
                 width += glyph.boundingBox.width;
                 ymax = Math.max(ymax, glyph.boundingBox.pos1.y, glyph.boundingBox.pos2.y);
-                ymin = Math.min(ymax, glyph.boundingBox.pos1.y, glyph.boundingBox.pos2.y);
+                ymin = Math.min(ymin, glyph.boundingBox.pos1.y, glyph.boundingBox.pos2.y);
             }
             width = width * size + lineWidth;
             var height = size + lineWidth;
@@ -12014,12 +11993,12 @@ var StrokeFont = function () {
                 width: width,
                 height: height,
                 topLimit: ymax * size,
-                bottom: ymin * size
+                bottomLimit: ymin * size
             };
         }
     }, {
         key: "drawGlyph",
-        value: function drawGlyph(plotter, p, glyph, size) {
+        value: function drawGlyph(plotter, p, glyph, size, italic) {
             var _iteratorNormalCompletion4 = true;
             var _didIteratorError4 = false;
             var _iteratorError4 = undefined;
@@ -12028,10 +12007,22 @@ var StrokeFont = function () {
                 for (var _iterator4 = glyph.lines[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
                     var line = _step4.value;
 
-                    plotter.moveTo(line[0].x * size + p.x, line[0].y * size + p.y);
+                    {
+                        var x = line[0].x * size + p.x;
+                        var y = line[0].y * size + p.y;
+                        if (italic) {
+                            x -= y * ITALIC_TILT;
+                        }
+                        plotter.moveTo(x, y);
+                    }
                     for (var i = 1, len = line.length; i < len; i++) {
                         var point = line[i];
-                        plotter.lineTo(point.x * size + p.x, point.y * size + p.y);
+                        var _x3 = point.x * size + p.x;
+                        var _y = point.y * size + p.y;
+                        if (italic) {
+                            _x3 -= _y * ITALIC_TILT;
+                        }
+                        plotter.lineTo(_x3, _y);
                     }
                     plotter.finishPen();
                 }
@@ -12052,36 +12043,40 @@ var StrokeFont = function () {
         }
     }, {
         key: "drawLineText",
-        value: function drawLineText(plotter, p, line, size, lineWidth, hjustify, vjustify) {
-            var offset = 0;
+        value: function drawLineText(plotter, p, line, size, lineWidth, hjustify, vjustify, italic) {
+            var offset = lineWidth / 2;
             if (hjustify === kicad_common_1.TextHjustify.LEFT) {
-                offset = 0;
+                offset += 0;
             } else if (hjustify === kicad_common_1.TextHjustify.CENTER) {
-                offset = -this.computeTextLineSize(line, size, lineWidth) / 2;
+                offset += -this.computeTextLineSize(line, size, lineWidth) / 2;
             } else if (hjustify === kicad_common_1.TextHjustify.RIGHT) {
-                offset = -this.computeTextLineSize(line, size, lineWidth);
+                offset += -this.computeTextLineSize(line, size, lineWidth);
             }
             for (var i = 0, len = line.length; i < len; i++) {
                 var c = line.charCodeAt(i);
                 var n = c - ' '.charCodeAt(0);
                 var glyph = this.glyphs[n];
-                this.drawGlyph(plotter, { x: offset + p.x, y: p.y }, glyph, size);
+                this.drawGlyph(plotter, { x: offset + p.x, y: p.y }, glyph, size, italic);
                 offset += glyph.boundingBox.pos2.x * size;
             }
         }
     }, {
         key: "drawText",
-        value: function drawText(plotter, p, text, size, lineWidth, angle, hjustify, vjustify) {
+        value: function drawText(plotter, p, text, size, lineWidth, angle, hjustify, vjustify, italic, bold) {
+            if (lineWidth === 0 && bold) {
+                lineWidth = size / 5.0;
+            }
+            lineWidth = this.clampTextPenSize(lineWidth, size, bold);
             plotter.save();
-            plotter.setCurrentLineWidth(lineWidth);
+            plotter.setCurrentLineWidth(lineWidth * BOLD_FACTOR);
             plotter.translate(p.x, p.y);
             plotter.rotate(-kicad_common_1.DECIDEG2RAD(angle));
             var offset = 0;
             var lines = text.split(/\n/);
             if (vjustify === kicad_common_1.TextVjustify.TOP) {
-                offset = size * lines.length * INTERLINE_PITCH_RATIO;
+                offset = size * lines.length;
             } else if (vjustify === kicad_common_1.TextVjustify.CENTER) {
-                offset = size * lines.length * INTERLINE_PITCH_RATIO / 2;
+                offset = size * lines.length / 2;
             } else if (vjustify === kicad_common_1.TextVjustify.BOTTOM) {
                 offset = 0;
             }
@@ -12093,7 +12088,7 @@ var StrokeFont = function () {
                 for (var _iterator5 = lines[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
                     var line = _step5.value;
 
-                    this.drawLineText(plotter, { x: 0, y: offset }, line, size, lineWidth, hjustify, vjustify);
+                    this.drawLineText(plotter, { x: 0, y: offset }, line, size, lineWidth, hjustify, vjustify, italic);
                     offset += size * INTERLINE_PITCH_RATIO + lineWidth;
                 }
             } catch (err) {
@@ -12112,6 +12107,23 @@ var StrokeFont = function () {
             }
 
             plotter.restore();
+        }
+    }, {
+        key: "clampTextPenSize",
+        value: function clampTextPenSize(lineWidth, size, bold) {
+            var scale = bold ? 4.0 : 6.0;
+            var max = Math.abs(size) / scale;
+            if (lineWidth > max) {
+                return max;
+            } else {
+                return lineWidth;
+            }
+        }
+    }], [{
+        key: "instance",
+        get: function get() {
+            if (!this._instance) this._instance = new StrokeFont();
+            return this._instance;
         }
     }]);
 
@@ -12371,9 +12383,7 @@ var app = new Vue({
 
 	mounted: function mounted() {
 		console.log(this.$refs);
-		if (location.search) {
-			this.loadLibrary(location.search.substring(1) || '/lib/device.lib');
-		}
+		this.loadLibrary((location.search || "").substring(1) || '/lib/device.lib');
 	},
 
 	methods: {
@@ -12438,7 +12448,7 @@ var app = new Vue({
 
 							case 22:
 								if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-									_context.next = 46;
+									_context.next = 47;
 									break;
 								}
 
@@ -12458,7 +12468,7 @@ var app = new Vue({
 
 							case 30:
 								PADDING = 500;
-								width = rect.getWidth() + PADDING, height = rect.getHeight() + PADDING;
+								width = rect.width + PADDING, height = rect.height + PADDING;
 
 
 								canvas.width = 500;
@@ -12477,56 +12487,57 @@ var app = new Vue({
 
 								plotter = new CanvasPlotter(ctx);
 
-								plotter.plotLibComponent(component, 1, 1, { x: 0, y: 0 }, new Transform());
+								plotter.plotLibComponent(component, 1, 1, new Transform());
+								plotter.plotLibComponentField(component, 1, 1, new Transform());
 
-							case 43:
+							case 44:
 								_iteratorNormalCompletion = true;
 								_context.next = 22;
 								break;
 
-							case 46:
-								_context.next = 52;
+							case 47:
+								_context.next = 53;
 								break;
 
-							case 48:
-								_context.prev = 48;
+							case 49:
+								_context.prev = 49;
 								_context.t0 = _context["catch"](20);
 								_didIteratorError = true;
 								_iteratorError = _context.t0;
 
-							case 52:
-								_context.prev = 52;
+							case 53:
 								_context.prev = 53;
+								_context.prev = 54;
 
 								if (!_iteratorNormalCompletion && _iterator.return) {
 									_iterator.return();
 								}
 
-							case 55:
-								_context.prev = 55;
+							case 56:
+								_context.prev = 56;
 
 								if (!_didIteratorError) {
-									_context.next = 58;
+									_context.next = 59;
 									break;
 								}
 
 								throw _iteratorError;
 
-							case 58:
-								return _context.finish(55);
-
 							case 59:
-								return _context.finish(52);
+								return _context.finish(56);
 
 							case 60:
-								this.status = "done";
+								return _context.finish(53);
 
 							case 61:
+								this.status = "done";
+
+							case 62:
 							case "end":
 								return _context.stop();
 						}
 					}
-				}, _callee, this, [[20, 48, 52, 60], [53,, 55, 59]]);
+				}, _callee, this, [[20, 49, 53, 61], [54,, 56, 60]]);
 			}));
 
 			function loadLibrary(_x) {

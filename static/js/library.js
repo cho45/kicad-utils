@@ -20,9 +20,7 @@ const app = new Vue({
 
 	mounted: function () {
 		console.log(this.$refs);
-		if (location.search) {
-			this.loadLibrary(location.search.substring(1) || '/lib/device.lib');
-		}
+		this.loadLibrary((location.search || "").substring(1) || '/lib/device.lib');
 	},
 
 	methods: {
@@ -67,7 +65,7 @@ const app = new Vue({
 				}
 
 				const PADDING = 500;
-				const width = rect.getWidth() + PADDING, height = rect.getHeight() + PADDING;
+				const width = rect.width + PADDING, height = rect.height + PADDING;
 
 				canvas.width  = 500;
 				canvas.height = 500;
@@ -82,7 +80,8 @@ const app = new Vue({
 				ctx.fillStyle  = '#000';
 
 				const plotter = new CanvasPlotter(ctx);
-				plotter.plotLibComponent(component, 1, 1, { x: 0, y: 0 }, new Transform());
+				plotter.plotLibComponent(component, 1, 1, new Transform());
+				plotter.plotLibComponentField(component, 1, 1, new Transform());
 			}
 			this.status = "done";
 		}
