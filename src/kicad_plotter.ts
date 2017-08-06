@@ -161,6 +161,7 @@ export abstract class Plotter {
 		transform: Transform,
 	}>;
 	font: StrokeFont;
+	errors: Array<string>;
 
 	constructor() {
 		this.fill = Fill.NO_FILL;
@@ -168,6 +169,7 @@ export abstract class Plotter {
 		this.transform = Transform.identify();
 		this.stateHistory = [];
 		this.font = StrokeFont.instance;
+		this.errors = [];
 	}
 
 	abstract rect(p1: Point, p2: Point, fill: Fill, width: number): void;
@@ -750,6 +752,7 @@ export abstract class Plotter {
 				}
 				if (!component) {
 					console.warn("component " + item.name + " is not found in libraries");
+					this.errors.push("component " + item.name + " is not found in libraries");
 					continue;
 				}
 				this.plotLibComponent(component, item.unit, item.convert, item.transform);

@@ -108,6 +108,7 @@ class Plotter {
         this.transform = kicad_common_1.Transform.identify();
         this.stateHistory = [];
         this.font = kicad_strokefont_1.StrokeFont.instance;
+        this.errors = [];
     }
     text(p, color, text, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
         this.setColor(color);
@@ -445,6 +446,7 @@ class Plotter {
                 }
                 if (!component) {
                     console.warn("component " + item.name + " is not found in libraries");
+                    this.errors.push("component " + item.name + " is not found in libraries");
                     continue;
                 }
                 this.plotLibComponent(component, item.unit, item.convert, item.transform);

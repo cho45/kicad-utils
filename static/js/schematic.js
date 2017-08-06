@@ -17,6 +17,7 @@ const app = new Vue({
 		lib: {},
 		components: [],
 		results: [],
+		errors: [],
 	},
 
 	created: function () {
@@ -84,11 +85,15 @@ const app = new Vue({
 
 			this.results = [];
 			for (let schFile of schFiles) {
+				this.status = 'loading ' + schFile;
 				const sch = Schematic.load(schFile.content);
 
 				const svgPlotter = new SVGPlotter();
 				svgPlotter.plotSchematic(sch, libs);
 				const svg = svgPlotter.output;
+				for (let error of svgPlotter.errors) {
+					this.errors.push(error);
+				}
 
 				let src;
 				if (typeof Blob !== 'undefined') {
@@ -102,6 +107,7 @@ const app = new Vue({
 					src: src
 				});
 			}
+			this.status = 'done';
 		},
 
 		basename: function (url) {

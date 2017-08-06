@@ -11284,6 +11284,7 @@ var Plotter = function () {
         this.transform = kicad_common_1.Transform.identify();
         this.stateHistory = [];
         this.font = kicad_strokefont_1.StrokeFont.instance;
+        this.errors = [];
     }
 
     _createClass(Plotter, [{
@@ -11695,6 +11696,7 @@ var Plotter = function () {
 
                         if (!component) {
                             console.warn("component " + item.name + " is not found in libraries");
+                            this.errors.push("component " + item.name + " is not found in libraries");
                             continue;
                         }
                         this.plotLibComponent(component, item.unit, item.convert, item.transform);
@@ -12715,7 +12717,8 @@ var app = new Vue({
 		status: "init",
 		lib: {},
 		components: [],
-		results: []
+		results: [],
+		errors: []
 	},
 
 	created: function created() {
@@ -12757,7 +12760,7 @@ var app = new Vue({
 
 		loadFiles: function () {
 			var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(urls) {
-				var res, text, files, schFiles, libFiles, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, file, libs, _iteratorNormalCompletion2, _didIteratorError2, _iteratorError2, _iterator2, _step2, schFile, sch, svgPlotter, svg, src, blob;
+				var res, text, files, schFiles, libFiles, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, file, libs, _iteratorNormalCompletion2, _didIteratorError2, _iteratorError2, _iterator2, _step2, schFile, sch, svgPlotter, svg, _iteratorNormalCompletion3, _didIteratorError3, _iteratorError3, _iterator3, _step3, error, src, blob;
 
 				return regeneratorRuntime.wrap(function _callee$(_context) {
 					while (1) {
@@ -12861,66 +12864,129 @@ var app = new Vue({
 								_didIteratorError2 = false;
 								_iteratorError2 = undefined;
 								_context.prev = 39;
-								for (_iterator2 = schFiles[Symbol.iterator](); !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-									schFile = _step2.value;
-									sch = Schematic.load(schFile.content);
-									svgPlotter = new SVGPlotter();
+								_iterator2 = schFiles[Symbol.iterator]();
 
-									svgPlotter.plotSchematic(sch, libs);
-									svg = svgPlotter.output;
-									src = void 0;
-
-									if (typeof Blob !== 'undefined') {
-										blob = new Blob([svg], { type: 'image/svg+xml' });
-
-										src = URL.createObjectURL(blob);
-									} else {
-										src = 'data:image/svg+xml,' + encodeURIComponent(svg);
-									}
-									this.results.push({
-										url: schFile.url,
-										src: src
-									});
+							case 41:
+								if (_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done) {
+									_context.next = 73;
+									break;
 								}
-								_context.next = 47;
+
+								schFile = _step2.value;
+
+								this.status = 'loading ' + schFile;
+								sch = Schematic.load(schFile.content);
+								svgPlotter = new SVGPlotter();
+
+								svgPlotter.plotSchematic(sch, libs);
+								svg = svgPlotter.output;
+								_iteratorNormalCompletion3 = true;
+								_didIteratorError3 = false;
+								_iteratorError3 = undefined;
+								_context.prev = 51;
+
+								for (_iterator3 = svgPlotter.errors[Symbol.iterator](); !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+									error = _step3.value;
+
+									this.errors.push(error);
+								}
+
+								_context.next = 59;
 								break;
 
-							case 43:
-								_context.prev = 43;
-								_context.t1 = _context["catch"](39);
-								_didIteratorError2 = true;
-								_iteratorError2 = _context.t1;
+							case 55:
+								_context.prev = 55;
+								_context.t1 = _context["catch"](51);
+								_didIteratorError3 = true;
+								_iteratorError3 = _context.t1;
 
-							case 47:
-								_context.prev = 47;
-								_context.prev = 48;
+							case 59:
+								_context.prev = 59;
+								_context.prev = 60;
+
+								if (!_iteratorNormalCompletion3 && _iterator3.return) {
+									_iterator3.return();
+								}
+
+							case 62:
+								_context.prev = 62;
+
+								if (!_didIteratorError3) {
+									_context.next = 65;
+									break;
+								}
+
+								throw _iteratorError3;
+
+							case 65:
+								return _context.finish(62);
+
+							case 66:
+								return _context.finish(59);
+
+							case 67:
+								src = void 0;
+
+								if (typeof Blob !== 'undefined') {
+									blob = new Blob([svg], { type: 'image/svg+xml' });
+
+									src = URL.createObjectURL(blob);
+								} else {
+									src = 'data:image/svg+xml,' + encodeURIComponent(svg);
+								}
+								this.results.push({
+									url: schFile.url,
+									src: src
+								});
+
+							case 70:
+								_iteratorNormalCompletion2 = true;
+								_context.next = 41;
+								break;
+
+							case 73:
+								_context.next = 79;
+								break;
+
+							case 75:
+								_context.prev = 75;
+								_context.t2 = _context["catch"](39);
+								_didIteratorError2 = true;
+								_iteratorError2 = _context.t2;
+
+							case 79:
+								_context.prev = 79;
+								_context.prev = 80;
 
 								if (!_iteratorNormalCompletion2 && _iterator2.return) {
 									_iterator2.return();
 								}
 
-							case 50:
-								_context.prev = 50;
+							case 82:
+								_context.prev = 82;
 
 								if (!_didIteratorError2) {
-									_context.next = 53;
+									_context.next = 85;
 									break;
 								}
 
 								throw _iteratorError2;
 
-							case 53:
-								return _context.finish(50);
+							case 85:
+								return _context.finish(82);
 
-							case 54:
-								return _context.finish(47);
+							case 86:
+								return _context.finish(79);
 
-							case 55:
+							case 87:
+								this.status = 'done';
+
+							case 88:
 							case "end":
 								return _context.stop();
 						}
 					}
-				}, _callee, this, [[14, 18, 22, 30], [23,, 25, 29], [39, 43, 47, 55], [48,, 50, 54]]);
+				}, _callee, this, [[14, 18, 22, 30], [23,, 25, 29], [39, 75, 79, 87], [51, 55, 59, 67], [60,, 62, 66], [80,, 82, 86]]);
 			}));
 
 			function loadFiles(_x) {

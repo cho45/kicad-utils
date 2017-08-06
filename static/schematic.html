@@ -24,6 +24,20 @@
 				border: 1px solid #ccc;
 				padding: 10px;
 			}
+
+			.status {
+				font-size: 120%;
+				padding: 5px;
+				background: #efefef;
+				border: 1px solid #ccc;
+			}
+
+			.errors {
+				color: #900;
+				padding: 5px;
+				background: #efefef;
+				border: 1px solid #ccc;
+			}
 		</style>
 	</head>
 	<body>
@@ -43,6 +57,9 @@
 				</form>
 			</div>
 			<p class="status">{{ status }}</p>
+			<div class="errors">
+				<p v-for="error in errors">{{ error }}</p>
+			</div>
 			<div class="result" v-for="result in results">
 				<h3>{{ basename(result.url.name) }}</h3>
 				<img v-bind:src="result.src">
