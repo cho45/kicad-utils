@@ -107,6 +107,9 @@ class Schematic {
             else if (tokens[0] === 'Wire') {
                 this.items.push(new Wire(tokens.slice(1)).parse(lines));
             }
+            else if (tokens[0] === 'Kmarq') {
+                // this may be DRC error. ignore
+            }
             else if (tokens[0] === '$EndSCHEMATC') {
                 this.parsed = true;
             }

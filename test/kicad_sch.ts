@@ -151,6 +151,7 @@ describe("Schematic.load", () => {
 			2F 1F 45 A0 A0 D0 A8 08 59 A0 38 BD A4 94 81 A1 0C 21 50 CE C0 5C C1 00 00 62 1F 38 7D 11 C4 5E 
 			6C 00 00 00 00 49 45 4E 44 AE 42 60 82 FF 
 			EndData
+			Kmarq B 1600 1100 "Warning Pin power_in not driven (Net 5)" F=1
 			$EndBitmap
 			$EndSCHEMATC
 		`);
