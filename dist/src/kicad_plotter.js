@@ -486,14 +486,30 @@ class Plotter {
                 this.setColor(SCH_COLORS.LAYER_SHEETLABEL);
                 for (let pin of item.sheetPins) {
                     const tmp = pin.shape;
+                    const posx = pin.posx;
+                    const posy = pin.posy;
                     if (pin.shape === kicad_common_1.Net.INPUT) {
                         pin.shape = kicad_common_1.Net.OUTPUT;
                     }
                     else if (pin.shape === kicad_common_1.Net.OUTPUT) {
                         pin.shape = kicad_common_1.Net.INPUT;
                     }
+                    if (pin.sheetSide === kicad_common_1.SheetSide.LEFT) {
+                        pin.posx = item.posx;
+                    }
+                    else if (pin.sheetSide === kicad_common_1.SheetSide.RIGHT) {
+                        pin.posx = item.posx + item.sizex;
+                    }
+                    else if (pin.sheetSide === kicad_common_1.SheetSide.TOP) {
+                        pin.posy = item.posy;
+                    }
+                    else if (pin.sheetSide === kicad_common_1.SheetSide.BOTTOM) {
+                        pin.posy = item.posy + item.sizey;
+                    }
                     this.plotSchTextHierarchicalLabel(pin);
                     pin.shape = tmp;
+                    pin.posx = posx;
+                    pin.posy = posy;
                 }
             }
             else if (item instanceof kicad_sch_1.Bitmap) {
@@ -636,6 +652,7 @@ class Plotter {
         }
     }
     plotSchTextHierarchicalLabel(item) {
+        this.setColor(SCH_COLORS.LAYER_HIERLABEL);
         {
             let p = new kicad_common_1.Point(item.posx, item.posy);
             const halfSize = item.size / 2;
@@ -652,7 +669,7 @@ class Plotter {
         ;
         {
             let p = new kicad_common_1.Point(item.posx, item.posy);
-            const txtOffset = this.font.computeTextLineSize(' ', item.size, DEFAULT_LINE_WIDTH) + TXT_MARGIN + DEFAULT_LINE_WIDTH / 2;
+            const txtOffset = item.size + TXT_MARGIN + DEFAULT_LINE_WIDTH;
             if (item.orientationType === 0) {
                 p.x -= txtOffset;
             }

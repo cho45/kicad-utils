@@ -5121,6 +5121,7 @@ var SheetPin = function (_Text) {
         _this10.posx = Number(tokens[3]);
         _this10.posy = Number(tokens[4]);
         _this10.size = Number(tokens[5]);
+        _this10.name1 = 'HLabel';
         if (_this10.sheetSide === kicad_common_1.SheetSide.LEFT) {
             _this10.setOrientationType(TextOrientationType.HORIZ_RIGHT);
         } else if (_this10.sheetSide === kicad_common_1.SheetSide.RIGHT) {
@@ -11756,13 +11757,26 @@ var Plotter = function () {
                                 var pin = _step5.value;
 
                                 var tmp = pin.shape;
+                                var posx = pin.posx;
+                                var posy = pin.posy;
                                 if (pin.shape === kicad_common_1.Net.INPUT) {
                                     pin.shape = kicad_common_1.Net.OUTPUT;
                                 } else if (pin.shape === kicad_common_1.Net.OUTPUT) {
                                     pin.shape = kicad_common_1.Net.INPUT;
                                 }
+                                if (pin.sheetSide === kicad_common_1.SheetSide.LEFT) {
+                                    pin.posx = item.posx;
+                                } else if (pin.sheetSide === kicad_common_1.SheetSide.RIGHT) {
+                                    pin.posx = item.posx + item.sizex;
+                                } else if (pin.sheetSide === kicad_common_1.SheetSide.TOP) {
+                                    pin.posy = item.posy;
+                                } else if (pin.sheetSide === kicad_common_1.SheetSide.BOTTOM) {
+                                    pin.posy = item.posy + item.sizey;
+                                }
                                 this.plotSchTextHierarchicalLabel(pin);
                                 pin.shape = tmp;
+                                pin.posx = posx;
+                                pin.posy = posy;
                             }
                         } catch (err) {
                             _didIteratorError5 = true;
@@ -11937,6 +11951,7 @@ var Plotter = function () {
     }, {
         key: "plotSchTextHierarchicalLabel",
         value: function plotSchTextHierarchicalLabel(item) {
+            this.setColor(SCH_COLORS.LAYER_HIERLABEL);
             {
                 var p = new kicad_common_1.Point(item.posx, item.posy);
                 var halfSize = item.size / 2;
@@ -11953,7 +11968,7 @@ var Plotter = function () {
             ;
             {
                 var _p2 = new kicad_common_1.Point(item.posx, item.posy);
-                var txtOffset = this.font.computeTextLineSize(' ', item.size, DEFAULT_LINE_WIDTH) + TXT_MARGIN + DEFAULT_LINE_WIDTH / 2;
+                var txtOffset = item.size + TXT_MARGIN + DEFAULT_LINE_WIDTH;
                 if (item.orientationType === 0) {
                     _p2.x -= txtOffset;
                 } else if (item.orientationType === 1) {

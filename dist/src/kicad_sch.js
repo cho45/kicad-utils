@@ -521,6 +521,7 @@ class SheetPin extends Text {
         this.posx = Number(tokens[3]);
         this.posy = Number(tokens[4]);
         this.size = Number(tokens[5]);
+        this.name1 = 'HLabel';
         if (this.sheetSide === kicad_common_1.SheetSide.LEFT) {
             this.setOrientationType(TextOrientationType.HORIZ_RIGHT);
         }

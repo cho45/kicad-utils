@@ -636,6 +636,7 @@ export class SheetPin extends Text {
 		this.posy = Number(tokens[4]);
 		this.size = Number(tokens[5]);
 
+		this.name1 = 'HLabel';
 		if (this.sheetSide === SheetSide.LEFT) {
 			this.setOrientationType(TextOrientationType.HORIZ_RIGHT);
 		} else

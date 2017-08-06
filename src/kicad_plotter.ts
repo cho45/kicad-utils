@@ -38,6 +38,7 @@ import {
 	TextVjustify,
 	PinOrientation,
 	TextAngle,
+	SheetSide,
 
 	Transform,
 	Point,
@@ -823,14 +824,30 @@ export abstract class Plotter {
 				this.setColor(SCH_COLORS.LAYER_SHEETLABEL);
 				for (let pin of item.sheetPins) {
 					const tmp = pin.shape;
+					const posx = pin.posx;
+					const posy = pin.posy;
 					if (pin.shape === Net.INPUT) {
 						pin.shape = Net.OUTPUT;
 					} else
 					if (pin.shape === Net.OUTPUT) {
 						pin.shape = Net.INPUT;
 					}
+					if (pin.sheetSide === SheetSide.LEFT) {
+						pin.posx = item.posx;
+					} else
+					if (pin.sheetSide === SheetSide.RIGHT) {
+						pin.posx = item.posx + item.sizex;
+					} else
+					if (pin.sheetSide === SheetSide.TOP) {
+						pin.posy = item.posy;
+					} else
+					if (pin.sheetSide === SheetSide.BOTTOM) {
+						pin.posy = item.posy + item.sizey;
+					}
 					this.plotSchTextHierarchicalLabel(pin);
 					pin.shape = tmp;
+					pin.posx = posx;
+					pin.posy = posy;
 				}
 			} else
 			if (item instanceof Bitmap) {
@@ -997,6 +1014,7 @@ export abstract class Plotter {
 	}
 
 	plotSchTextHierarchicalLabel(item: Text) {
+		this.setColor(SCH_COLORS.LAYER_HIERLABEL);
 		{
 			let p = new Point(item.posx, item.posy);
 			const halfSize = item.size / 2;
@@ -1013,7 +1031,7 @@ export abstract class Plotter {
 		};
 		{
 			let p = new Point(item.posx, item.posy);
-			const txtOffset =  this.font.computeTextLineSize(' ', item.size, DEFAULT_LINE_WIDTH) + TXT_MARGIN + DEFAULT_LINE_WIDTH / 2;
+			const txtOffset =  item.size + TXT_MARGIN + DEFAULT_LINE_WIDTH;
 			if (item.orientationType === 0) {
 				p.x -= txtOffset;
 			} else
