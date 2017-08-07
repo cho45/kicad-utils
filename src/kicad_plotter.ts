@@ -771,10 +771,14 @@ export abstract class Plotter {
 					}
 
 					const size = field.size || DEFAULT_SIZE_TEXT;
-					const textWidth  = this.font.computeTextLineSize(field.text, size, DEFAULT_LINE_WIDTH);
-					const textHeight = this.font.getInterline(size, DEFAULT_LINE_WIDTH);
-					const relative   = Point.sub({ x: field.posx, y: field.posy }, { x: item.posx, y: item.posy });
-					let textpos = item.transform.transformCoordinate(relative);
+					const textBox = this.getTextBox(field, size, DEFAULT_LINE_WIDTH);
+					const origin = {  x: item.posx, y: item.posy };
+					textBox.pos1 = Point.sub(textBox.pos1, origin);
+					textBox.pos2 = Point.sub(textBox.pos2, origin);
+					let textpos = item.transform.transformCoordinate({
+						x: textBox.pos1.x + textBox.width / 2,
+						y: textBox.pos1.y + textBox.height / 2,
+					});
 
 					this.text(
 						textpos,
@@ -1095,7 +1099,7 @@ export abstract class Plotter {
 		);
 	}
 
-	getTextBox(text: Field, size: number, lineWidth: number, invertY: boolean) {
+	getTextBox(text: Field, size: number, lineWidth: number, invertY: boolean = false) {
 		let lines = text.text.split(/\n/).map( (line) => this.font.computeTextLineSize(text.text, size, lineWidth));
 
 		let dx = Math.max( ... lines );
@@ -1115,22 +1119,26 @@ export abstract class Plotter {
 		if (text.hjustify === TextHjustify.LEFT) {
 		} else
 		if (text.hjustify === TextHjustify.CENTER) {
-			rect.pos1.x -= rect.width / 2;
+			rect.pos1.x -= dx / 2;
+			rect.pos2.x -= dx / 2;
 		} else
 		if (text.hjustify === TextHjustify.RIGHT) {
-			rect.pos1.x -= rect.width;
+			rect.pos1.x -= dx;
+			rect.pos2.x -= dx;
 		}
 
 		if (text.vjustify === TextVjustify.TOP) {
 		} else
 		if (text.vjustify === TextVjustify.CENTER) {
-			rect.pos1.y -= dx / 2;
+			rect.pos1.y -= dy / 2;
+			rect.pos2.y -= dy / 2;
 		} else
 		if (text.vjustify === TextVjustify.BOTTOM) {
-			rect.pos1.y -= dx;
+			rect.pos1.y -= dy;
+			rect.pos2.y -= dy;
 		}
 
-		return rect;
+		return rect.normalize();
 	}
 }
 

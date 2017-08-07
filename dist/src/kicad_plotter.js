@@ -467,10 +467,14 @@ class Plotter {
                         }
                     }
                     const size = field.size || DEFAULT_SIZE_TEXT;
-                    const textWidth = this.font.computeTextLineSize(field.text, size, DEFAULT_LINE_WIDTH);
-                    const textHeight = this.font.getInterline(size, DEFAULT_LINE_WIDTH);
-                    const relative = kicad_common_1.Point.sub({ x: field.posx, y: field.posy }, { x: item.posx, y: item.posy });
-                    let textpos = item.transform.transformCoordinate(relative);
+                    const textBox = this.getTextBox(field, size, DEFAULT_LINE_WIDTH);
+                    const origin = { x: item.posx, y: item.posy };
+                    textBox.pos1 = kicad_common_1.Point.sub(textBox.pos1, origin);
+                    textBox.pos2 = kicad_common_1.Point.sub(textBox.pos2, origin);
+                    let textpos = item.transform.transformCoordinate({
+                        x: textBox.pos1.x + textBox.width / 2,
+                        y: textBox.pos1.y + textBox.height / 2,
+                    });
                     this.text(textpos, SCH_COLORS.LAYER_REFERENCEPART, field.text, orientation, size, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, DEFAULT_LINE_WIDTH, field.italic, field.bold);
                 }
             }
@@ -708,7 +712,7 @@ class Plotter {
         }
         this.text(p, color, item.text, item.orientation, item.size, item.hjustify, item.vjustify, DEFAULT_LINE_WIDTH, item.italic, item.bold);
     }
-    getTextBox(text, size, lineWidth, invertY) {
+    getTextBox(text, size, lineWidth, invertY = false) {
         let lines = text.text.split(/\n/).map((line) => this.font.computeTextLineSize(text.text, size, lineWidth));
         let dx = Math.max(...lines);
         let dy = this.font.getInterline(size, lineWidth) * lines.length;
@@ -720,20 +724,24 @@ class Plotter {
         if (text.hjustify === kicad_common_1.TextHjustify.LEFT) {
         }
         else if (text.hjustify === kicad_common_1.TextHjustify.CENTER) {
-            rect.pos1.x -= rect.width / 2;
+            rect.pos1.x -= dx / 2;
+            rect.pos2.x -= dx / 2;
         }
         else if (text.hjustify === kicad_common_1.TextHjustify.RIGHT) {
-            rect.pos1.x -= rect.width;
+            rect.pos1.x -= dx;
+            rect.pos2.x -= dx;
         }
         if (text.vjustify === kicad_common_1.TextVjustify.TOP) {
         }
         else if (text.vjustify === kicad_common_1.TextVjustify.CENTER) {
-            rect.pos1.y -= dx / 2;
+            rect.pos1.y -= dy / 2;
+            rect.pos2.y -= dy / 2;
         }
         else if (text.vjustify === kicad_common_1.TextVjustify.BOTTOM) {
-            rect.pos1.y -= dx;
+            rect.pos1.y -= dy;
+            rect.pos2.y -= dy;
         }
-        return rect;
+        return rect.normalize();
     }
 }
 exports.Plotter = Plotter;
