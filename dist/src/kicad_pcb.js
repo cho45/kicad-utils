@@ -144,6 +144,21 @@ class PCB {
             this.expecting(token, kicad_pcb_token_1.Token.yes, kicad_pcb_token_1.Token.no);
         }
     }
+    parseXY(expected) {
+        if (!this.curTok().is(kicad_pcb_token_1.Token.LEFT)) {
+            this.needLEFT();
+        }
+        let token = this.nextTok();
+        this.expecting(token, kicad_pcb_token_1.Token.xy);
+        const x = this.parseBoardUnits(expected + '->x');
+        const y = this.parseBoardUnits(expected + '->y');
+        this.needRIGHT();
+        return new kicad_common_1.Point(x, y);
+    }
+    parseBoardItemLayer(expected) {
+        this.nextTok();
+        return this.layerIndices[this.curText()];
+    }
     parse() {
         let token = this.curTok();
         this.expecting(token, kicad_pcb_token_1.Token.LEFT);
@@ -405,7 +420,121 @@ class PCB {
         this.board.boardDesignSetting.netClasses.add(nc);
     }
     parseDrawSegmentSection() {
-        this.skipSection();
+        let token = this.curTok();
+        const segment = new DrawSegment();
+        if (token.is(kicad_pcb_token_1.Token.gr_arc)) {
+            segment.shape = Shape.ARC;
+            this.needLEFT();
+            {
+                token = this.nextTok();
+                this.expecting(token, kicad_pcb_token_1.Token.start, kicad_pcb_token_1.Token.center);
+                const x = this.parseBoardUnits("x");
+                const y = this.parseBoardUnits("y");
+                segment.start = new kicad_common_1.Point(x, y);
+                this.needRIGHT();
+                this.needLEFT();
+            }
+            {
+                token = this.nextTok();
+                this.expecting(token, kicad_pcb_token_1.Token.end);
+                const x = this.parseBoardUnits("x");
+                const y = this.parseBoardUnits("y");
+                segment.end = new kicad_common_1.Point(x, y);
+                this.needRIGHT();
+            }
+            ;
+        }
+        else if (token.is(kicad_pcb_token_1.Token.gr_circle)) {
+            segment.shape = Shape.CIRCLE;
+            this.needLEFT();
+            {
+                token = this.nextTok();
+                this.expecting(token, kicad_pcb_token_1.Token.center);
+                const x = this.parseBoardUnits("x");
+                const y = this.parseBoardUnits("y");
+                segment.start = new kicad_common_1.Point(x, y);
+                this.needRIGHT();
+                this.needLEFT();
+            }
+            {
+                token = this.nextTok();
+                this.expecting(token, kicad_pcb_token_1.Token.end);
+                const x = this.parseBoardUnits("x");
+                const y = this.parseBoardUnits("y");
+                segment.end = new kicad_common_1.Point(x, y);
+                this.needRIGHT();
+            }
+            ;
+        }
+        else if (token.is(kicad_pcb_token_1.Token.gr_curve)) {
+            segment.shape = Shape.CURVE;
+            this.needLEFT();
+            token = this.nextTok();
+            this.expecting(token, kicad_pcb_token_1.Token.pts);
+            segment.start = this.parseXY("start");
+            segment.bezierC1 = this.parseXY("bezierC1");
+            segment.bezierC2 = this.parseXY("bezierC2");
+            segment.end = this.parseXY("end");
+            this.needRIGHT();
+        }
+        else if (token.is(kicad_pcb_token_1.Token.gr_line)) {
+            segment.shape = Shape.SEGMENT;
+            this.needLEFT();
+            {
+                token = this.nextTok();
+                this.expecting(token, kicad_pcb_token_1.Token.start);
+                const x = this.parseBoardUnits("x");
+                const y = this.parseBoardUnits("y");
+                segment.start = new kicad_common_1.Point(x, y);
+                this.needRIGHT();
+                this.needLEFT();
+            }
+            {
+                token = this.nextTok();
+                this.expecting(token, kicad_pcb_token_1.Token.end);
+                const x = this.parseBoardUnits("x");
+                const y = this.parseBoardUnits("y");
+                segment.end = new kicad_common_1.Point(x, y);
+                this.needRIGHT();
+            }
+            ;
+        }
+        else if (token.is(kicad_pcb_token_1.Token.gr_poly)) {
+            segment.shape = Shape.POLYGON;
+            this.needLEFT();
+            token = this.nextTok();
+            this.expecting(token, kicad_pcb_token_1.Token.pts);
+            while (!kicad_pcb_token_1.Token.RIGHT.is(token = this.nextTok())) {
+                segment.polyPoints.push(this.parseXY("polypoint"));
+            }
+        }
+        else {
+            this.expecting(token, kicad_pcb_token_1.Token.gr_arc, kicad_pcb_token_1.Token.gr_circle, kicad_pcb_token_1.Token.gr_curve, kicad_pcb_token_1.Token.gr_line, kicad_pcb_token_1.Token.gr_poly);
+        }
+        for (let token = this.nextTok(); token && !token.is(kicad_pcb_token_1.Token.RIGHT); token = this.nextTok()) {
+            this.expecting(token, kicad_pcb_token_1.Token.LEFT);
+            token = this.nextTok();
+            if (token.is(kicad_pcb_token_1.Token.angle)) {
+                segment.angle = this.parseFloat("angle") * 10;
+            }
+            else if (token.is(kicad_pcb_token_1.Token.layer)) {
+                segment.layer = this.parseBoardItemLayer("layer");
+            }
+            else if (token.is(kicad_pcb_token_1.Token.width)) {
+                segment.lineWidth = this.parseBoardUnits(kicad_pcb_token_1.Token.width.toString());
+            }
+            else if (token.is(kicad_pcb_token_1.Token.tstamp)) {
+                segment.tstamp = this.parseHex("tstamp");
+            }
+            else if (token.is(kicad_pcb_token_1.Token.status)) {
+                segment.status = this.parseHex("status");
+            }
+            else {
+                this.expecting(token, kicad_pcb_token_1.Token.angle, kicad_pcb_token_1.Token.layer, kicad_pcb_token_1.Token.width, kicad_pcb_token_1.Token.tstamp, kicad_pcb_token_1.Token.status);
+            }
+            this.needRIGHT();
+        }
+        this.board.drawSegments.push(segment);
     }
     parseTextSection() {
         this.skipSection();
@@ -475,6 +604,7 @@ class Board {
         this.boardDesignSetting = new BoardDesignSetting();
         this.pageInfo = PageInfo.A3;
         this.netInfos = [];
+        this.drawSegments = [];
         this.copperLayerCount = 0;
         this.enabledLayers = [];
         this.visibleLayers = [];
@@ -715,6 +845,24 @@ class NetInfoItem extends BoardItem {
         this.board = parent;
         this.name = name;
         this.netCode = netCode;
+    }
+}
+// T_STROKE
+var Shape;
+(function (Shape) {
+    Shape[Shape["SEGMENT"] = 0] = "SEGMENT";
+    Shape[Shape["RECT"] = 1] = "RECT";
+    Shape[Shape["ARC"] = 2] = "ARC";
+    Shape[Shape["CIRCLE"] = 3] = "CIRCLE";
+    Shape[Shape["POLYGON"] = 4] = "POLYGON";
+    Shape[Shape["CURVE"] = 5] = "CURVE";
+    Shape[Shape["LAST"] = 6] = "LAST"; ///< last value for this list
+})(Shape || (Shape = {}));
+class DrawSegment extends BoardItem {
+    constructor() {
+        super(...arguments);
+        this.bezierPoints = [];
+        this.polyPoints = [];
     }
 }
 //# sourceMappingURL=kicad_pcb.js.map

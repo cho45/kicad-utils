@@ -148,7 +148,7 @@ export class PCB {
 	}
 
 	// unify interface to parseInt
-	parseHex(expected?: string) {
+	parseHex(expected: string) {
 		if (expected) {
 			// XXX
 			this.nextTok();
@@ -157,7 +157,7 @@ export class PCB {
 	}
 
 	// unify interface to parseInt
-	parseBool(expected?: string) {
+	parseBool(expected: string) {
 		if (expected) {
 			this.nextTok();
 		}
@@ -170,6 +170,24 @@ export class PCB {
 		} else {
 			this.expecting(token, Token.yes, Token.no);
 		}
+	}
+
+	parseXY(expected: string) {
+		if (!this.curTok().is(Token.LEFT)) {
+			this.needLEFT();
+		}
+
+		let token = this.nextTok();
+		this.expecting(token, Token.xy);
+		const x = this.parseBoardUnits(expected + '->x');
+		const y = this.parseBoardUnits(expected + '->y');
+		this.needRIGHT();
+		return new Point(x, y);
+	}
+
+	parseBoardItemLayer(expected: string) {
+		this.nextTok();
+		return this.layerIndices[this.curText()];
 	}
 
 	parse(): void {
@@ -457,7 +475,122 @@ export class PCB {
 	}
 
 	parseDrawSegmentSection() {
-		this.skipSection();
+		let token = this.curTok();
+		const segment = new DrawSegment();
+		if (token.is(Token.gr_arc)) {
+			segment.shape = Shape.ARC;
+			this.needLEFT();
+			{
+				token = this.nextTok();
+				this.expecting(token, Token.start, Token.center);
+				const x = this.parseBoardUnits("x");
+				const y = this.parseBoardUnits("y");
+				segment.start = new Point(x, y);
+				this.needRIGHT();
+				this.needLEFT();
+			}
+			{
+				token = this.nextTok();
+				this.expecting(token, Token.end);
+				const x = this.parseBoardUnits("x");
+				const y = this.parseBoardUnits("y");
+				segment.end = new Point(x, y);
+				this.needRIGHT();
+			};
+
+		} else
+		if (token.is(Token.gr_circle)) {
+			segment.shape = Shape.CIRCLE;
+			this.needLEFT();
+			{
+				token = this.nextTok();
+				this.expecting(token, Token.center);
+				const x = this.parseBoardUnits("x");
+				const y = this.parseBoardUnits("y");
+				segment.start = new Point(x, y);
+				this.needRIGHT();
+				this.needLEFT();
+			}
+			{
+				token = this.nextTok();
+				this.expecting(token, Token.end);
+				const x = this.parseBoardUnits("x");
+				const y = this.parseBoardUnits("y");
+				segment.end = new Point(x, y);
+				this.needRIGHT();
+			};
+		} else
+		if (token.is(Token.gr_curve)) {
+			segment.shape = Shape.CURVE;
+			this.needLEFT();
+			token = this.nextTok();
+			this.expecting(token, Token.pts);
+
+			segment.start = this.parseXY("start");
+			segment.bezierC1 = this.parseXY("bezierC1");
+			segment.bezierC2 = this.parseXY("bezierC2");
+			segment.end = this.parseXY("end");
+			this.needRIGHT();
+		} else
+		if (token.is(Token.gr_line)) {
+			segment.shape = Shape.SEGMENT;
+			this.needLEFT();
+			{
+				token = this.nextTok();
+				this.expecting(token, Token.start);
+				const x = this.parseBoardUnits("x");
+				const y = this.parseBoardUnits("y");
+				segment.start = new Point(x, y);
+				this.needRIGHT();
+				this.needLEFT();
+			}
+			{
+				token = this.nextTok();
+				this.expecting(token, Token.end);
+				const x = this.parseBoardUnits("x");
+				const y = this.parseBoardUnits("y");
+				segment.end = new Point(x, y);
+				this.needRIGHT();
+			};
+
+		} else
+		if (token.is(Token.gr_poly)) {
+			segment.shape = Shape.POLYGON;
+			this.needLEFT();
+			token = this.nextTok();
+			this.expecting(token, Token.pts);
+			while ( !Token.RIGHT.is(token = this.nextTok()) ) {
+				segment.polyPoints.push(this.parseXY("polypoint"));
+			}
+		} else {
+			this.expecting(token, Token.gr_arc, Token.gr_circle, Token.gr_curve, Token.gr_line, Token.gr_poly);
+		}
+
+		for (let token = this.nextTok(); token && !token.is(Token.RIGHT); token = this.nextTok()) {
+			this.expecting(token, Token.LEFT);
+
+			token = this.nextTok();
+			if (token.is(Token.angle)) {
+				segment.angle = this.parseFloat("angle") * 10;
+			} else
+			if (token.is(Token.layer)) {
+				segment.layer = this.parseBoardItemLayer("layer");
+			} else
+			if (token.is(Token.width)) {
+				segment.lineWidth = this.parseBoardUnits(Token.width.toString());
+			} else
+			if (token.is(Token.tstamp)) {
+				segment.tstamp = this.parseHex("tstamp");
+			} else
+			if (token.is(Token.status)) {
+				segment.status = this.parseHex("status");
+			} else {
+				this.expecting(token, Token.angle, Token.layer, Token.width, Token.tstamp, Token.status);
+			}
+			this.needRIGHT();
+		}
+
+		this.board.drawSegments.push(segment);
 	}
 
 	parseTextSection() {
@@ -531,6 +664,7 @@ export class Board {
 	pageInfo: PageInfo = PageInfo.A3;
 
 	netInfos: Array<NetInfoItem> = [];
+	drawSegments: Array<DrawSegment> = [];
 
 	copperLayerCount: number = 0;
 	enabledLayers: Array<number> = [];
@@ -894,6 +1028,9 @@ class NetClass {
 }
 
 abstract class BoardItem {
+	layer: number;
+	tstamp: number;
+	status: number;
 }
 
 class NetInfoItem extends BoardItem {
@@ -909,4 +1046,30 @@ class NetInfoItem extends BoardItem {
 		this.name = name;
 		this.netCode = netCode;
 	}
+}
+
+// T_STROKE
+enum Shape {
+	SEGMENT = 0,  ///< usual segment : line with rounded ends
+	RECT,         ///< segment with non rounded ends
+	ARC,          ///< Arcs (with rounded ends)
+	CIRCLE,       ///< ring
+	POLYGON,      ///< polygon (not yet used for tracks, but could be in microwave apps)
+	CURVE,        ///< Bezier Curve
+	LAST          ///< last value for this list
+}
+
+class DrawSegment extends BoardItem {
+
+	lineWidth: number;
+	start: Point;
+	end: Point;
+	shape: Shape;
+	type: number;
+	angle: number;
+	bezierC1: Point;
+	bezierC2: Point;
+
+	bezierPoints: Array<Point> = [];
+	polyPoints: Array<Point> = [];
 }
