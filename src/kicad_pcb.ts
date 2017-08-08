@@ -3,10 +3,15 @@
 // based on:
 // pcbnew/pcb_parser.cpp 
 /*
- * This program source code file is part of KiCad, a free EDA CAD application.
+ * This program source code file is part of kicad-utils
+ * Copyright (C) 2017 cho45 <cho45@lowreal.net>.
  *
- * Copyright (C) 2012 CERN
- * Copyright (C) 2012-2017 KiCad Developers, see AUTHORS.txt for contributors.
+ * And this program source code file is imported from KiCad, a free EDA CAD application.
+ *
+ * Original Author Copyright:
+ *
+ * Copyright (C) 2015 Jean-Pierre Charras, jaen-pierre.charras@gipsa-lab.inpg.com
+ * Copyright (C) 1992-2017 KiCad Developers, see KiCAD AUTHORS.txt for contributors.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
