@@ -493,3 +493,8 @@ export enum Net {
 	TRISTATE = "T",
 	UNSPECIFIED = "U",
 }
+
+export class Size {
+	constructor(public width: number, public height: number) {
+	}
+}
