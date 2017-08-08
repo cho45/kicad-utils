@@ -180,7 +180,6 @@ class PCB {
         for (let token = this.nextTok(); token && !token.is(kicad_pcb_token_1.Token.RIGHT); token = this.nextTok()) {
             this.expecting(token, kicad_pcb_token_1.Token.LEFT);
             token = this.nextTok();
-            console.log(token);
             if (token.is(kicad_pcb_token_1.Token.general)) {
                 this.parseGeneralSection();
             }
@@ -279,7 +278,6 @@ class PCB {
         if (pageType === 'User') {
             const width = this.parseFloat(); // unit=mm
             const height = this.parseFloat(); // unit=mm
-            console.log('custom', width, height);
             this.board.pageInfo.setPageType('User');
             this.board.pageInfo.width = width;
             this.board.pageInfo.height = height;
@@ -537,7 +535,105 @@ class PCB {
         this.board.drawSegments.push(segment);
     }
     parseTextSection() {
-        this.skipSection();
+        const text = new Text();
+        this.needSYMBOLorNUMBER();
+        text.text = this.curText();
+        this.needLEFT();
+        let token = this.nextTok();
+        this.expecting(token, kicad_pcb_token_1.Token.at);
+        let x = this.parseBoardUnits('x');
+        let y = this.parseBoardUnits('y');
+        text.textpos = new kicad_common_1.Point(x, y);
+        token = this.nextTok();
+        if (token.isNUMBER()) {
+            text.angle = this.parseFloat('angle') * 10;
+            this.needRIGHT();
+        }
+        else {
+            this.expecting(token, kicad_pcb_token_1.Token.RIGHT);
+        }
+        for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
+            this.expecting(token, kicad_pcb_token_1.Token.LEFT);
+            token = this.nextTok();
+            if (token.is(kicad_pcb_token_1.Token.layer)) {
+                text.layer = this.parseBoardItemLayer("layer");
+                this.needRIGHT();
+            }
+            else if (token.is(kicad_pcb_token_1.Token.tstamp)) {
+                text.tstamp = this.parseHex("tstamp");
+                this.needRIGHT();
+            }
+            else if (token.is(kicad_pcb_token_1.Token.effects)) {
+                this.parseEDATEXT(text);
+            }
+            else {
+                this.expecting(token, kicad_pcb_token_1.Token.layer, kicad_pcb_token_1.Token.tstamp, kicad_pcb_token_1.Token.effects);
+            }
+        }
+        return text;
+    }
+    parseEDATEXT(text) {
+        for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
+            if (token.is(kicad_pcb_token_1.Token.LEFT)) {
+                token = this.nextTok();
+            }
+            if (token.is(kicad_pcb_token_1.Token.font)) {
+                for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
+                    if (token.is(kicad_pcb_token_1.Token.LEFT))
+                        continue;
+                    if (token.is(kicad_pcb_token_1.Token.size)) {
+                        const textHeight = this.parseBoardUnits("text height");
+                        const textWidth = this.parseBoardUnits("text width");
+                        text.size = textHeight;
+                        this.needRIGHT();
+                    }
+                    else if (token.is(kicad_pcb_token_1.Token.thickness)) {
+                        const lineWidth = this.parseBoardUnits("text thickness");
+                        text.lineWidth = lineWidth;
+                        this.needRIGHT();
+                    }
+                    else if (token.is(kicad_pcb_token_1.Token.bold)) {
+                        text.bold = true;
+                    }
+                    else if (token.is(kicad_pcb_token_1.Token.italic)) {
+                        text.italic = true;
+                    }
+                    else {
+                        this.expecting(token, kicad_pcb_token_1.Token.size, kicad_pcb_token_1.Token.thickness, kicad_pcb_token_1.Token.bold, kicad_pcb_token_1.Token.italic);
+                    }
+                }
+            }
+            else if (token.is(kicad_pcb_token_1.Token.justify)) {
+                for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
+                    if (token.is(kicad_pcb_token_1.Token.LEFT))
+                        continue;
+                    if (token.is(kicad_pcb_token_1.Token.left)) {
+                        text.hjustify = kicad_common_1.TextHjustify.LEFT;
+                    }
+                    else if (token.is(kicad_pcb_token_1.Token.right)) {
+                        text.hjustify = kicad_common_1.TextHjustify.RIGHT;
+                    }
+                    else if (token.is(kicad_pcb_token_1.Token.top)) {
+                        text.vjustify = kicad_common_1.TextVjustify.TOP;
+                    }
+                    else if (token.is(kicad_pcb_token_1.Token.bottom)) {
+                        text.vjustify = kicad_common_1.TextVjustify.BOTTOM;
+                    }
+                    else if (token.is(kicad_pcb_token_1.Token.mirror)) {
+                        text.mirror = true;
+                    }
+                    else {
+                        this.expecting(token, kicad_pcb_token_1.Token.left, kicad_pcb_token_1.Token.right, kicad_pcb_token_1.Token.top, kicad_pcb_token_1.Token.bottom, kicad_pcb_token_1.Token.mirror);
+                    }
+                }
+            }
+            else if (token.is(kicad_pcb_token_1.Token.hide)) {
+                text.visibility = false;
+            }
+            else {
+                this.expecting(kicad_pcb_token_1.Token.font, kicad_pcb_token_1.Token.justify, kicad_pcb_token_1.Token.hide);
+            }
+        }
     }
     parseDimensionSection() {
         this.skipSection();
@@ -623,7 +719,6 @@ class PageInfo {
         this.setPortrait(portrait);
     }
     setPageType(pageType) {
-        console.log(PageInfo.PAGE_TYPES);
         const page = PageInfo.PAGE_TYPES.find((i) => i.pageType === pageType);
         Object.assign(this, page);
     }
@@ -863,6 +958,17 @@ class DrawSegment extends BoardItem {
         super(...arguments);
         this.bezierPoints = [];
         this.polyPoints = [];
+    }
+}
+class Text extends BoardItem {
+    constructor() {
+        super(...arguments);
+        this.bold = false;
+        this.italic = false;
+        this.mirror = false;
+        this.hjustify = kicad_common_1.TextHjustify.CENTER;
+        this.vjustify = kicad_common_1.TextVjustify.CENTER;
+        this.visibility = true;
     }
 }
 //# sourceMappingURL=kicad_pcb.js.map

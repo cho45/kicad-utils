@@ -4,6 +4,8 @@ import {
 	MIL2MM,
 	MM2MIL,
 	Point,
+	TextHjustify,
+	TextVjustify,
 } from "./kicad_common";
 
 import { Token } from "./kicad_pcb_token";
@@ -214,7 +216,6 @@ export class PCB {
 			this.expecting(token, Token.LEFT);
 
 			token = this.nextTok();
-			console.log(token);
 
 			if (token.is(Token.general)) {
 				this.parseGeneralSection();
@@ -316,7 +317,6 @@ export class PCB {
 		if (pageType === 'User') {
 			const width = this.parseFloat(); // unit=mm
 			const height = this.parseFloat(); // unit=mm
-			console.log('custom', width, height);
 			this.board.pageInfo.setPageType('User');
 			this.board.pageInfo.width = width;
 			this.board.pageInfo.height = height;
@@ -594,7 +594,103 @@ export class PCB {
 	}
 
 	parseTextSection() {
-		this.skipSection();
+		const text = new Text();
+		this.needSYMBOLorNUMBER();
+		text.text = this.curText();
+		this.needLEFT();
+		let token = this.nextTok();
+		this.expecting(token, Token.at);
+
+		let x = this.parseBoardUnits('x');
+		let y = this.parseBoardUnits('y');
+		text.textpos = new Point(x, y);
+
+		token = this.nextTok();
+		if ( token.isNUMBER()) {
+			text.angle = this.parseFloat('angle') * 10;
+			this.needRIGHT();
+		} else {
+			this.expecting(token, Token.RIGHT);
+		}
+
+		for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
+			this.expecting(token, Token.LEFT);
+			token = this.nextTok();
+			if (token.is(Token.layer)) {
+				text.layer = this.parseBoardItemLayer("layer");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.tstamp)) {
+				text.tstamp = this.parseHex("tstamp");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.effects)) {
+				this.parseEDATEXT(text);
+			} else {
+				this.expecting(token, Token.layer, Token.tstamp, Token.effects);
+			}
+		}
+		return text;
+	}
+
+	parseEDATEXT(text: Text) {
+		for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
+			if (token.is(Token.LEFT)) {
+				token = this.nextTok();
+			}
+			if (token.is(Token.font)) {
+				for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
+					if (token.is(Token.LEFT)) continue;
+
+					if (token.is(Token.size)) {
+						const textHeight = this.parseBoardUnits("text height");
+						const textWidth = this.parseBoardUnits("text width");
+						text.size = textHeight;
+						this.needRIGHT();
+					} else
+					if (token.is(Token.thickness)) {
+						const lineWidth = this.parseBoardUnits("text thickness");
+						text.lineWidth = lineWidth;
+						this.needRIGHT();
+					} else
+					if (token.is(Token.bold)) {
+						text.bold = true;
+					} else
+					if (token.is(Token.italic)) {
+						text.italic = true;
+					} else {
+						this.expecting(token, Token.size, Token.thickness, Token.bold, Token.italic);
+					}
+				}
+			} else
+			if (token.is(Token.justify)) {
+				for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
+					if (token.is(Token.LEFT)) continue;
+					if (token.is(Token.left)) {
+						text.hjustify = TextHjustify.LEFT;
+					} else
+					if (token.is(Token.right)) {
+						text.hjustify = TextHjustify.RIGHT;
+					} else
+					if (token.is(Token.top)) {
+						text.vjustify = TextVjustify.TOP;
+					} else
+					if (token.is(Token.bottom)) {
+						text.vjustify = TextVjustify.BOTTOM;
+					} else
+					if (token.is(Token.mirror)) {
+						text.mirror = true;
+					} else {
+						this.expecting(token, Token.left, Token.right, Token.top, Token.bottom, Token.mirror);
+					}
+				}
+			} else
+			if (token.is(Token.hide)) {
+				text.visibility = false;
+			} else {
+				this.expecting(Token.font, Token.justify, Token.hide);
+			}
+		}
 	}
 
 	parseDimensionSection() {
@@ -721,7 +817,6 @@ class PageInfo {
 	}
 
 	setPageType(pageType: string) {
-		console.log(PageInfo.PAGE_TYPES);
 		const page = PageInfo.PAGE_TYPES.find((i) => i.pageType === pageType);
 		Object.assign(this, page);
 	}
@@ -1072,4 +1167,18 @@ class DrawSegment extends BoardItem {
 
 	bezierPoints: Array<Point> = [];
 	polyPoints: Array<Point> = [];
+}
+
+class Text extends BoardItem {
+	text: string;
+	textpos: Point;
+	angle: number;
+	size: number;
+	lineWidth: number;
+	bold: boolean = false;
+	italic: boolean = false;
+	mirror: boolean = false;
+	hjustify: TextHjustify = TextHjustify.CENTER;
+	vjustify: TextVjustify = TextVjustify.CENTER;
+	visibility: boolean = true;
 }
