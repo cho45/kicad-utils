@@ -156,8 +156,9 @@ exports.LibComponent = LibComponent;
 class Field0 {
     constructor(params) {
         this.reference = kicad_common_1.ReadDelimitedText(params[0]);
-        this.posx = Number(params[1]);
-        this.posy = Number(params[2]);
+        let posx = Number(params[1]);
+        let posy = Number(params[2]);
+        this.pos = new kicad_common_1.Point(posx, posy);
         this.textSize = Number(params[3]);
         this.textOrientation = params[4] === 'H' ? kicad_common_1.TextAngle.HORIZ : kicad_common_1.TextAngle.VERT;
         this.visibility = params[5] === 'V';
@@ -173,8 +174,9 @@ class FieldN {
         this.name = kicad_common_1.ReadDelimitedText(params[0]);
         if (this.name === "~")
             this.name = "";
-        this.posx = Number(params[1]);
-        this.posy = Number(params[2]);
+        let posx = Number(params[1]);
+        let posy = Number(params[2]);
+        this.pos = new kicad_common_1.Point(posx, posy);
         this.textSize = Number(params[3]);
         this.textOrientation = params[4] === 'H' ? kicad_common_1.TextAngle.HORIZ : kicad_common_1.TextAngle.VERT;
         this.visibility = params[5] === 'V';
@@ -240,8 +242,9 @@ class DrawObject {
 class DrawArc extends DrawObject {
     constructor(params) {
         super();
-        this.posx = Number(params[0]);
-        this.posy = Number(params[1]);
+        let posx = Number(params[0]);
+        let posy = Number(params[1]);
+        this.pos = new kicad_common_1.Point(posx, posy);
         this.radius = Number(params[2]);
         this.startAngle = Number(params[3]);
         this.endAngle = Number(params[4]);
@@ -249,16 +252,18 @@ class DrawArc extends DrawObject {
         this.convert = Number(params[6]);
         this.lineWidth = Number(params[7]);
         this.fill = params[8] || kicad_common_1.Fill.NO_FILL;
-        this.startx = Number(params[9]);
-        this.starty = Number(params[10]);
-        this.endx = Number(params[11]);
-        this.endy = Number(params[12]);
+        let startx = Number(params[9]);
+        let starty = Number(params[10]);
+        this.start = new kicad_common_1.Point(startx, starty);
+        let endx = Number(params[11]);
+        let endy = Number(params[12]);
+        this.end = new kicad_common_1.Point(endx, endy);
     }
     getBoundingBox() {
         const ret = new kicad_common_1.Rect(0, 0, 0, 0);
-        const arcStart = { x: this.startx, y: this.starty };
-        const arcEnd = { x: this.endx, y: this.endy };
-        const pos = { x: this.posx, y: this.posy };
+        const arcStart = this.start;
+        const arcEnd = this.end;
+        const pos = this.pos;
         const normStart = kicad_common_1.Point.sub(arcStart, pos);
         const normEnd = kicad_common_1.Point.sub(arcEnd, pos);
         if (kicad_common_1.Point.isZero(normStart) || kicad_common_1.Point.isZero(normEnd) || this.radius === 0) {
@@ -302,8 +307,9 @@ exports.DrawArc = DrawArc;
 class DrawCircle extends DrawObject {
     constructor(params) {
         super();
-        this.posx = Number(params[0]);
-        this.posy = Number(params[1]);
+        let posx = Number(params[0]);
+        let posy = Number(params[1]);
+        this.pos = new kicad_common_1.Point(posx, posy);
         this.radius = Number(params[2]);
         this.unit = Number(params[3]);
         this.convert = Number(params[4]);
@@ -312,8 +318,8 @@ class DrawCircle extends DrawObject {
     }
     getBoundingBox() {
         const transform = new kicad_common_1.Transform();
-        const pos1 = transform.transformCoordinate({ x: this.posx - this.radius, y: this.posy - this.radius });
-        const pos2 = transform.transformCoordinate({ x: this.posx + this.radius, y: this.posy + this.radius });
+        const pos1 = transform.transformCoordinate({ x: this.pos.x - this.radius, y: this.pos.y - this.radius });
+        const pos2 = transform.transformCoordinate({ x: this.pos.x + this.radius, y: this.pos.y + this.radius });
         return new kicad_common_1.Rect(Math.min(pos1.x, pos2.x), Math.min(pos1.y, pos2.y), Math.max(pos1.x, pos2.x), Math.max(pos1.y, pos2.y));
     }
 }
@@ -321,21 +327,25 @@ exports.DrawCircle = DrawCircle;
 class DrawPolyline extends DrawObject {
     constructor(params) {
         super();
+        this.points = [];
         this.pointCount = Number(params[0]);
         this.unit = Number(params[1]);
         this.convert = Number(params[2]);
         this.lineWidth = Number(params[3]);
-        this.points = params.slice(4, 4 + (this.pointCount * 2)).map((i) => Number(i));
+        let points = params.slice(4, 4 + (this.pointCount * 2)).map((i) => Number(i));
         this.fill = params[4 + (this.pointCount * 2)] || kicad_common_1.Fill.NO_FILL;
+        for (let i = 0, len = points.length; i < len; i += 2) {
+            this.points.push(new kicad_common_1.Point(points[i], points[i + 1]));
+        }
     }
     getBoundingBox() {
         let minx, maxx;
         let miny, maxy;
-        minx = maxx = this.points[0];
-        miny = maxy = this.points[1];
-        for (var i = 2, len = this.points.length; i < len; i += 2) {
-            const x = this.points[i];
-            const y = this.points[i + 1];
+        minx = maxx = this.points[0].x;
+        miny = maxy = this.points[0].y;
+        for (let point of this.points) {
+            const x = point.x;
+            const y = point.y;
             minx = Math.min(minx, x);
             maxx = Math.max(maxx, x);
             miny = Math.min(miny, y);
@@ -351,10 +361,12 @@ exports.DrawPolyline = DrawPolyline;
 class DrawSquare extends DrawObject {
     constructor(params) {
         super();
-        this.startx = Number(params[0]);
-        this.starty = Number(params[1]);
-        this.endx = Number(params[2]);
-        this.endy = Number(params[3]);
+        let startx = Number(params[0]);
+        let starty = Number(params[1]);
+        this.start = new kicad_common_1.Point(startx, starty);
+        let endx = Number(params[2]);
+        let endy = Number(params[3]);
+        this.end = new kicad_common_1.Point(endx, endy);
         this.unit = Number(params[4]);
         this.convert = Number(params[5]);
         this.lineWidth = Number(params[6]);
@@ -362,8 +374,8 @@ class DrawSquare extends DrawObject {
     }
     getBoundingBox() {
         const transform = new kicad_common_1.Transform();
-        const pos1 = transform.transformCoordinate({ x: this.startx, y: this.starty });
-        const pos2 = transform.transformCoordinate({ x: this.endx, y: this.endy });
+        const pos1 = transform.transformCoordinate(this.start);
+        const pos2 = transform.transformCoordinate(this.end);
         return new kicad_common_1.Rect(Math.min(pos1.x, pos2.x), Math.min(pos1.y, pos2.y), Math.max(pos1.x, pos2.x), Math.max(pos1.y, pos2.y));
     }
 }
@@ -372,8 +384,9 @@ class DrawText extends DrawObject {
     constructor(params) {
         super();
         this.angle = Number(params[0]);
-        this.posx = Number(params[1]);
-        this.posy = Number(params[2]);
+        let posx = Number(params[1]);
+        let posy = Number(params[2]);
+        this.pos = new kicad_common_1.Point(posx, posy);
         this.textSize = Number(params[3]);
         this.textType = Number(params[4]);
         this.unit = Number(params[5]);
@@ -393,7 +406,7 @@ class DrawText extends DrawObject {
     }
     getBoundingBox() {
         // TODO
-        return new kicad_common_1.Rect(this.posx - (this.angle === 0 ? this.text.length * this.textSize : 0), this.posy - (this.angle !== 0 ? this.text.length * this.textSize : 0), this.posx + (this.angle === 0 ? this.text.length * this.textSize : 0), this.posy + (this.angle !== 0 ? this.text.length * this.textSize : 0));
+        return new kicad_common_1.Rect(this.pos.x - (this.angle === 0 ? this.text.length * this.textSize : 0), this.pos.y - (this.angle !== 0 ? this.text.length * this.textSize : 0), this.pos.x + (this.angle === 0 ? this.text.length * this.textSize : 0), this.pos.y + (this.angle !== 0 ? this.text.length * this.textSize : 0));
     }
 }
 exports.DrawText = DrawText;
@@ -402,8 +415,9 @@ class DrawPin extends DrawObject {
         super();
         this.name = params[0];
         this.num = params[1];
-        this.posx = Number(params[2]);
-        this.posy = Number(params[3]);
+        let posx = Number(params[2]);
+        let posy = Number(params[3]);
+        this.pos = new kicad_common_1.Point(posx, posy);
         this.length = Number(params[4]);
         this.orientation = params[5];
         this.nameTextSize = Number(params[6]);
@@ -416,7 +430,7 @@ class DrawPin extends DrawObject {
     }
     getBoundingBox() {
         // TODO
-        return new kicad_common_1.Rect(this.posx - this.length, this.posy - this.length, this.posx + this.length, this.posy + this.length);
+        return new kicad_common_1.Rect(this.pos.x - this.length, this.pos.y - this.length, this.pos.x + this.length, this.pos.y + this.length);
     }
 }
 exports.DrawPin = DrawPin;

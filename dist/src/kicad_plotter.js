@@ -205,7 +205,7 @@ class Plotter {
     }
     plotLibComponentField(component, unit, convert, transform) {
         if (component.field && component.field.visibility) {
-            const pos = transform.transformCoordinate({ x: component.field.posx, y: component.field.posy });
+            const pos = transform.transformCoordinate(component.field.pos);
             let orientation = component.field.textOrientation;
             if (transform.y1) {
                 if (orientation === kicad_common_1.TextAngle.HORIZ) {
@@ -221,7 +221,7 @@ class Plotter {
             this.text(kicad_common_1.Point.add({ x: width / 2, y: height / 2 }, pos), SCH_COLORS.LAYER_REFERENCEPART, text, orientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, DEFAULT_LINE_WIDTH, component.field.italic, component.field.bold);
         }
         if (component.fields[0] && component.fields[0].visibility) {
-            const pos = transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy });
+            const pos = transform.transformCoordinate(component.fields[0].pos);
             let orientation = component.fields[0].textOrientation;
             if (transform.y1) {
                 if (orientation === kicad_common_1.TextAngle.HORIZ) {
@@ -238,29 +238,25 @@ class Plotter {
         }
     }
     plotDrawArc(draw, component, transform) {
-        const pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy });
+        const pos = transform.transformCoordinate(draw.pos);
         const [startAngle, endAngle] = transform.mapAngles(draw.startAngle, draw.endAngle);
         this.arc(pos, startAngle, endAngle, draw.radius, draw.fill, draw.lineWidth || DEFAULT_LINE_WIDTH);
     }
     plotDrawCircle(draw, component, transform) {
-        const pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy });
+        const pos = transform.transformCoordinate(draw.pos);
         this.circle(pos, draw.radius * 2, draw.fill, draw.lineWidth || DEFAULT_LINE_WIDTH);
     }
     plotDrawPolyline(draw, component, transform) {
-        const points = [];
-        for (let i = 0, len = draw.points.length; i < len; i += 2) {
-            const pos = transform.transformCoordinate({ x: draw.points[i], y: draw.points[i + 1] });
-            points.push(pos);
-        }
+        const points = draw.points.map((point) => transform.transformCoordinate(point));
         this.polyline(points, draw.fill, draw.lineWidth || DEFAULT_LINE_WIDTH);
     }
     plotDrawSquare(draw, component, transform) {
-        const pos1 = transform.transformCoordinate({ x: draw.startx, y: draw.starty });
-        const pos2 = transform.transformCoordinate({ x: draw.endx, y: draw.endy });
+        const pos1 = transform.transformCoordinate(draw.start);
+        const pos2 = transform.transformCoordinate(draw.end);
         this.rect(pos1, pos2, draw.fill, draw.lineWidth || DEFAULT_LINE_WIDTH);
     }
     plotDrawText(draw, component, transform) {
-        const pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy });
+        const pos = transform.transformCoordinate(draw.pos);
         this.text(pos, this.color, draw.text, component.field.textOrientation, draw.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, DEFAULT_LINE_WIDTH, draw.italic, draw.bold);
     }
     plotDrawPin(draw, component, transform) {
@@ -280,7 +276,7 @@ class Plotter {
         }
         if (!drawPinname && !drawPinnumber)
             return;
-        const pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy });
+        const pos = transform.transformCoordinate(draw.pos);
         const orientation = this.pinDrawOrientation(draw, transform);
         let x1 = pos.x, y1 = pos.y;
         if (orientation === kicad_common_1.PinOrientation.UP) {
@@ -354,7 +350,7 @@ class Plotter {
         }
     }
     plotDrawPinSymbol(draw, component, transform) {
-        const pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy });
+        const pos = transform.transformCoordinate(draw.pos);
         const orientation = this.pinDrawOrientation(draw, transform);
         let x1 = pos.x, y1 = pos.y;
         let mapX1 = 0, mapY1 = 0;

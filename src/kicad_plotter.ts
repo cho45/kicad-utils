@@ -311,7 +311,7 @@ export abstract class Plotter {
 
 	plotLibComponentField(component: LibComponent, unit: number, convert: number, transform: Transform): void {
 		if (component.field && component.field.visibility) {
-			const pos = transform.transformCoordinate({ x: component.field.posx, y: component.field.posy});
+			const pos = transform.transformCoordinate(component.field.pos);
 			let orientation = component.field.textOrientation;
 			if (transform.y1) {
 				if (orientation === TextAngle.HORIZ) {
@@ -340,7 +340,7 @@ export abstract class Plotter {
 		}
 
 		if (component.fields[0] && component.fields[0].visibility) {
-			const pos = transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy});
+			const pos = transform.transformCoordinate(component.fields[0].pos);
 			let orientation = component.fields[0].textOrientation;
 			if (transform.y1) {
 				if (orientation === TextAngle.HORIZ) {
@@ -368,7 +368,7 @@ export abstract class Plotter {
 	}
 
 	plotDrawArc(draw: DrawArc, component: LibComponent, transform: Transform ):void {
-		const pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy});
+		const pos = transform.transformCoordinate(draw.pos);
 		const [startAngle, endAngle] = transform.mapAngles(draw.startAngle, draw.endAngle);
 
 		this.arc(
@@ -382,7 +382,7 @@ export abstract class Plotter {
 	}
 
 	plotDrawCircle(draw: DrawCircle, component: LibComponent, transform: Transform ):void {
-		const pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy});
+		const pos = transform.transformCoordinate(draw.pos);
 		this.circle(
 			pos,
 			draw.radius * 2,
@@ -392,11 +392,7 @@ export abstract class Plotter {
 	}
 
 	plotDrawPolyline(draw: DrawPolyline, component: LibComponent,transform: Transform ):void {
-		const points: Array<Point> = [];
-		for (let i = 0, len = draw.points.length; i < len; i += 2) {
-			const pos = transform.transformCoordinate({x:draw.points[i] , y:draw.points[i+1] });
-			points.push(pos);
-		}
+		const points = draw.points.map( (point) => transform.transformCoordinate(point) );
 		this.polyline(
 			points,
 			draw.fill,
@@ -405,8 +401,8 @@ export abstract class Plotter {
 	}
 
 	plotDrawSquare(draw: DrawSquare, component: LibComponent, transform: Transform ):void {
-		const pos1 = transform.transformCoordinate({x: draw.startx, y: draw.starty});
-		const pos2 = transform.transformCoordinate({x: draw.endx, y: draw.endy});
+		const pos1 = transform.transformCoordinate(draw.start);
+		const pos2 = transform.transformCoordinate(draw.end);
 		this.rect(
 			pos1,
 			pos2,
@@ -416,7 +412,7 @@ export abstract class Plotter {
 	}
 	
 	plotDrawText(draw: DrawText, component: LibComponent, transform: Transform ):void {
-		const pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy});
+		const pos = transform.transformCoordinate(draw.pos);
 		this.text(
 			pos,
 			this.color,
@@ -449,7 +445,7 @@ export abstract class Plotter {
 
 		if (!drawPinname && !drawPinnumber) return;
 
-		const pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy});
+		const pos = transform.transformCoordinate(draw.pos);
 		const orientation = this.pinDrawOrientation(draw, transform);
 
 		let x1 = pos.x, y1 = pos.y;
@@ -648,7 +644,7 @@ export abstract class Plotter {
 	}
 
 	plotDrawPinSymbol(draw: DrawPin, component: LibComponent, transform: Transform): void {
-		const pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy});
+		const pos = transform.transformCoordinate(draw.pos);
 		const orientation = this.pinDrawOrientation(draw, transform);
 		
 		let x1 = pos.x, y1 = pos.y;

@@ -120,8 +120,8 @@ describe("Library.load", () => {
 		assert(c.optionFlag === 'N');
 
 		assert(c.field.reference === 'P');
-		assert(c.field.posx === 0);
-		assert(c.field.posy === 100);
+		assert(c.field.pos.x === 0);
+		assert(c.field.pos.y === 100);
 		assert(c.field.textSize === 50);
 		assert(c.field.textOrientation === TextAngle.HORIZ);
 		assert(c.field.visibility === true);
@@ -131,8 +131,8 @@ describe("Library.load", () => {
 		assert(c.field.bold === false);
 
 		assert(c.fields[0].name === 'CONN_01X01');
-		assert(c.fields[0].posx === 100);
-		assert(c.fields[0].posy === 0);
+		assert(c.fields[0].pos.x === 100);
+		assert(c.fields[0].pos.y === 0);
 		assert(c.fields[0].textSize === 50);
 		assert(c.fields[0].textOrientation === TextAngle.VERT);
 		assert(c.fields[0].visibility === true);
@@ -146,10 +146,10 @@ describe("Library.load", () => {
 
 		// S -50 5 10 -5 0 1 0 N
 		assert(c.draw.objects[0] instanceof DrawSquare);
-		assert((c.draw.objects[0] as DrawSquare).startx === -50);
-		assert((c.draw.objects[0] as DrawSquare).starty === 5);
-		assert((c.draw.objects[0] as DrawSquare).endx === 10);
-		assert((c.draw.objects[0] as DrawSquare).endy === -5);
+		assert((c.draw.objects[0] as DrawSquare).start.x === -50);
+		assert((c.draw.objects[0] as DrawSquare).start.y === 5);
+		assert((c.draw.objects[0] as DrawSquare).end.x === 10);
+		assert((c.draw.objects[0] as DrawSquare).end.y === -5);
 		assert((c.draw.objects[0] as DrawSquare).unit === 0);
 		assert((c.draw.objects[0] as DrawSquare).convert === 1);
 		assert((c.draw.objects[0] as DrawSquare).lineWidth === 0);
@@ -157,10 +157,10 @@ describe("Library.load", () => {
 
 		// S -50 50 50 -50 0 1 0 N
 		assert(c.draw.objects[1] instanceof DrawSquare);
-		assert((c.draw.objects[1] as DrawSquare).startx === -50);
-		assert((c.draw.objects[1] as DrawSquare).starty === 50);
-		assert((c.draw.objects[1] as DrawSquare).endx === 50);
-		assert((c.draw.objects[1] as DrawSquare).endy === -50);
+		assert((c.draw.objects[1] as DrawSquare).start.x === -50);
+		assert((c.draw.objects[1] as DrawSquare).start.y === 50);
+		assert((c.draw.objects[1] as DrawSquare).end.x === 50);
+		assert((c.draw.objects[1] as DrawSquare).end.y === -50);
 		assert((c.draw.objects[1] as DrawSquare).unit === 0);
 		assert((c.draw.objects[1] as DrawSquare).convert === 1);
 		assert((c.draw.objects[1] as DrawSquare).lineWidth === 0);
@@ -170,8 +170,8 @@ describe("Library.load", () => {
 		assert(c.draw.objects[2] instanceof DrawPin);
 		assert((c.draw.objects[2] as DrawPin).name === "P1");
 		assert((c.draw.objects[2] as DrawPin).num === "1");
-		assert((c.draw.objects[2] as DrawPin).posx === -200);
-		assert((c.draw.objects[2] as DrawPin).posx === -200);
+		assert((c.draw.objects[2] as DrawPin).pos.x === -200);
+		assert((c.draw.objects[2] as DrawPin).pos.x === -200);
 		assert((c.draw.objects[2] as DrawPin).length === 150);
 		assert((c.draw.objects[2] as DrawPin).orientation === PinOrientation.RIGHT);
 		assert((c.draw.objects[2] as DrawPin).nameTextSize === 50);
@@ -188,13 +188,13 @@ describe("Library.load", () => {
 		assert((c.draw.objects[3] as DrawPolyline).unit === 0);
 		assert((c.draw.objects[3] as DrawPolyline).convert === 1);
 		assert((c.draw.objects[3] as DrawPolyline).lineWidth === 0);
-		assert.deepEqual((c.draw.objects[3] as DrawPolyline).points, [-50, 70, -50, 110]);
+		assert.deepEqual((c.draw.objects[3] as DrawPolyline).points, [{ x: -50, y: 70 }, {x: -50, y: 110 }]);
 		assert((c.draw.objects[3] as DrawPolyline).fill === Fill.NO_FILL);
 
 		// A 0 -150 128 1287 513 0 1 20 N -80 -50 80 -50
 		assert(c.draw.objects[4] instanceof DrawArc);
-		assert((c.draw.objects[4] as DrawArc).posx === 0);
-		assert((c.draw.objects[4] as DrawArc).posy === -150);
+		assert((c.draw.objects[4] as DrawArc).pos.x === 0);
+		assert((c.draw.objects[4] as DrawArc).pos.y === -150);
 		assert((c.draw.objects[4] as DrawArc).radius === 128);
 		assert((c.draw.objects[4] as DrawArc).startAngle === 1287);
 		assert((c.draw.objects[4] as DrawArc).endAngle === 513);
@@ -202,15 +202,15 @@ describe("Library.load", () => {
 		assert((c.draw.objects[4] as DrawArc).convert === 1);
 		assert((c.draw.objects[4] as DrawArc).lineWidth === 20);
 		assert((c.draw.objects[4] as DrawArc).fill === Fill.NO_FILL);
-		assert((c.draw.objects[4] as DrawArc).startx === -80);
-		assert((c.draw.objects[4] as DrawArc).starty === -50);
-		assert((c.draw.objects[4] as DrawArc).endx === 80);
-		assert((c.draw.objects[4] as DrawArc).endy === -50);
+		assert((c.draw.objects[4] as DrawArc).start.x === -80);
+		assert((c.draw.objects[4] as DrawArc).start.y === -50);
+		assert((c.draw.objects[4] as DrawArc).end.x === 80);
+		assert((c.draw.objects[4] as DrawArc).end.y === -50);
 
 		// C -100 0 35 0 1 0 N
 		assert(c.draw.objects[5] instanceof DrawCircle);
-		assert((c.draw.objects[5] as DrawCircle).posx === -100);
-		assert((c.draw.objects[5] as DrawCircle).posy === 0);
+		assert((c.draw.objects[5] as DrawCircle).pos.x === -100);
+		assert((c.draw.objects[5] as DrawCircle).pos.y === 0);
 		assert((c.draw.objects[5] as DrawCircle).radius === 35);
 		assert((c.draw.objects[5] as DrawCircle).unit === 0);
 		assert((c.draw.objects[5] as DrawCircle).convert === 1);
@@ -220,8 +220,8 @@ describe("Library.load", () => {
 		// T 0 -75 -250 50 0 0 0 B Normal 0 C C
 		assert(c.draw.objects[6] instanceof DrawText);
 		assert((c.draw.objects[6] as DrawText).angle === 0);
-		assert((c.draw.objects[6] as DrawText).posx === -75);
-		assert((c.draw.objects[6] as DrawText).posy === -250);
+		assert((c.draw.objects[6] as DrawText).pos.x === -75);
+		assert((c.draw.objects[6] as DrawText).pos.y === -250);
 		assert((c.draw.objects[6] as DrawText).textSize === 50);
 		assert((c.draw.objects[6] as DrawText).textType === 0);
 		assert((c.draw.objects[6] as DrawText).unit === 0);
@@ -257,8 +257,8 @@ describe("Library.load", () => {
 		assert(c.draw.objects[0] instanceof DrawPin);
 		assert((c.draw.objects[0] as DrawPin).name === "P1");
 		assert((c.draw.objects[0] as DrawPin).num === "1");
-		assert((c.draw.objects[0] as DrawPin).posx === -200);
-		assert((c.draw.objects[0] as DrawPin).posx === -200);
+		assert((c.draw.objects[0] as DrawPin).pos.x === -200);
+		assert((c.draw.objects[0] as DrawPin).pos.x === -200);
 		assert((c.draw.objects[0] as DrawPin).length === 150);
 		assert((c.draw.objects[0] as DrawPin).orientation === PinOrientation.RIGHT);
 		assert((c.draw.objects[0] as DrawPin).nameTextSize === 50);
@@ -294,8 +294,8 @@ describe("Library.load", () => {
 		if (!c) throw "component is not found";
 		assert(c.draw.objects[0] instanceof DrawText);
 		assert((c.draw.objects[0] as DrawText).angle === 900);
-		assert((c.draw.objects[0] as DrawText).posx === -75);
-		assert((c.draw.objects[0] as DrawText).posy === -250);
+		assert((c.draw.objects[0] as DrawText).pos.x === -75);
+		assert((c.draw.objects[0] as DrawText).pos.y === -250);
 		assert((c.draw.objects[0] as DrawText).textSize === 50);
 		assert((c.draw.objects[0] as DrawText).textType === 0);
 		assert((c.draw.objects[0] as DrawText).unit === 2);
@@ -336,7 +336,7 @@ describe("Library.load", () => {
 		assert((c.draw.objects[0] as DrawPolyline).unit === 0);
 		assert((c.draw.objects[0] as DrawPolyline).convert === 1);
 		assert((c.draw.objects[0] as DrawPolyline).lineWidth === 0);
-		assert.deepEqual((c.draw.objects[0] as DrawPolyline).points, [-50, 70, -50, 110]);
+		assert.deepEqual((c.draw.objects[0] as DrawPolyline).points, [{x: -50, y: 70}, {x:-50, y:110}]);
 		assert((c.draw.objects[0] as DrawPolyline).fill === Fill.FILLED_SHAPE);
 
 		assert(c.draw.objects[1] instanceof DrawPolyline);
@@ -344,7 +344,7 @@ describe("Library.load", () => {
 		assert((c.draw.objects[1] as DrawPolyline).unit === 2);
 		assert((c.draw.objects[1] as DrawPolyline).convert === 3);
 		assert((c.draw.objects[1] as DrawPolyline).lineWidth === 4);
-		assert.deepEqual((c.draw.objects[1] as DrawPolyline).points, [-50, 70, -50, 110]);
+		assert.deepEqual((c.draw.objects[1] as DrawPolyline).points, [{x: -50, y: 70}, {x:-50, y:110}]);
 		assert((c.draw.objects[1] as DrawPolyline).fill === Fill.NO_FILL);
 	});
 
@@ -376,8 +376,8 @@ describe("Library.load", () => {
 		const c = lib.findByName('Battery');
 		if (!c) throw "component is not found";
 		assert(c.field.reference === 'BT');
-		assert(c.field.posx === 100);
-		assert(c.field.posy === 50);
+		assert(c.field.pos.x === 100);
+		assert(c.field.pos.y === 50);
 		assert(c.field.textSize === 50);
 		assert(c.field.textOrientation === 0);
 		assert(c.field.visibility === true);

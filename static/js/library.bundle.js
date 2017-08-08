@@ -1931,6 +1931,15 @@ var Net;
     Net["UNSPECIFIED"] = "U";
 })(Net = exports.Net || (exports.Net = {}));
 
+var Size = function Size(width, height) {
+    _classCallCheck(this, Size);
+
+    this.width = width;
+    this.height = height;
+};
+
+exports.Size = Size;
+
 /***/ }),
 /* 49 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -4035,8 +4044,9 @@ var Field0 = function Field0(params) {
     _classCallCheck(this, Field0);
 
     this.reference = kicad_common_1.ReadDelimitedText(params[0]);
-    this.posx = Number(params[1]);
-    this.posy = Number(params[2]);
+    var posx = Number(params[1]);
+    var posy = Number(params[2]);
+    this.pos = new kicad_common_1.Point(posx, posy);
     this.textSize = Number(params[3]);
     this.textOrientation = params[4] === 'H' ? kicad_common_1.TextAngle.HORIZ : kicad_common_1.TextAngle.VERT;
     this.visibility = params[5] === 'V';
@@ -4053,8 +4063,9 @@ var FieldN = function FieldN(params) {
 
     this.name = kicad_common_1.ReadDelimitedText(params[0]);
     if (this.name === "~") this.name = "";
-    this.posx = Number(params[1]);
-    this.posy = Number(params[2]);
+    var posx = Number(params[1]);
+    var posy = Number(params[2]);
+    this.pos = new kicad_common_1.Point(posx, posy);
     this.textSize = Number(params[3]);
     this.textOrientation = params[4] === 'H' ? kicad_common_1.TextAngle.HORIZ : kicad_common_1.TextAngle.VERT;
     this.visibility = params[5] === 'V';
@@ -4154,8 +4165,9 @@ var DrawArc = function (_DrawObject) {
 
         var _this2 = _possibleConstructorReturn(this, (DrawArc.__proto__ || Object.getPrototypeOf(DrawArc)).call(this));
 
-        _this2.posx = Number(params[0]);
-        _this2.posy = Number(params[1]);
+        var posx = Number(params[0]);
+        var posy = Number(params[1]);
+        _this2.pos = new kicad_common_1.Point(posx, posy);
         _this2.radius = Number(params[2]);
         _this2.startAngle = Number(params[3]);
         _this2.endAngle = Number(params[4]);
@@ -4163,10 +4175,12 @@ var DrawArc = function (_DrawObject) {
         _this2.convert = Number(params[6]);
         _this2.lineWidth = Number(params[7]);
         _this2.fill = params[8] || kicad_common_1.Fill.NO_FILL;
-        _this2.startx = Number(params[9]);
-        _this2.starty = Number(params[10]);
-        _this2.endx = Number(params[11]);
-        _this2.endy = Number(params[12]);
+        var startx = Number(params[9]);
+        var starty = Number(params[10]);
+        _this2.start = new kicad_common_1.Point(startx, starty);
+        var endx = Number(params[11]);
+        var endy = Number(params[12]);
+        _this2.end = new kicad_common_1.Point(endx, endy);
         return _this2;
     }
 
@@ -4174,9 +4188,9 @@ var DrawArc = function (_DrawObject) {
         key: "getBoundingBox",
         value: function getBoundingBox() {
             var ret = new kicad_common_1.Rect(0, 0, 0, 0);
-            var arcStart = { x: this.startx, y: this.starty };
-            var arcEnd = { x: this.endx, y: this.endy };
-            var pos = { x: this.posx, y: this.posy };
+            var arcStart = this.start;
+            var arcEnd = this.end;
+            var pos = this.pos;
             var normStart = kicad_common_1.Point.sub(arcStart, pos);
             var normEnd = kicad_common_1.Point.sub(arcEnd, pos);
             if (kicad_common_1.Point.isZero(normStart) || kicad_common_1.Point.isZero(normEnd) || this.radius === 0) {
@@ -4234,8 +4248,9 @@ var DrawCircle = function (_DrawObject2) {
 
         var _this3 = _possibleConstructorReturn(this, (DrawCircle.__proto__ || Object.getPrototypeOf(DrawCircle)).call(this));
 
-        _this3.posx = Number(params[0]);
-        _this3.posy = Number(params[1]);
+        var posx = Number(params[0]);
+        var posy = Number(params[1]);
+        _this3.pos = new kicad_common_1.Point(posx, posy);
         _this3.radius = Number(params[2]);
         _this3.unit = Number(params[3]);
         _this3.convert = Number(params[4]);
@@ -4248,8 +4263,8 @@ var DrawCircle = function (_DrawObject2) {
         key: "getBoundingBox",
         value: function getBoundingBox() {
             var transform = new kicad_common_1.Transform();
-            var pos1 = transform.transformCoordinate({ x: this.posx - this.radius, y: this.posy - this.radius });
-            var pos2 = transform.transformCoordinate({ x: this.posx + this.radius, y: this.posy + this.radius });
+            var pos1 = transform.transformCoordinate({ x: this.pos.x - this.radius, y: this.pos.y - this.radius });
+            var pos2 = transform.transformCoordinate({ x: this.pos.x + this.radius, y: this.pos.y + this.radius });
             return new kicad_common_1.Rect(Math.min(pos1.x, pos2.x), Math.min(pos1.y, pos2.y), Math.max(pos1.x, pos2.x), Math.max(pos1.y, pos2.y));
         }
     }]);
@@ -4267,14 +4282,18 @@ var DrawPolyline = function (_DrawObject3) {
 
         var _this4 = _possibleConstructorReturn(this, (DrawPolyline.__proto__ || Object.getPrototypeOf(DrawPolyline)).call(this));
 
+        _this4.points = [];
         _this4.pointCount = Number(params[0]);
         _this4.unit = Number(params[1]);
         _this4.convert = Number(params[2]);
         _this4.lineWidth = Number(params[3]);
-        _this4.points = params.slice(4, 4 + _this4.pointCount * 2).map(function (i) {
+        var points = params.slice(4, 4 + _this4.pointCount * 2).map(function (i) {
             return Number(i);
         });
         _this4.fill = params[4 + _this4.pointCount * 2] || kicad_common_1.Fill.NO_FILL;
+        for (var i = 0, len = points.length; i < len; i += 2) {
+            _this4.points.push(new kicad_common_1.Point(points[i], points[i + 1]));
+        }
         return _this4;
     }
 
@@ -4285,16 +4304,38 @@ var DrawPolyline = function (_DrawObject3) {
                 maxx = void 0;
             var miny = void 0,
                 maxy = void 0;
-            minx = maxx = this.points[0];
-            miny = maxy = this.points[1];
-            for (var i = 2, len = this.points.length; i < len; i += 2) {
-                var x = this.points[i];
-                var y = this.points[i + 1];
-                minx = Math.min(minx, x);
-                maxx = Math.max(maxx, x);
-                miny = Math.min(miny, y);
-                maxy = Math.max(maxy, y);
+            minx = maxx = this.points[0].x;
+            miny = maxy = this.points[0].y;
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
+
+            try {
+                for (var _iterator2 = this.points[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var point = _step2.value;
+
+                    var x = point.x;
+                    var y = point.y;
+                    minx = Math.min(minx, x);
+                    maxx = Math.max(maxx, x);
+                    miny = Math.min(miny, y);
+                    maxy = Math.max(maxy, y);
+                }
+            } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                        _iterator2.return();
+                    }
+                } finally {
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
+                    }
+                }
             }
+
             var transform = new kicad_common_1.Transform();
             var pos1 = transform.transformCoordinate({ x: minx, y: miny });
             var pos2 = transform.transformCoordinate({ x: maxx, y: maxy });
@@ -4315,10 +4356,12 @@ var DrawSquare = function (_DrawObject4) {
 
         var _this5 = _possibleConstructorReturn(this, (DrawSquare.__proto__ || Object.getPrototypeOf(DrawSquare)).call(this));
 
-        _this5.startx = Number(params[0]);
-        _this5.starty = Number(params[1]);
-        _this5.endx = Number(params[2]);
-        _this5.endy = Number(params[3]);
+        var startx = Number(params[0]);
+        var starty = Number(params[1]);
+        _this5.start = new kicad_common_1.Point(startx, starty);
+        var endx = Number(params[2]);
+        var endy = Number(params[3]);
+        _this5.end = new kicad_common_1.Point(endx, endy);
         _this5.unit = Number(params[4]);
         _this5.convert = Number(params[5]);
         _this5.lineWidth = Number(params[6]);
@@ -4330,8 +4373,8 @@ var DrawSquare = function (_DrawObject4) {
         key: "getBoundingBox",
         value: function getBoundingBox() {
             var transform = new kicad_common_1.Transform();
-            var pos1 = transform.transformCoordinate({ x: this.startx, y: this.starty });
-            var pos2 = transform.transformCoordinate({ x: this.endx, y: this.endy });
+            var pos1 = transform.transformCoordinate(this.start);
+            var pos2 = transform.transformCoordinate(this.end);
             return new kicad_common_1.Rect(Math.min(pos1.x, pos2.x), Math.min(pos1.y, pos2.y), Math.max(pos1.x, pos2.x), Math.max(pos1.y, pos2.y));
         }
     }]);
@@ -4350,8 +4393,9 @@ var DrawText = function (_DrawObject5) {
         var _this6 = _possibleConstructorReturn(this, (DrawText.__proto__ || Object.getPrototypeOf(DrawText)).call(this));
 
         _this6.angle = Number(params[0]);
-        _this6.posx = Number(params[1]);
-        _this6.posy = Number(params[2]);
+        var posx = Number(params[1]);
+        var posy = Number(params[2]);
+        _this6.pos = new kicad_common_1.Point(posx, posy);
         _this6.textSize = Number(params[3]);
         _this6.textType = Number(params[4]);
         _this6.unit = Number(params[5]);
@@ -4374,7 +4418,7 @@ var DrawText = function (_DrawObject5) {
         key: "getBoundingBox",
         value: function getBoundingBox() {
             // TODO
-            return new kicad_common_1.Rect(this.posx - (this.angle === 0 ? this.text.length * this.textSize : 0), this.posy - (this.angle !== 0 ? this.text.length * this.textSize : 0), this.posx + (this.angle === 0 ? this.text.length * this.textSize : 0), this.posy + (this.angle !== 0 ? this.text.length * this.textSize : 0));
+            return new kicad_common_1.Rect(this.pos.x - (this.angle === 0 ? this.text.length * this.textSize : 0), this.pos.y - (this.angle !== 0 ? this.text.length * this.textSize : 0), this.pos.x + (this.angle === 0 ? this.text.length * this.textSize : 0), this.pos.y + (this.angle !== 0 ? this.text.length * this.textSize : 0));
         }
     }]);
 
@@ -4393,8 +4437,9 @@ var DrawPin = function (_DrawObject6) {
 
         _this7.name = params[0];
         _this7.num = params[1];
-        _this7.posx = Number(params[2]);
-        _this7.posy = Number(params[3]);
+        var posx = Number(params[2]);
+        var posy = Number(params[3]);
+        _this7.pos = new kicad_common_1.Point(posx, posy);
         _this7.length = Number(params[4]);
         _this7.orientation = params[5];
         _this7.nameTextSize = Number(params[6]);
@@ -4413,7 +4458,7 @@ var DrawPin = function (_DrawObject6) {
         key: "getBoundingBox",
         value: function getBoundingBox() {
             // TODO
-            return new kicad_common_1.Rect(this.posx - this.length, this.posy - this.length, this.posx + this.length, this.posy + this.length);
+            return new kicad_common_1.Rect(this.pos.x - this.length, this.pos.y - this.length, this.pos.x + this.length, this.pos.y + this.length);
         }
     }]);
 
@@ -11421,7 +11466,7 @@ var Plotter = function () {
         key: "plotLibComponentField",
         value: function plotLibComponentField(component, unit, convert, transform) {
             if (component.field && component.field.visibility) {
-                var pos = transform.transformCoordinate({ x: component.field.posx, y: component.field.posy });
+                var pos = transform.transformCoordinate(component.field.pos);
                 var orientation = component.field.textOrientation;
                 if (transform.y1) {
                     if (orientation === kicad_common_1.TextAngle.HORIZ) {
@@ -11436,7 +11481,7 @@ var Plotter = function () {
                 this.text(kicad_common_1.Point.add({ x: width / 2, y: height / 2 }, pos), SCH_COLORS.LAYER_REFERENCEPART, text, orientation, component.field.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, DEFAULT_LINE_WIDTH, component.field.italic, component.field.bold);
             }
             if (component.fields[0] && component.fields[0].visibility) {
-                var _pos = transform.transformCoordinate({ x: component.fields[0].posx, y: component.fields[0].posy });
+                var _pos = transform.transformCoordinate(component.fields[0].pos);
                 var _orientation = component.fields[0].textOrientation;
                 if (transform.y1) {
                     if (_orientation === kicad_common_1.TextAngle.HORIZ) {
@@ -11454,7 +11499,7 @@ var Plotter = function () {
     }, {
         key: "plotDrawArc",
         value: function plotDrawArc(draw, component, transform) {
-            var pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy });
+            var pos = transform.transformCoordinate(draw.pos);
 
             var _transform$mapAngles = transform.mapAngles(draw.startAngle, draw.endAngle),
                 _transform$mapAngles2 = _slicedToArray(_transform$mapAngles, 2),
@@ -11466,30 +11511,28 @@ var Plotter = function () {
     }, {
         key: "plotDrawCircle",
         value: function plotDrawCircle(draw, component, transform) {
-            var pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy });
+            var pos = transform.transformCoordinate(draw.pos);
             this.circle(pos, draw.radius * 2, draw.fill, draw.lineWidth || DEFAULT_LINE_WIDTH);
         }
     }, {
         key: "plotDrawPolyline",
         value: function plotDrawPolyline(draw, component, transform) {
-            var points = [];
-            for (var i = 0, len = draw.points.length; i < len; i += 2) {
-                var pos = transform.transformCoordinate({ x: draw.points[i], y: draw.points[i + 1] });
-                points.push(pos);
-            }
+            var points = draw.points.map(function (point) {
+                return transform.transformCoordinate(point);
+            });
             this.polyline(points, draw.fill, draw.lineWidth || DEFAULT_LINE_WIDTH);
         }
     }, {
         key: "plotDrawSquare",
         value: function plotDrawSquare(draw, component, transform) {
-            var pos1 = transform.transformCoordinate({ x: draw.startx, y: draw.starty });
-            var pos2 = transform.transformCoordinate({ x: draw.endx, y: draw.endy });
+            var pos1 = transform.transformCoordinate(draw.start);
+            var pos2 = transform.transformCoordinate(draw.end);
             this.rect(pos1, pos2, draw.fill, draw.lineWidth || DEFAULT_LINE_WIDTH);
         }
     }, {
         key: "plotDrawText",
         value: function plotDrawText(draw, component, transform) {
-            var pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy });
+            var pos = transform.transformCoordinate(draw.pos);
             this.text(pos, this.color, draw.text, component.field.textOrientation, draw.textSize, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, DEFAULT_LINE_WIDTH, draw.italic, draw.bold);
         }
     }, {
@@ -11511,7 +11554,7 @@ var Plotter = function () {
                 drawPinnumber = false;
             }
             if (!drawPinname && !drawPinnumber) return;
-            var pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy });
+            var pos = transform.transformCoordinate(draw.pos);
             var orientation = this.pinDrawOrientation(draw, transform);
             var x1 = pos.x,
                 y1 = pos.y;
@@ -11580,7 +11623,7 @@ var Plotter = function () {
     }, {
         key: "plotDrawPinSymbol",
         value: function plotDrawPinSymbol(draw, component, transform) {
-            var pos = transform.transformCoordinate({ x: draw.posx, y: draw.posy });
+            var pos = transform.transformCoordinate(draw.pos);
             var orientation = this.pinDrawOrientation(draw, transform);
             var x1 = pos.x,
                 y1 = pos.y;

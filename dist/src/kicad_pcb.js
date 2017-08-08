@@ -4,10 +4,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // based on:
 // pcbnew/pcb_parser.cpp 
 /*
- * This program source code file is part of KiCad, a free EDA CAD application.
+ * This program source code file is part of kicad-utils
+ * Copyright (C) 2017 cho45 <cho45@lowreal.net>.
  *
- * Copyright (C) 2012 CERN
- * Copyright (C) 2012-2017 KiCad Developers, see AUTHORS.txt for contributors.
+ * And this program source code file is imported from KiCad, a free EDA CAD application.
+ *
+ * Original Author Copyright:
+ *
+ * Copyright (C) 2015 Jean-Pierre Charras, jaen-pierre.charras@gipsa-lab.inpg.com
+ * Copyright (C) 1992-2017 KiCad Developers, see KiCAD AUTHORS.txt for contributors.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,6 +30,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * or you may search the http://www.gnu.org website for the version 2 license,
  * or you may write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+ */
+/**
+ *
+ * IMPL is NOT COMPLETED!!
  */
 const kicad_common_1 = require("./kicad_common");
 const kicad_pcb_token_1 = require("./kicad_pcb_token");

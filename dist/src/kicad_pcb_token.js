@@ -3,10 +3,15 @@
 // include/dsnlexer.h
 // common/dsnlexer.cpp 
 /*
- * This program source code file is part of KiCad, a free EDA CAD application.
+ * This program source code file is part of kicad-utils
+ * Copyright (C) 2017 cho45 <cho45@lowreal.net>.
+ *
+ * And this program source code file is imported from KiCad, a free EDA CAD application.
+ *
+ * Original Author Copyright:
  *
  * Copyright (C) 2007-2013 SoftPLC Corporation, Dick Hollenbeck <dick@softplc.com>
- * Copyright (C) 2007-2015 KiCad Developers, see change_log.txt for contributors.
+ * Copyright (C) 1992-2017 KiCad Developers, see KiCAD AUTHORS.txt for contributors.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

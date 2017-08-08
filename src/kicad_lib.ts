@@ -184,8 +184,7 @@ export class LibComponent {
 
 export class Field0 {
 	reference: string;
-	posx: number;
-	posy: number;
+	pos: Point;
 	textSize: number;
 	textOrientation: number;
 	visibility: boolean;
@@ -196,8 +195,9 @@ export class Field0 {
 
 	constructor(params: Array<string>) {
 		this.reference = ReadDelimitedText(params[0]);
-		this.posx = Number(params[1]);
-		this.posy = Number(params[2]);
+		let posx = Number(params[1]);
+		let posy = Number(params[2]);
+		this.pos = new Point(posx, posy);
 		this.textSize = Number(params[3]);
 		this.textOrientation = params[4] === 'H' ? TextAngle.HORIZ : TextAngle.VERT;
 		this.visibility = params[5] === 'V';
@@ -210,8 +210,7 @@ export class Field0 {
 
 export class FieldN {
 	name: string;
-	posx: number;
-	posy: number;
+	pos: Point;
 	textSize: number;
 	textOrientation: number;
 	visibility: boolean;
@@ -224,8 +223,9 @@ export class FieldN {
 	constructor(params: Array<string>) {
 		this.name = ReadDelimitedText(params[0]);
 		if (this.name === "~") this.name = "";
-		this.posx = Number(params[1]);
-		this.posy = Number(params[2]);
+		let posx = Number(params[1]);
+		let posy = Number(params[2]);
+		this.pos = new Point(posx, posy);
 		this.textSize = Number(params[3]);
 		this.textOrientation = params[4] === 'H' ? TextAngle.HORIZ : TextAngle.VERT;
 		this.visibility = params[5] === 'V';
@@ -307,21 +307,19 @@ abstract class DrawObject {
 }
 
 export class DrawArc extends DrawObject {
-	posx: number;
-	posy: number;
+	pos: Point;
 	radius: number;
 	startAngle: number; // First radius angle of the arc in 0.1 degrees. 
 	endAngle: number; // Second radius angle of the arc in 0.1 degrees. 
 	lineWidth: number;
-	startx: number;
-	starty: number;
-	endx: number;
-	endy: number;
+	start: Point;
+	end: Point;
 
 	constructor(params: Array<string>) {
 		super();
-		this.posx = Number(params[0]);
-		this.posy = Number(params[1]);
+		let posx = Number(params[0]);
+		let posy = Number(params[1]);
+		this.pos = new Point(posx, posy);
 		this.radius = Number(params[2]);
 		this.startAngle = Number(params[3]);
 		this.endAngle = Number(params[4]);
@@ -329,17 +327,19 @@ export class DrawArc extends DrawObject {
 		this.convert = Number(params[6]);
 		this.lineWidth = Number(params[7]);
 		this.fill = params[8] as Fill || Fill.NO_FILL;
-		this.startx = Number(params[9]);
-		this.starty = Number(params[10]);
-		this.endx = Number(params[11]);
-		this.endy = Number(params[12]);
+		let startx = Number(params[9]);
+		let starty = Number(params[10]);
+		this.start = new Point(startx, starty);
+		let endx = Number(params[11]);
+		let endy = Number(params[12]);
+		this.end = new Point(endx, endy);
 	}
 
 	getBoundingBox(): Rect {
 		const ret = new Rect(0, 0, 0, 0);
-		const arcStart = { x: this.startx, y: this.starty };
-		const arcEnd   = { x: this.endx, y: this.endy };
-		const pos      = { x: this.posx, y: this.posy };
+		const arcStart = this.start;
+		const arcEnd   = this.end;
+		const pos      = this.pos;
 		const normStart = Point.sub(arcStart, pos);
 		const normEnd = Point.sub(arcEnd, pos);
 
@@ -394,14 +394,14 @@ export class DrawArc extends DrawObject {
 }
 
 export class DrawCircle extends DrawObject {
-	posx: number;
-	posy: number;
+	pos: Point;
 	radius: number;
 	lineWidth: number;
 	constructor(params: Array<string>) {
 		super();
-		this.posx = Number(params[0]);
-		this.posy = Number(params[1]);
+		let posx = Number(params[0]);
+		let posy = Number(params[1]);
+		this.pos = new Point(posx, posy);
 		this.radius = Number(params[2]);
 		this.unit = Number(params[3]);
 		this.convert = Number(params[4]);
@@ -412,8 +412,8 @@ export class DrawCircle extends DrawObject {
 	getBoundingBox(): Rect {
 		const transform = new Transform();
 
-		const pos1 = transform.transformCoordinate({ x: this.posx - this.radius, y: this.posy - this.radius });
-		const pos2 = transform.transformCoordinate({ x: this.posx + this.radius, y: this.posy + this.radius });
+		const pos1 = transform.transformCoordinate({ x: this.pos.x - this.radius, y: this.pos.y - this.radius });
+		const pos2 = transform.transformCoordinate({ x: this.pos.x + this.radius, y: this.pos.y + this.radius });
 
 		return new Rect(
 			Math.min(pos1.x, pos2.x),
@@ -427,27 +427,31 @@ export class DrawCircle extends DrawObject {
 export class DrawPolyline extends DrawObject {
 	pointCount: number;
 	lineWidth: number;
-	points: Array<number>;
+	points: Array<Point> = [];
 	constructor(params: Array<string>) {
 		super();
 		this.pointCount = Number(params[0]);
 		this.unit = Number(params[1]);
 		this.convert = Number(params[2]);
 		this.lineWidth = Number(params[3]);
-		this.points = params.slice(4, 4 + (this.pointCount * 2)).map( (i) => Number(i) );
+		let points = params.slice(4, 4 + (this.pointCount * 2)).map( (i) => Number(i) );
 		this.fill = params[4 + (this.pointCount * 2)] as Fill || Fill.NO_FILL;
+
+		for (let i = 0, len = points.length; i < len; i += 2) {
+			this.points.push(new Point(points[i], points[i+1]));
+		}
 	}
 
 	getBoundingBox(): Rect {
 		let minx, maxx;
 		let miny, maxy;
 
-		minx = maxx = this.points[0];
-		miny = maxy = this.points[1];
+		minx = maxx = this.points[0].x;
+		miny = maxy = this.points[0].y;
 
-		for (var i = 2, len = this.points.length; i < len; i += 2) {
-			const x = this.points[i];
-			const y = this.points[i+1];
+		for (let point of this.points) {
+			const x = point.x;
+			const y = point.y;
 			minx = Math.min(minx, x);
 			maxx = Math.max(maxx, x);
 			miny = Math.min(miny, y);
@@ -468,17 +472,17 @@ export class DrawPolyline extends DrawObject {
 }
 
 export class DrawSquare extends DrawObject {
-	startx: number;
-	starty: number;
-	endx: number;
-	endy: number;
+	start: Point;
+	end: Point;
 	lineWidth: number;
 	constructor(params: Array<string>) {
 		super();
-		this.startx = Number(params[0]);
-		this.starty = Number(params[1]);
-		this.endx = Number(params[2]);
-		this.endy = Number(params[3]);
+		let startx = Number(params[0]);
+		let starty = Number(params[1]);
+		this.start = new Point(startx, starty);
+		let endx = Number(params[2]);
+		let endy = Number(params[3]);
+		this.end = new Point(endx, endy);
 		this.unit = Number(params[4]);
 		this.convert = Number(params[5]);
 		this.lineWidth = Number(params[6]);
@@ -487,8 +491,8 @@ export class DrawSquare extends DrawObject {
 
 	getBoundingBox(): Rect {
 		const transform = new Transform();
-		const pos1 = transform.transformCoordinate({x: this.startx, y: this.starty });
-		const pos2 = transform.transformCoordinate({x: this.endx, y: this.endy });
+		const pos1 = transform.transformCoordinate(this.start);
+		const pos2 = transform.transformCoordinate(this.end);
 
 		return new Rect(
 			Math.min(pos1.x, pos2.x),
@@ -501,8 +505,7 @@ export class DrawSquare extends DrawObject {
 
 export class DrawText extends DrawObject {
 	angle: number;
-	posx: number;
-	posy: number;
+	pos: Point;
 	textSize: number;
 	textType: number;
 	text: string;
@@ -513,8 +516,9 @@ export class DrawText extends DrawObject {
 	constructor(params: Array<string>) {
 		super();
 		this.angle = Number(params[0]);
-		this.posx = Number(params[1]);
-		this.posy = Number(params[2]);
+		let posx = Number(params[1]);
+		let posy = Number(params[2]);
+		this.pos = new Point(posx, posy);
 		this.textSize = Number(params[3]);
 		this.textType = Number(params[4]);
 		this.unit = Number(params[5]);
@@ -535,10 +539,10 @@ export class DrawText extends DrawObject {
 	getBoundingBox(): Rect {
 		// TODO
 		return new Rect(
-			this.posx - (this.angle === 0 ? this.text.length * this.textSize : 0),
-			this.posy - (this.angle !== 0 ? this.text.length * this.textSize : 0),
-			this.posx + (this.angle === 0 ? this.text.length * this.textSize : 0),
-			this.posy + (this.angle !== 0 ? this.text.length * this.textSize : 0)
+			this.pos.x - (this.angle === 0 ? this.text.length * this.textSize : 0),
+			this.pos.y - (this.angle !== 0 ? this.text.length * this.textSize : 0),
+			this.pos.x + (this.angle === 0 ? this.text.length * this.textSize : 0),
+			this.pos.y + (this.angle !== 0 ? this.text.length * this.textSize : 0)
 		);
 	}
 }
@@ -546,8 +550,7 @@ export class DrawText extends DrawObject {
 export class DrawPin extends DrawObject {
 	name: string;
 	num: string;
-	posx: number;
-	posy: number;
+	pos: Point;
 	length: number;
 	orientation: PinOrientation;
 	nameTextSize: number;
@@ -560,8 +563,9 @@ export class DrawPin extends DrawObject {
 		super();
 		this.name = params[0];
 		this.num = params[1];
-		this.posx = Number(params[2]);
-		this.posy = Number(params[3]);
+		let posx = Number(params[2]);
+		let posy = Number(params[3]);
+		this.pos = new Point(posx, posy);
 		this.length = Number(params[4]);
 		this.orientation = params[5] as PinOrientation;
 		this.nameTextSize = Number(params[6]);
@@ -576,10 +580,10 @@ export class DrawPin extends DrawObject {
 	getBoundingBox(): Rect {
 		// TODO
 		return new Rect(
-			this.posx - this.length,
-			this.posy - this.length,
-			this.posx + this.length,
-			this.posy + this.length,
+			this.pos.x - this.length,
+			this.pos.y - this.length,
+			this.pos.x + this.length,
+			this.pos.y + this.length,
 		);
 	}
 }
