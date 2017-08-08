@@ -244,10 +244,17 @@ class Field extends SchItem {
 exports.Field = Field;
 class Descr {
     constructor(tokens) {
-        this.pageType = tokens[0];
-        this.width = Number(tokens[1]);
-        this.height = Number(tokens[2]);
-        this.orientation = Number(tokens[3] || 0);
+        let pageType = tokens[0];
+        let width = Number(tokens[1]);
+        let height = Number(tokens[2]);
+        let portrait = (tokens[3] || '') === 'portrait';
+        this.pageInfo = new kicad_common_1.PageInfo(pageType, portrait, width, height);
+    }
+    get width() {
+        return this.pageInfo.width;
+    }
+    get height() {
+        return this.pageInfo.height;
     }
     parse(lines) {
         let line;

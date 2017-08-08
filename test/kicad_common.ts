@@ -137,7 +137,7 @@ describe("Rect", () => {
 		const rect1 = new Rect(1, 2, 3, 4);
 
 		assert.deepEqual(rect1.merge(new Rect(3, 4, 5, 6)), new Rect(1, 2, 5, 6));
-		assert.deepEqual(rect1.merge(new Rect(-3, -4, -5, -6)), new Rect(-3, -4, 3, 4));
+		assert.deepEqual(rect1.merge(new Rect(-3, -4, -5, -6)), new Rect(-5, -6, 3, 4));
 	});
 
 	it("has inflate function", () => {

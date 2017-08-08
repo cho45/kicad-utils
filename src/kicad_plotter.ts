@@ -172,6 +172,9 @@ export abstract class Plotter {
 		this.errors = [];
 	}
 
+	startPlot(): void {}
+	endPlot(): void {}
+
 	abstract rect(p1: Point, p2: Point, fill: Fill, width: number): void;
 	abstract circle(p: Point, dia: number, fill: Fill, width: number): void;
 	abstract arc(p: Point, startAngle: number, endAngle: number, radius: number, fill: Fill, width: number): void;
@@ -1513,12 +1516,12 @@ export class SVGPlotter extends Plotter {
 	}
 
 	plotSchematic(sch: Schematic, libs: Array<Library>) {
-		const width = sch.descr.width;
-		const height =sch.descr.height;
+		const width  = sch.descr.width;
+		const height = sch.descr.height;
 		this.output = this.xmlTag `<svg preserveAspectRatio="xMinYMin"
 			width="${width}"
 			height="${height}"
-			viewBox="0 0 ${sch.descr.width} ${sch.descr.height}"
+			viewBox="0 0 ${width} ${height}"
 			xmlns="http://www.w3.org/2000/svg"
 			xmlns:xlink="http://www.w3.org/1999/xlink"
 			version="1.1">`;

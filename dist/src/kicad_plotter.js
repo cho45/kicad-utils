@@ -110,6 +110,8 @@ class Plotter {
         this.font = kicad_strokefont_1.StrokeFont.instance;
         this.errors = [];
     }
+    startPlot() { }
+    endPlot() { }
     text(p, color, text, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
         this.setColor(color);
         this.fill = kicad_common_1.Fill.NO_FILL;
@@ -1089,7 +1091,7 @@ class SVGPlotter extends Plotter {
         this.output = this.xmlTag `<svg preserveAspectRatio="xMinYMin"
 			width="${width}"
 			height="${height}"
-			viewBox="0 0 ${sch.descr.width} ${sch.descr.height}"
+			viewBox="0 0 ${width} ${height}"
 			xmlns="http://www.w3.org/2000/svg"
 			xmlns:xlink="http://www.w3.org/1999/xlink"
 			version="1.1">`;

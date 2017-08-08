@@ -151,14 +151,14 @@ describe("Schematic.load", () => {
 			2F 1F 45 A0 A0 D0 A8 08 59 A0 38 BD A4 94 81 A1 0C 21 50 CE C0 5C C1 00 00 62 1F 38 7D 11 C4 5E 
 			6C 00 00 00 00 49 45 4E 44 AE 42 60 82 FF 
 			EndData
-			Kmarq B 1600 1100 "Warning Pin power_in not driven (Net 5)" F=1
 			$EndBitmap
+			Kmarq B 1600 1100 "Warning Pin power_in not driven (Net 5)" F=1
 			$EndSCHEMATC
 		`);
 		assert(sch);
 
 		assert.deepEqual(sch.libs, ['power', 'device']);
-		assert(sch.descr.pageType === 'A4');
+		assert(sch.descr.pageInfo.pageType === 'A4');
 		assert(sch.descr.width === 11693);
 		assert(sch.descr.height === 8268);
 
@@ -190,8 +190,8 @@ describe("Schematic.load", () => {
 			assert( item.sheetPins[0].size === 60);
 			assert( item.sheetPins[0].orientationType === 2);
 			assert( item.sheetPins[0].orientation === TextAngle.HORIZ);
-			assert( item.sheetPins[0].hjustify === TextHjustify.RIGHT);
-			assert( item.sheetPins[0].vjustify === TextVjustify.BOTTOM);
+			assert( item.sheetPins[0].hjustify === TextHjustify.LEFT);
+			assert( item.sheetPins[0].vjustify === TextVjustify.CENTER);
 
 			assert( item.sheetPins[1].text === "sheetpr" );
 			assert( item.sheetPins[1].shape === Net.INPUT);
@@ -201,8 +201,8 @@ describe("Schematic.load", () => {
 			assert( item.sheetPins[1].size === 60);
 			assert( item.sheetPins[1].orientationType === 0);
 			assert( item.sheetPins[1].orientation === TextAngle.HORIZ);
-			assert( item.sheetPins[1].hjustify === TextHjustify.LEFT);
-			assert( item.sheetPins[1].vjustify === TextVjustify.BOTTOM);
+			assert( item.sheetPins[1].hjustify === TextHjustify.RIGHT);
+			assert( item.sheetPins[1].vjustify === TextVjustify.CENTER);
 		}
 
 		assert(sch.items[2] instanceof Wire);

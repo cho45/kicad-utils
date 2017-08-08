@@ -35,6 +35,7 @@ import {
 	SheetSide,
 	Net,
 	ReadDelimitedText,
+	PageInfo,
 } from "./kicad_common";
 
 export enum TextOrientationType {
@@ -294,12 +295,9 @@ export class Field extends SchItem {
 }
 
 export class Descr {
-	pageType: string;
-	width: number;
-	height: number;
+	pageInfo: PageInfo;
 	screenNumber: number;
 	numberOfScreens: number;
-	orientation: number;
 	title: string;
 	date: string;
 	rev: string;
@@ -310,10 +308,19 @@ export class Descr {
 	comment4: string;
 
 	constructor(tokens: Array<string>) {
-		this.pageType = tokens[0];
-		this.width = Number(tokens[1]);
-		this.height = Number(tokens[2]);
-		this.orientation = Number(tokens[3] || 0);
+		let pageType = tokens[0];
+		let width = Number(tokens[1]);
+		let height = Number(tokens[2]);
+		let portrait = (tokens[3] || '') === 'portrait';
+		this.pageInfo = new PageInfo(pageType, portrait, width, height);
+	}
+
+	get width() {
+		return this.pageInfo.width;
+	}
+
+	get height() {
+		return this.pageInfo.height;
 	}
 
 	parse(lines: Array<string>): this {

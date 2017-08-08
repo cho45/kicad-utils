@@ -1940,6 +1940,68 @@ var Size = function Size(width, height) {
 
 exports.Size = Size;
 
+var PageInfo = function () {
+    function PageInfo(pageType) {
+        var portrait = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+        var width = arguments[2];
+        var height = arguments[3];
+
+        _classCallCheck(this, PageInfo);
+
+        this.portrait = false;
+        this.width = width || 0;
+        this.height = height || 0;
+        if (!width && !height) {
+            this.setPageType(pageType);
+        } else {
+            this.pageType = pageType;
+        }
+        this.setPortrait(portrait);
+    }
+
+    _createClass(PageInfo, [{
+        key: "setPageType",
+        value: function setPageType(pageType) {
+            var page = PageInfo.PAGE_TYPES.find(function (i) {
+                return i.pageType === pageType;
+            });
+            Object.assign(this, page);
+            this.pageType = pageType;
+        }
+    }, {
+        key: "setPortrait",
+        value: function setPortrait(portrait) {
+            if (this.portrait != portrait) {
+                var _ref5 = [this.height, this.width];
+                this.width = _ref5[0];
+                this.height = _ref5[1];
+
+                this.portrait = portrait;
+            }
+        }
+    }]);
+
+    return PageInfo;
+}();
+
+PageInfo.A4 = new PageInfo("A4", false, MM2MIL(297), MM2MIL(210));
+PageInfo.A3 = new PageInfo("A3", false, MM2MIL(420), MM2MIL(297));
+PageInfo.A2 = new PageInfo("A2", false, MM2MIL(594), MM2MIL(420));
+PageInfo.A1 = new PageInfo("A1", false, MM2MIL(841), MM2MIL(594));
+PageInfo.A0 = new PageInfo("A0", false, MM2MIL(1189), MM2MIL(841));
+PageInfo.A = new PageInfo("A", false, 11000, 8500);
+PageInfo.B = new PageInfo("B", false, 17000, 11000);
+PageInfo.C = new PageInfo("C", false, 22000, 17000);
+PageInfo.D = new PageInfo("D", false, 34000, 22000);
+PageInfo.E = new PageInfo("E", false, 44000, 34000);
+PageInfo.GERBER = new PageInfo("GERBER", false, 32000, 32000);
+PageInfo.User = new PageInfo("User", false, 17000, 11000);
+PageInfo.USLetter = new PageInfo("USLetter", false, 11000, 8500);
+PageInfo.USLegal = new PageInfo("USLegal", false, 14000, 8500);
+PageInfo.USLedger = new PageInfo("USLedger", false, 17000, 11000);
+PageInfo.PAGE_TYPES = [PageInfo.A4, PageInfo.A3, PageInfo.A2, PageInfo.A1, PageInfo.A0, PageInfo.A, PageInfo.B, PageInfo.C, PageInfo.D, PageInfo.E, PageInfo.GERBER, PageInfo.User, PageInfo.USLetter, PageInfo.USLegal, PageInfo.USLedger];
+exports.PageInfo = PageInfo;
+
 /***/ }),
 /* 49 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -4768,10 +4830,11 @@ var Descr = function () {
     function Descr(tokens) {
         _classCallCheck(this, Descr);
 
-        this.pageType = tokens[0];
-        this.width = Number(tokens[1]);
-        this.height = Number(tokens[2]);
-        this.orientation = Number(tokens[3] || 0);
+        var pageType = tokens[0];
+        var width = Number(tokens[1]);
+        var height = Number(tokens[2]);
+        var portrait = (tokens[3] || '') === 'portrait';
+        this.pageInfo = new kicad_common_1.PageInfo(pageType, portrait, width, height);
     }
 
     _createClass(Descr, [{
@@ -4805,6 +4868,16 @@ var Descr = function () {
                 }
             }
             return this;
+        }
+    }, {
+        key: "width",
+        get: function get() {
+            return this.pageInfo.width;
+        }
+    }, {
+        key: "height",
+        get: function get() {
+            return this.pageInfo.height;
         }
     }]);
 
@@ -11333,6 +11406,12 @@ var Plotter = function () {
     }
 
     _createClass(Plotter, [{
+        key: "startPlot",
+        value: function startPlot() {}
+    }, {
+        key: "endPlot",
+        value: function endPlot() {}
+    }, {
         key: "text",
         value: function text(p, color, _text, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
             this.setColor(color);
@@ -12473,7 +12552,7 @@ var SVGPlotter = function (_Plotter2) {
         value: function plotSchematic(sch, libs) {
             var width = sch.descr.width;
             var height = sch.descr.height;
-            this.output = this.xmlTag(_templateObject12, width, height, sch.descr.width, sch.descr.height);
+            this.output = this.xmlTag(_templateObject12, width, height, width, height);
             this.output += this.xmlTag(_templateObject13);
             _get(SVGPlotter.prototype.__proto__ || Object.getPrototypeOf(SVGPlotter.prototype), "plotSchematic", this).call(this, sch, libs);
             this.output += this.xmlTag(_templateObject14);

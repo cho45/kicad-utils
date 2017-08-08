@@ -44,6 +44,7 @@ import {
 	TextHjustify,
 	TextVjustify,
 	RotatePoint,
+	PageInfo,
 } from "./kicad_common";
 
 import { Token } from "./kicad_pcb_token";
@@ -1537,65 +1538,6 @@ export class Board {
 	layerDescr: { [key: number]: Layer } = {};
 }
 
-class PageInfo {
-	pageType: string;
-	width: number;
-	height: number;
-	portrait: boolean = false;
-
-	static A4       = new PageInfo("A4"       , false , MM2MIL(297)  , MM2MIL(210));
-	static A3       = new PageInfo("A3"       , false , MM2MIL(420)  , MM2MIL(297));
-	static A2       = new PageInfo("A2"       , false , MM2MIL(594)  , MM2MIL(420));
-	static A1       = new PageInfo("A1"       , false , MM2MIL(841)  , MM2MIL(594));
-	static A0       = new PageInfo("A0"       , false , MM2MIL(1189) , MM2MIL(841));
-	static A        = new PageInfo("A"        , false , 11000        , 8500);
-	static B        = new PageInfo("B"        , false , 17000        , 11000);
-	static C        = new PageInfo("C"        , false , 22000        , 17000);
-	static D        = new PageInfo("D"        , false , 34000        , 22000);
-	static E        = new PageInfo("E"        , false , 44000        , 34000);
-	static GERBER   = new PageInfo("GERBER"   , false , 32000        , 32000);
-	static User     = new PageInfo("User"     , false , 17000        , 11000);
-	static USLetter = new PageInfo("USLetter" , false , 11000        , 8500);
-	static USLegal  = new PageInfo("USLegal"  , false , 14000        , 8500);
-	static USLedger = new PageInfo("USLedger" , false , 17000        , 11000);
-	static PAGE_TYPES = [
-		PageInfo.A4      ,
-		PageInfo.A3      ,
-		PageInfo.A2      ,
-		PageInfo.A1      ,
-		PageInfo.A0      ,
-		PageInfo.A       ,
-		PageInfo.B       ,
-		PageInfo.C       ,
-		PageInfo.D       ,
-		PageInfo.E       ,
-		PageInfo.GERBER  ,
-		PageInfo.User    ,
-		PageInfo.USLetter,
-		PageInfo.USLegal ,
-		PageInfo.USLedger,
-	];
-
-	constructor(pageType: string, portrait: boolean = false, width?: number, height?: number) {
-		this.width = width || 0;
-		this.height = height || 0;
-		if (!width && !height) {
-			this.setPageType(pageType);
-		}
-		this.setPortrait(portrait);
-	}
-
-	setPageType(pageType: string) {
-		const page = PageInfo.PAGE_TYPES.find((i) => i.pageType === pageType);
-		Object.assign(this, page);
-	}
-
-	setPortrait(portrait: boolean) {
-		if (this.portrait != portrait) {
-			[this.width, this.height] = [this.height, this.width];
-		}
-	}
-}
 
 export enum PCB_LAYER_ID {
 	UNDEFINED_LAYER = -1,

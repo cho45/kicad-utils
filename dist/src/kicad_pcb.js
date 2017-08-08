@@ -1380,7 +1380,7 @@ class Board {
         this.filename = "";
         this.layers = [];
         this.boardDesignSetting = new BoardDesignSetting();
-        this.pageInfo = PageInfo.A3;
+        this.pageInfo = kicad_common_1.PageInfo.A3;
         this.netInfos = [];
         this.drawSegments = [];
         this.texts = [];
@@ -1392,58 +1392,6 @@ class Board {
     }
 }
 exports.Board = Board;
-class PageInfo {
-    constructor(pageType, portrait = false, width, height) {
-        this.portrait = false;
-        this.width = width || 0;
-        this.height = height || 0;
-        if (!width && !height) {
-            this.setPageType(pageType);
-        }
-        this.setPortrait(portrait);
-    }
-    setPageType(pageType) {
-        const page = PageInfo.PAGE_TYPES.find((i) => i.pageType === pageType);
-        Object.assign(this, page);
-    }
-    setPortrait(portrait) {
-        if (this.portrait != portrait) {
-            [this.width, this.height] = [this.height, this.width];
-        }
-    }
-}
-PageInfo.A4 = new PageInfo("A4", false, kicad_common_1.MM2MIL(297), kicad_common_1.MM2MIL(210));
-PageInfo.A3 = new PageInfo("A3", false, kicad_common_1.MM2MIL(420), kicad_common_1.MM2MIL(297));
-PageInfo.A2 = new PageInfo("A2", false, kicad_common_1.MM2MIL(594), kicad_common_1.MM2MIL(420));
-PageInfo.A1 = new PageInfo("A1", false, kicad_common_1.MM2MIL(841), kicad_common_1.MM2MIL(594));
-PageInfo.A0 = new PageInfo("A0", false, kicad_common_1.MM2MIL(1189), kicad_common_1.MM2MIL(841));
-PageInfo.A = new PageInfo("A", false, 11000, 8500);
-PageInfo.B = new PageInfo("B", false, 17000, 11000);
-PageInfo.C = new PageInfo("C", false, 22000, 17000);
-PageInfo.D = new PageInfo("D", false, 34000, 22000);
-PageInfo.E = new PageInfo("E", false, 44000, 34000);
-PageInfo.GERBER = new PageInfo("GERBER", false, 32000, 32000);
-PageInfo.User = new PageInfo("User", false, 17000, 11000);
-PageInfo.USLetter = new PageInfo("USLetter", false, 11000, 8500);
-PageInfo.USLegal = new PageInfo("USLegal", false, 14000, 8500);
-PageInfo.USLedger = new PageInfo("USLedger", false, 17000, 11000);
-PageInfo.PAGE_TYPES = [
-    PageInfo.A4,
-    PageInfo.A3,
-    PageInfo.A2,
-    PageInfo.A1,
-    PageInfo.A0,
-    PageInfo.A,
-    PageInfo.B,
-    PageInfo.C,
-    PageInfo.D,
-    PageInfo.E,
-    PageInfo.GERBER,
-    PageInfo.User,
-    PageInfo.USLetter,
-    PageInfo.USLegal,
-    PageInfo.USLedger,
-];
 var PCB_LAYER_ID;
 (function (PCB_LAYER_ID) {
     PCB_LAYER_ID[PCB_LAYER_ID["UNDEFINED_LAYER"] = -1] = "UNDEFINED_LAYER";

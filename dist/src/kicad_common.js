@@ -417,4 +417,62 @@ class Size {
     }
 }
 exports.Size = Size;
+class PageInfo {
+    constructor(pageType, portrait = false, width, height) {
+        this.portrait = false;
+        this.width = width || 0;
+        this.height = height || 0;
+        if (!width && !height) {
+            this.setPageType(pageType);
+        }
+        else {
+            this.pageType = pageType;
+        }
+        this.setPortrait(portrait);
+    }
+    setPageType(pageType) {
+        const page = PageInfo.PAGE_TYPES.find((i) => i.pageType === pageType);
+        Object.assign(this, page);
+        this.pageType = pageType;
+    }
+    setPortrait(portrait) {
+        if (this.portrait != portrait) {
+            [this.width, this.height] = [this.height, this.width];
+            this.portrait = portrait;
+        }
+    }
+}
+PageInfo.A4 = new PageInfo("A4", false, MM2MIL(297), MM2MIL(210));
+PageInfo.A3 = new PageInfo("A3", false, MM2MIL(420), MM2MIL(297));
+PageInfo.A2 = new PageInfo("A2", false, MM2MIL(594), MM2MIL(420));
+PageInfo.A1 = new PageInfo("A1", false, MM2MIL(841), MM2MIL(594));
+PageInfo.A0 = new PageInfo("A0", false, MM2MIL(1189), MM2MIL(841));
+PageInfo.A = new PageInfo("A", false, 11000, 8500);
+PageInfo.B = new PageInfo("B", false, 17000, 11000);
+PageInfo.C = new PageInfo("C", false, 22000, 17000);
+PageInfo.D = new PageInfo("D", false, 34000, 22000);
+PageInfo.E = new PageInfo("E", false, 44000, 34000);
+PageInfo.GERBER = new PageInfo("GERBER", false, 32000, 32000);
+PageInfo.User = new PageInfo("User", false, 17000, 11000);
+PageInfo.USLetter = new PageInfo("USLetter", false, 11000, 8500);
+PageInfo.USLegal = new PageInfo("USLegal", false, 14000, 8500);
+PageInfo.USLedger = new PageInfo("USLedger", false, 17000, 11000);
+PageInfo.PAGE_TYPES = [
+    PageInfo.A4,
+    PageInfo.A3,
+    PageInfo.A2,
+    PageInfo.A1,
+    PageInfo.A0,
+    PageInfo.A,
+    PageInfo.B,
+    PageInfo.C,
+    PageInfo.D,
+    PageInfo.E,
+    PageInfo.GERBER,
+    PageInfo.User,
+    PageInfo.USLetter,
+    PageInfo.USLegal,
+    PageInfo.USLedger,
+];
+exports.PageInfo = PageInfo;
 //# sourceMappingURL=kicad_common.js.map
