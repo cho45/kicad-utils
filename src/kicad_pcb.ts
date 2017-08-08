@@ -2066,7 +2066,7 @@ class Pad {
 	roundRectRatio: number;
 }
 
-enum PadShape {
+export enum PadShape {
 	CIRCLE,
 	RECT,
 	OVAL,
@@ -2074,7 +2074,7 @@ enum PadShape {
 	ROUNDRECT,
 };
 
-enum PadDrillShape {
+export enum PadDrillShape {
 	CIRCLE,
 	OBLONG,
 };

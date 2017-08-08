@@ -819,7 +819,7 @@ class PCB {
                 this.needRIGHT();
             }
             else if (token.is(kicad_pcb_token_1.Token.at)) {
-                console.log('at', this.tokens.slice(this.pos, this.pos + 10));
+                // console.log('at', this.tokens.slice(this.pos,this.pos+10));
                 let x = this.parseBoardUnits("x");
                 let y = this.parseBoardUnits("y");
                 pad.pos = new kicad_common_1.Point(x, y);
@@ -1734,13 +1734,13 @@ var PadShape;
     PadShape[PadShape["OVAL"] = 2] = "OVAL";
     PadShape[PadShape["TRAPEZOID"] = 3] = "TRAPEZOID";
     PadShape[PadShape["ROUNDRECT"] = 4] = "ROUNDRECT";
-})(PadShape || (PadShape = {}));
+})(PadShape = exports.PadShape || (exports.PadShape = {}));
 ;
 var PadDrillShape;
 (function (PadDrillShape) {
     PadDrillShape[PadDrillShape["CIRCLE"] = 0] = "CIRCLE";
     PadDrillShape[PadDrillShape["OBLONG"] = 1] = "OBLONG";
-})(PadDrillShape || (PadDrillShape = {}));
+})(PadDrillShape = exports.PadDrillShape || (exports.PadDrillShape = {}));
 ;
 var PadAttr;
 (function (PadAttr) {
