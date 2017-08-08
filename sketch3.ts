@@ -2,9 +2,19 @@
 
 
 import {
-	PCB
+	PCB,
+	Board,
+	Module,
 } from "./src/kicad_pcb";
 
+import {
+	BoardItemPlotter,
+} from "./src/kicad_pcb_plotter";
+
+import {
+	Plotter,
+	SVGPlotter,
+} from "./src/kicad_plotter";
 
 // console.log(Foo["xxx" as Foo]);
 
@@ -15,4 +25,8 @@ const content = fs.readFileSync('../../KiCad/footprint.pretty/ESP-WROOM-32.kicad
 
 
 const item = PCB.load(content);
-console.log(item);
+if (item instanceof Board) {
+} else
+if (item instanceof Module) {
+	console.log(item.pads);
+}

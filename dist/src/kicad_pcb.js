@@ -812,7 +812,6 @@ class PCB {
         for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
             this.expecting(token, kicad_pcb_token_1.Token.LEFT);
             token = this.nextTok();
-            console.log(token);
             if (token.is(kicad_pcb_token_1.Token.size)) {
                 let width = this.parseBoardUnits("width");
                 let height = this.parseBoardUnits("height");
@@ -820,6 +819,7 @@ class PCB {
                 this.needRIGHT();
             }
             else if (token.is(kicad_pcb_token_1.Token.at)) {
+                console.log('at', this.tokens.slice(this.pos, this.pos + 10));
                 let x = this.parseBoardUnits("x");
                 let y = this.parseBoardUnits("y");
                 pad.pos = new kicad_common_1.Point(x, y);
@@ -1230,10 +1230,95 @@ class PCB {
         return mod;
     }
     parseSegmentSection() {
-        this.skipSection();
+        const track = new Track();
+        for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
+            this.expecting(token, kicad_pcb_token_1.Token.LEFT);
+            token = this.nextTok();
+            if (token.is(kicad_pcb_token_1.Token.start)) {
+                const x = this.parseBoardUnits("x");
+                const y = this.parseBoardUnits("y");
+                track.start = new kicad_common_1.Point(x, y);
+            }
+            else if (token.is(kicad_pcb_token_1.Token.end)) {
+                const x = this.parseBoardUnits("x");
+                const y = this.parseBoardUnits("y");
+                track.end = new kicad_common_1.Point(x, y);
+            }
+            else if (token.is(kicad_pcb_token_1.Token.width)) {
+                track.width = this.parseBoardUnits("width");
+            }
+            else if (token.is(kicad_pcb_token_1.Token.layer)) {
+                track.layer = this.parseBoardItemLayer("layer");
+            }
+            else if (token.is(kicad_pcb_token_1.Token.net)) {
+                const net = this.parseInt("net");
+                track.net = this.netCodes[net];
+            }
+            else if (token.is(kicad_pcb_token_1.Token.tstamp)) {
+                track.tstamp = this.parseHex("tstamp");
+            }
+            else if (token.is(kicad_pcb_token_1.Token.status)) {
+                track.status = this.parseHex("status");
+            }
+            else {
+                this.expecting(token, kicad_pcb_token_1.Token.start, kicad_pcb_token_1.Token.end, kicad_pcb_token_1.Token.width, kicad_pcb_token_1.Token.layer, kicad_pcb_token_1.Token.net, kicad_pcb_token_1.Token.tstamp, kicad_pcb_token_1.Token.status);
+            }
+            this.needRIGHT();
+        }
+        return track;
     }
     parseViaSection() {
-        this.skipSection();
+        const via = new Via();
+        for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
+            if (token.is(kicad_pcb_token_1.Token.LEFT))
+                continue;
+            token = this.nextTok();
+            if (token.is(kicad_pcb_token_1.Token.blind)) {
+                via.viaType = ViaType.BLIND_BURIED;
+            }
+            else if (token.is(kicad_pcb_token_1.Token.micro)) {
+                via.viaType = ViaType.MICROVIA;
+            }
+            else if (token.is(kicad_pcb_token_1.Token.at)) {
+                let x = this.parseBoardUnits('x');
+                let y = this.parseBoardUnits('y');
+                const pos = new kicad_common_1.Point(x, y);
+                via.start = pos;
+                via.end = pos;
+                this.needRIGHT();
+            }
+            else if (token.is(kicad_pcb_token_1.Token.size)) {
+                via.width = this.parseBoardUnits("via width");
+                this.needRIGHT();
+            }
+            else if (token.is(kicad_pcb_token_1.Token.drill)) {
+                via.drill = this.parseBoardUnits("via drill");
+                this.needRIGHT();
+            }
+            else if (token.is(kicad_pcb_token_1.Token.layers)) {
+                this.nextTok();
+                via.layer1 = this.layerIndices[this.curText()];
+                via.layer2 = this.layerIndices[this.curText()];
+                this.needRIGHT();
+            }
+            else if (token.is(kicad_pcb_token_1.Token.net)) {
+                const net = this.parseInt("net");
+                via.net = this.netCodes[net];
+                this.needRIGHT();
+            }
+            else if (token.is(kicad_pcb_token_1.Token.tstamp)) {
+                via.tstamp = this.parseHex("tstamp");
+                this.needRIGHT();
+            }
+            else if (token.is(kicad_pcb_token_1.Token.status)) {
+                via.status = this.parseHex("status");
+                this.needRIGHT();
+            }
+            else {
+                this.expecting(token, kicad_pcb_token_1.Token.blind, kicad_pcb_token_1.Token.micro, kicad_pcb_token_1.Token.at, kicad_pcb_token_1.Token.size, kicad_pcb_token_1.Token.drill, kicad_pcb_token_1.Token.layers, kicad_pcb_token_1.Token.net, kicad_pcb_token_1.Token.tstamp, kicad_pcb_token_1.Token.status);
+            }
+        }
+        return via;
     }
     parseZoneSection() {
         this.skipSection();
@@ -1612,10 +1697,21 @@ class Dimension extends BoardItem {
 class Module extends BoardItem {
     constructor() {
         super(...arguments);
+        this.orientation = 0;
+        this.placementCost90 = 0;
+        this.placementCost180 = 0;
+        this.solderMaskMargin = 0;
+        this.solderPasteMargin = 0;
+        this.solderPasteRatio = 0;
+        this.clearance = 0;
+        this.zoneConnection = 0;
+        this.thermalWidth = 0;
+        this.thermalGap = 0;
         this.graphics = [];
         this.pads = [];
     }
 }
+exports.Module = Module;
 class LibId {
     constructor(nickname, itemname, revision) {
         this.nickname = nickname;
@@ -1666,12 +1762,6 @@ var TextModuleType;
     TextModuleType["value"] = "value";
     TextModuleType["user"] = "user";
 })(TextModuleType || (TextModuleType = {}));
-// pcbnew/plot_board_layers.cpp
-// pcbnew/plot_brditems_plotter.cpp 
-class BoardItemPlotter {
-    constructor(plotter) {
-    }
-}
 var MODULE_ATTR;
 (function (MODULE_ATTR) {
     MODULE_ATTR[MODULE_ATTR["MOD_DEFAULT"] = 0] = "MOD_DEFAULT";
@@ -1681,4 +1771,18 @@ var MODULE_ATTR;
     ///<  board (Like edge card connectors, mounting hole...)
 })(MODULE_ATTR || (MODULE_ATTR = {}));
 ;
+class Track extends BoardItem {
+}
+(function (ViaType) {
+    ViaType[ViaType["THROUGH"] = 3] = "THROUGH";
+    ViaType[ViaType["BLIND_BURIED"] = 2] = "BLIND_BURIED";
+    ViaType[ViaType["MICROVIA"] = 1] = "MICROVIA";
+    ViaType[ViaType["NOT_DEFINED"] = 0] = "NOT_DEFINED"; /* not yet used */
+})(ViaType || (ViaType = {}));
+class Via extends BoardItem {
+    constructor() {
+        super(...arguments);
+        this.viaType = ViaType.THROUGH;
+    }
+}
 //# sourceMappingURL=kicad_pcb.js.map

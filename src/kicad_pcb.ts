@@ -37,10 +37,6 @@ import {
 	RotatePoint,
 } from "./kicad_common";
 
-import {
-	Plotter,
-} from "./kicad_plotter";
-
 import { Token } from "./kicad_pcb_token";
 
 const SEXPR_BOARD_FILE_VERSION = 20170123;
@@ -895,7 +891,6 @@ export class PCB {
 			this.expecting(token, Token.LEFT);
 
 			token = this.nextTok();
-			console.log(token);
 			if (token.is(Token.size)) {
 				let width = this.parseBoardUnits("width");
 				let height = this.parseBoardUnits("height");
@@ -903,6 +898,7 @@ export class PCB {
 				this.needRIGHT();
 			} else
 			if (token.is(Token.at)) {
+				// console.log('at', this.tokens.slice(this.pos,this.pos+10));
 				let x = this.parseBoardUnits("x");
 				let y = this.parseBoardUnits("y");
 				pad.pos = new Point(x, y);
@@ -1367,11 +1363,108 @@ export class PCB {
 	}
 
 	parseSegmentSection() {
-		this.skipSection();
+		const track = new Track();
+
+		for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
+			this.expecting(token, Token.LEFT);
+			token = this.nextTok();
+
+			if (token.is(Token.start)) {
+				const x = this.parseBoardUnits("x");
+				const y = this.parseBoardUnits("y");
+				track.start = new Point(x, y);
+			} else
+			if (token.is(Token.end)) {
+				const x = this.parseBoardUnits("x");
+				const y = this.parseBoardUnits("y");
+				track.end = new Point(x, y);
+			} else
+			if (token.is(Token.width)) {
+				track.width = this.parseBoardUnits("width");
+			} else
+			if (token.is(Token.layer)) {
+				track.layer = this.parseBoardItemLayer("layer");
+			} else
+			if (token.is(Token.net)) {
+				const net = this.parseInt("net");
+				track.net = this.netCodes[net];
+			} else
+			if (token.is(Token.tstamp)) {
+				track.tstamp = this.parseHex("tstamp");
+			} else
+			if (token.is(Token.status)) {
+				track.status = this.parseHex("status");
+			} else {
+				this.expecting(token, Token.start, Token.end, Token.width, Token.layer, Token.net, Token.tstamp, Token.status);
+			}
+			this.needRIGHT();
+		}
+
+		return track;
 	}
 
 	parseViaSection() {
-		this.skipSection();
+		const via = new Via();
+		for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
+			if (token.is(Token.LEFT)) continue;
+			token = this.nextTok();
+
+			if (token.is(Token.blind)) {
+				via.viaType = ViaType.BLIND_BURIED;
+			} else
+			if (token.is(Token.micro)) {
+				via.viaType = ViaType.MICROVIA;
+			} else
+			if (token.is(Token.at)) {
+				let x = this.parseBoardUnits('x');
+				let y = this.parseBoardUnits('y');
+				const pos = new Point(x, y);
+				via.start = pos;
+				via.end = pos;
+				this.needRIGHT();
+			} else
+			if (token.is(Token.size)) {
+				via.width = this.parseBoardUnits("via width");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.drill)) {
+				via.drill = this.parseBoardUnits("via drill");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.layers)) {
+				this.nextTok();
+				via.layer1 = this.layerIndices[this.curText()];
+				via.layer2 = this.layerIndices[this.curText()];
+				this.needRIGHT();
+			} else
+			if (token.is(Token.net)) {
+				const net = this.parseInt("net");
+				via.net = this.netCodes[net];
+				this.needRIGHT();
+			} else
+			if (token.is(Token.tstamp)) {
+				via.tstamp = this.parseHex("tstamp");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.status)) {
+				via.status = this.parseHex("status");
+				this.needRIGHT();
+			} else {
+				this.expecting(
+					token,
+					Token.blind,
+					Token.micro,
+					Token.at,
+					Token.size,
+					Token.drill,
+					Token.layers,
+					Token.net,
+					Token.tstamp,
+					Token.status
+				);
+			}
+		}
+		return via;
 	}
 
 	parseZoneSection() {
@@ -1910,24 +2003,24 @@ class Dimension extends BoardItem {
 	arrowG2F: Point;
 }
 
-class Module extends BoardItem {
+export class Module extends BoardItem {
 	fpid: LibId;
 	locked: boolean;
 	placed: boolean;
 	lastEditTime: number;
-	orientation: number;
+	orientation: number = 0;
 	description: string;
 	keywords: string;
 	path: string;
-	placementCost90: number;
-	placementCost180: number;
-	solderMaskMargin: number;
-	solderPasteMargin: number;
-	solderPasteRatio: number;
-	clearance: number;
-	zoneConnection: number;
-	thermalWidth: number;
-	thermalGap: number;
+	placementCost90: number = 0;
+	placementCost180: number = 0;
+	solderMaskMargin: number = 0;
+	solderPasteMargin: number = 0;
+	solderPasteRatio: number = 0;
+	clearance: number = 0;
+	zoneConnection: number = 0;
+	thermalWidth: number = 0;
+	thermalGap: number = 0;
 
 	graphics: Array<BoardItem> = [];
 	reference: TextModule;
@@ -2005,13 +2098,6 @@ enum TextModuleType {
 	user = "user",
 }
 
-// pcbnew/plot_board_layers.cpp
-// pcbnew/plot_brditems_plotter.cpp 
-class BoardItemPlotter {
-	constructor(plotter: Plotter) {
-	}
-}
-
 enum MODULE_ATTR {
 	MOD_DEFAULT = 0,    ///< default
 	MOD_CMS     = 1,    ///< Set for modules listed in the automatic insertion list
@@ -2019,3 +2105,29 @@ enum MODULE_ATTR {
 	MOD_VIRTUAL = 2     ///< Virtual component: when created by copper shapes on
 						///<  board (Like edge card connectors, mounting hole...)
 };
+
+class Track extends BoardItem {
+	start: Point;
+	end: Point;
+	net: NetClass;
+	width: number;
+}
+
+enum ViaType {
+	THROUGH      = 3,      /* Always a through hole via */
+	BLIND_BURIED = 2,      /* this via can be on internal layers */
+	MICROVIA     = 1,      /* this via which connect from an external layer
+							* to the near neighbor internal layer */
+	NOT_DEFINED  = 0       /* not yet used */
+}
+
+class Via extends BoardItem {
+	viaType: ViaType = ViaType.THROUGH;
+	start: Point;
+	end: Point;
+	width: number;
+	drill: number;
+	layer1: PCB_LAYER_ID;
+	layer2: PCB_LAYER_ID;
+	net: NetClass;
+}
