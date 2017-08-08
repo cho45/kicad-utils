@@ -410,4 +410,11 @@ var Net;
     Net["TRISTATE"] = "T";
     Net["UNSPECIFIED"] = "U";
 })(Net = exports.Net || (exports.Net = {}));
+class Size {
+    constructor(width, height) {
+        this.width = width;
+        this.height = height;
+    }
+}
+exports.Size = Size;
 //# sourceMappingURL=kicad_common.js.map

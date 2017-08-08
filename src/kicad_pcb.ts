@@ -1,26 +1,62 @@
 //#!tsc && NODE_PATH=dist/src node dist/sketch3.js 
 
+// based on:
+// pcbnew/pcb_parser.cpp 
+/*
+ * This program source code file is part of KiCad, a free EDA CAD application.
+ *
+ * Copyright (C) 2012 CERN
+ * Copyright (C) 2012-2017 KiCad Developers, see AUTHORS.txt for contributors.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, you may find one here:
+ * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * or you may search the http://www.gnu.org website for the version 2 license,
+ * or you may write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+ */
+
+
 import {
 	MIL2MM,
 	MM2MIL,
 	Point,
+	Size,
 	TextHjustify,
 	TextVjustify,
+	RotatePoint,
 } from "./kicad_common";
+
+import {
+	Plotter,
+} from "./kicad_plotter";
 
 import { Token } from "./kicad_pcb_token";
 
-// pcbnew/pcb_parser.cpp 
+const SEXPR_BOARD_FILE_VERSION = 20170123;
+
 export class PCB {
 	tokens: Array<Token>;
 	pos: number;
 	layerIndices: { [key: string]: number } = {};
 	layerMasks: { [key: string]: LSET } = {};
 	netCodes: { [key: number]: NetClass } = {};
+	tooRecent = false;
+	requiredVersion = 0;
 
 	board: Board;
 
-	static load(content: string): PCB {
+	static load(content: string): Board | Module {
 		const lines = content.split(/\r?\n/);
 		const tokens = [];
 		// lexer
@@ -32,8 +68,7 @@ export class PCB {
 		const pcb = new this();
 		pcb.pos = 0;
 		pcb.tokens = tokens;
-		pcb.parse();
-		return pcb;
+		return pcb.parse();
 	}
 
 	constructor() {
@@ -142,7 +177,11 @@ export class PCB {
 		if (expected) {
 			this.needNUMBER(expected);
 		}
-		return parseFloat(this.curText());
+		const ret = parseFloat(this.curText());
+		if (isNaN(ret)) {
+			throw "expecting floating value but got " + this.curText();
+		}
+		return ret;
 	}
 
 	parseBoardUnits(expected?: string) {
@@ -192,7 +231,16 @@ export class PCB {
 		return this.layerIndices[this.curText()];
 	}
 
-	parse(): void {
+	parseBoardItemLayersAsMask(expected: string) {
+		const layerMask = new LSET();
+		for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
+			const mask = this.layerMasks[this.curText()];
+			layerMask.union(mask);
+		}
+		return layerMask;
+	}
+
+	parse(): Board | Module {
 		let token = this.curTok();
 		this.expecting(token, Token.LEFT);
 
@@ -200,9 +248,10 @@ export class PCB {
 		if (token.is(Token.kicad_pcb)) {
 			this.board = new Board();
 			this.parseBoard();
+			return this.board;
 		} else
 		if (token.is(Token.module)) {
-			this.parseModule();
+			return this.parseModuleSection();
 		} else {
 			throw 'unknown token ' + token;
 		}
@@ -212,7 +261,7 @@ export class PCB {
 		console.log('parseBoard');
 		this.parseHeader();
 
-		for (let token = this.nextTok(); token && !token.is(Token.RIGHT); token = this.nextTok()) {
+		for (let token = this.nextTok(); Token.RIGHT.is(token); token = this.nextTok()) {
 			this.expecting(token, Token.LEFT);
 
 			token = this.nextTok();
@@ -246,10 +295,10 @@ export class PCB {
 				this.parseDrawSegmentSection();
 			} else
 			if (token.is(Token.gr_text)) {
-				this.parseTextSection();
+				this.board.texts.push(this.parseTextSection());
 			} else
 			if (token.is(Token.dimension)) {
-				this.parseDimensionSection();
+				this.board.dimensions.push(this.parseDimensionSection());
 			} else
 			if (token.is(Token.module)) {
 				this.parseModuleSection();
@@ -292,10 +341,6 @@ export class PCB {
 		}
 	}
 
-	parseModule(): void {
-		console.log('parseModule');
-	}
-
 	parseGeneralSection(): void {
 		for (let token = this.nextTok(); token && !token.is(Token.RIGHT); token = this.nextTok()) {
 			this.expecting(token, Token.LEFT);
@@ -315,8 +360,8 @@ export class PCB {
 	parsePageSection(): void {
 		const pageType = this.needSYMBOL().toString();
 		if (pageType === 'User') {
-			const width = this.parseFloat(); // unit=mm
-			const height = this.parseFloat(); // unit=mm
+			const width = this.parseFloat("width"); // unit=mm
+			const height = this.parseFloat("height"); // unit=mm
 			this.board.pageInfo.setPageType('User');
 			this.board.pageInfo.width = width;
 			this.board.pageInfo.height = height;
@@ -479,17 +524,17 @@ export class PCB {
 		const segment = new DrawSegment();
 		if (token.is(Token.gr_arc)) {
 			segment.shape = Shape.ARC;
-			this.needLEFT();
 			{
+				this.needLEFT();
 				token = this.nextTok();
 				this.expecting(token, Token.start, Token.center);
 				const x = this.parseBoardUnits("x");
 				const y = this.parseBoardUnits("y");
 				segment.start = new Point(x, y);
 				this.needRIGHT();
-				this.needLEFT();
 			}
 			{
+				this.needLEFT();
 				token = this.nextTok();
 				this.expecting(token, Token.end);
 				const x = this.parseBoardUnits("x");
@@ -501,17 +546,17 @@ export class PCB {
 		} else
 		if (token.is(Token.gr_circle)) {
 			segment.shape = Shape.CIRCLE;
-			this.needLEFT();
 			{
+				this.needLEFT();
 				token = this.nextTok();
 				this.expecting(token, Token.center);
 				const x = this.parseBoardUnits("x");
 				const y = this.parseBoardUnits("y");
 				segment.start = new Point(x, y);
 				this.needRIGHT();
-				this.needLEFT();
 			}
 			{
+				this.needLEFT();
 				token = this.nextTok();
 				this.expecting(token, Token.end);
 				const x = this.parseBoardUnits("x");
@@ -534,17 +579,17 @@ export class PCB {
 		} else
 		if (token.is(Token.gr_line)) {
 			segment.shape = Shape.SEGMENT;
-			this.needLEFT();
 			{
+				this.needLEFT();
 				token = this.nextTok();
 				this.expecting(token, Token.start);
 				const x = this.parseBoardUnits("x");
 				const y = this.parseBoardUnits("y");
 				segment.start = new Point(x, y);
 				this.needRIGHT();
-				this.needLEFT();
 			}
 			{
+				this.needLEFT();
 				token = this.nextTok();
 				this.expecting(token, Token.end);
 				const x = this.parseBoardUnits("x");
@@ -603,11 +648,11 @@ export class PCB {
 
 		let x = this.parseBoardUnits('x');
 		let y = this.parseBoardUnits('y');
-		text.textpos = new Point(x, y);
+		text.pos = new Point(x, y);
 
 		token = this.nextTok();
 		if ( token.isNUMBER()) {
-			text.angle = this.parseFloat('angle') * 10;
+			text.angle = this.parseFloat() * 10;
 			this.needRIGHT();
 		} else {
 			this.expecting(token, Token.RIGHT);
@@ -631,6 +676,352 @@ export class PCB {
 			}
 		}
 		return text;
+	}
+
+	parseTextModule() {
+		const text = new TextModule();
+		let token = this.nextTok();
+
+		this.expecting(token, Token.reference, Token.value, Token.user);
+		text.type = token.toString() as TextModuleType;
+
+		this.needSYMBOLorNUMBER();
+		text.text = this.curText();
+		this.needLEFT();
+		token = this.nextTok();
+		this.expecting(token, Token.at);
+
+		let x = this.parseBoardUnits('x');
+		let y = this.parseBoardUnits('y');
+		text.pos = new Point(x, y);
+
+		token = this.nextTok();
+		if ( token.isNUMBER()) {
+			text.angle = this.parseFloat() * 10;
+			this.needRIGHT();
+		} else {
+			this.expecting(token, Token.RIGHT);
+		}
+
+		for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
+			if (token.is(Token.LEFT)) token = this.nextTok();
+
+			if (token.is(Token.layer)) {
+				text.layer = this.parseBoardItemLayer("layer");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.tstamp)) {
+				text.tstamp = this.parseHex("tstamp");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.effects)) {
+				this.parseEDATEXT(text);
+			} else {
+				this.expecting(token, Token.layer, Token.tstamp, Token.effects);
+			}
+		}
+		return text;
+	}
+
+	parseEdgeModule() {
+		const segment = new EdgeModule();
+		let token = this.curTok();
+		if (token.is(Token.fp_arc)) {
+			segment.shape = Shape.ARC;
+
+			{
+				this.needLEFT();
+				token = this.nextTok();
+				this.expecting(token, Token.start, Token.center);
+				let x = this.parseBoardUnits("x");
+				let y = this.parseBoardUnits("y");
+				segment.start = new Point(x, y);
+				this.needRIGHT();
+			}
+
+			{
+				this.needLEFT();
+				token = this.nextTok();
+				this.expecting(token, Token.end);
+				let x = this.parseBoardUnits("x");
+				let y = this.parseBoardUnits("y");
+				segment.end = new Point(x, y);
+				this.needRIGHT();
+			}
+
+			{
+				this.needLEFT();
+				token = this.nextTok();
+				this.expecting(token, Token.angle);
+				segment.angle = this.parseFloat("segment angle") * 10;
+				this.needRIGHT();
+			}
+		} else
+		if (token.is(Token.fp_circle)) {
+			segment.shape = Shape.CIRCLE;
+			{
+				this.needLEFT();
+				token = this.nextTok();
+				this.expecting(token, Token.center);
+				let x = this.parseBoardUnits("x");
+				let y = this.parseBoardUnits("y");
+				segment.start = new Point(x, y);
+				this.needRIGHT();
+			}
+
+			{
+				this.needLEFT();
+				token = this.nextTok();
+				this.expecting(token, Token.end);
+				let x = this.parseBoardUnits("x");
+				let y = this.parseBoardUnits("y");
+				segment.end = new Point(x, y);
+				this.needRIGHT();
+			}
+		} else
+		if (token.is(Token.fp_curve)) {
+			segment.shape = Shape.CURVE;
+			this.needLEFT();
+			token = this.nextTok();
+			this.expecting(token, Token.pts);
+
+			segment.start = this.parseXY("start");
+			segment.bezierC1 = this.parseXY("bezierC1");
+			segment.bezierC2 = this.parseXY("bezierC2");
+			segment.end = this.parseXY("end");
+			this.needRIGHT();
+		} else
+		if (token.is(Token.fp_line)) {
+			segment.shape = Shape.SEGMENT;
+			{
+				this.needLEFT();
+				token = this.nextTok();
+				this.expecting(token, Token.start);
+				const x = this.parseBoardUnits("x");
+				const y = this.parseBoardUnits("y");
+				segment.start = new Point(x, y);
+				this.needRIGHT();
+			}
+			{
+				this.needLEFT();
+				token = this.nextTok();
+				this.expecting(token, Token.end);
+				const x = this.parseBoardUnits("x");
+				const y = this.parseBoardUnits("y");
+				segment.end = new Point(x, y);
+				this.needRIGHT();
+			};
+		} else
+		if (token.is(Token.fp_poly)) {
+			segment.shape = Shape.POLYGON;
+			this.needLEFT();
+			token = this.nextTok();
+			this.expecting(token, Token.pts);
+			while ( !Token.RIGHT.is(token = this.nextTok()) ) {
+				segment.polyPoints.push(this.parseXY("polypoint"));
+			}
+		} else {
+			this.expecting(token, Token.fp_arc, Token.fp_circle, Token.fp_curve, Token.fp_line, Token.fp_poly);
+		}
+
+		for (let token = this.nextTok(); token && !token.is(Token.RIGHT); token = this.nextTok()) {
+			this.expecting(token, Token.LEFT);
+
+			token = this.nextTok();
+			if (token.is(Token.layer)) {
+				segment.layer = this.parseBoardItemLayer("layer");
+			} else
+			if (token.is(Token.width)) {
+				segment.lineWidth = this.parseBoardUnits(Token.width.toString());
+			} else
+			if (token.is(Token.tstamp)) {
+				segment.tstamp = this.parseHex("tstamp");
+			} else
+			if (token.is(Token.status)) {
+				segment.status = this.parseHex("status");
+			} else {
+				this.expecting(token, Token.layer, Token.width, Token.tstamp, Token.status);
+			}
+			this.needRIGHT();
+		}
+		return segment;
+	}
+
+	parsePad() {
+		const pad = new Pad();
+
+		this.needSYMBOLorNUMBER();
+		pad.name = this.curText();
+
+		let token = this.nextTok();
+		if (token.is(Token.thru_hole)) {
+			pad.attribute = PadAttr.STANDARD;
+		} else
+		if (token.is(Token.smd)) {
+			pad.attribute = PadAttr.SMD;
+			pad.drillSize = new Size(0, 0);
+		} else
+		if (token.is(Token.connect)) {
+			pad.attribute = PadAttr.CONN;
+			pad.drillSize = new Size(0, 0);
+		} else
+		if (token.is(Token.np_thru_hole)) {
+			pad.attribute = PadAttr.HOLE_NOT_PLATED;
+		} else{
+			this.expecting(token, Token.thru_hole, Token.smd, Token.connect, Token.np_thru_hole);
+		}
+
+		token = this.nextTok();
+
+		if (token.is(Token.circle)) {
+			pad.shape = PadShape.CIRCLE;
+		} else
+		if (token.is(Token.rect)) {
+			pad.shape = PadShape.RECT;
+		} else
+		if (token.is(Token.oval)) {
+			pad.shape = PadShape.OVAL;
+		} else
+		if (token.is(Token.trapezoid)) {
+			pad.shape = PadShape.TRAPEZOID;
+		} else
+		if (token.is(Token.roundrect)) {
+			pad.shape = PadShape.ROUNDRECT;
+		} else {
+			this.expecting(token, Token.circle, Token.rect, Token.oval, Token.trapezoid, Token.roundrect);
+		}
+
+		for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
+			this.expecting(token, Token.LEFT);
+
+			token = this.nextTok();
+			console.log(token);
+			if (token.is(Token.size)) {
+				let width = this.parseBoardUnits("width");
+				let height = this.parseBoardUnits("height");
+				pad.size = new Size(width, height);
+				this.needRIGHT();
+			} else
+			if (token.is(Token.at)) {
+				let x = this.parseBoardUnits("x");
+				let y = this.parseBoardUnits("y");
+				pad.pos = new Point(x, y);
+				token = this.nextTok();
+				if (token.isNUMBER()) {
+					pad.orientation = this.parseFloat() * 10;
+				} else {
+					this.expecting(token, Token.RIGHT);
+				}
+			} else
+			if (token.is(Token.rect_delta)) {
+				let width = this.parseBoardUnits("width");
+				let height = this.parseBoardUnits("height");
+				pad.delta = new Size(width, height);
+				this.needRIGHT();
+			} else
+			if (token.is(Token.drill)) {
+				const drillSize = pad.drillSize;
+				let haveWidth = false;
+
+				for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
+					if (token.is(Token.LEFT)) token = this.nextTok();
+					if (token.is(Token.oval)) {
+						pad.drillShape = PadDrillShape.OBLONG;
+					} else
+					if (token.isNUMBER()) {
+						if (!haveWidth) {
+							haveWidth = true;
+							drillSize.width = this.parseBoardUnits();
+							drillSize.height = this.parseBoardUnits();
+						} else {
+							drillSize.height = this.parseBoardUnits();
+						}
+					} else
+					if (token.is(Token.offset)) {
+						let x = this.parseBoardUnits("x");
+						let y = this.parseBoardUnits("y");
+						pad.offset = new Point(x, y);
+						this.needRIGHT();
+					} else {
+						this.expecting(token, Token.oval, Token.offset);
+					}
+
+					if (pad.attribute === PadAttr.SMD || pad.attribute === PadAttr.CONN) {
+						drillSize.width = 0;
+						drillSize.height = 0;
+					}
+				}
+			} else
+			if (token.is(Token.layers)) {
+				pad.layers =  this.parseBoardItemLayersAsMask("layers");
+			} else
+			if (token.is(Token.net)) {
+				const net = this.parseInt("net");
+				pad.netCode = this.netCodes[net];
+				this.needSYMBOLorNUMBER();
+				const name = this.curText();
+				if (pad.netCode.name !== name) {
+					throw "invalid net name";
+				}
+				this.needRIGHT();
+			} else
+			if (token.is(Token.die_length)) {
+				pad.padToDieLength = this.parseBoardUnits(Token.die_length.toString());
+				this.needRIGHT();
+			} else
+			if (token.is(Token.solder_mask_margin)) {
+				pad.solderMaskMargin = this.parseBoardUnits("solder mask margin");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.solder_paste_margin)) {
+				pad.solderPasteMargin = this.parseBoardUnits("solder paste margin");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.solder_paste_margin_ratio)) {
+				pad.solderPasteRatio = this.parseFloat("solder paste ratio");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.clearance)) {
+				pad.clearance = this.parseBoardUnits("clearance");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.zone_connect)) {
+				pad.zoneConnection = this.parseInt("zone connect");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.thermal_width)) {
+				pad.thermalWidth = this.parseBoardUnits("thermal width");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.thermal_gap)) {
+				pad.thermalGap = this.parseBoardUnits("thermal gap");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.roundrect_rratio)) {
+				pad.roundRectRatio = this.parseFloat("roundrect ratio");
+				this.needRIGHT();
+			} else {
+				this.expecting(token,
+					Token.size,
+					Token.at,
+					Token.rect_delta,
+					Token.drill,
+					Token.layers,
+					Token.net,
+					Token.die_length,
+					Token.solder_mask_margin,
+					Token.solder_paste_margin,
+					Token.solder_paste_margin_ratio,
+					Token.clearance,
+					Token.zone_connect,
+					Token.thermal_width,
+					Token.thermal_gap,
+					Token.roundrect_rratio,
+				);
+			}
+		}
+
+		return pad;
 	}
 
 	parseEDATEXT(text: Text) {
@@ -694,11 +1085,285 @@ export class PCB {
 	}
 
 	parseDimensionSection() {
-		this.skipSection();
+		const dimension = new Dimension();
+		dimension.value = this.parseBoardUnits('dimension value');
+		this.needLEFT();
+		let token = this.nextTok();
+		this.expecting(token, Token.width);
+		dimension.lineWidth = this.parseBoardUnits("dimension width");
+		this.needRIGHT();
+		for (let token = this.nextTok(); Token.RIGHT.is(token); token = this.nextTok()) {
+			this.expecting(token, Token.LEFT);
+			token = this.nextTok();
+			if (token.is(Token.layer)) {
+				dimension.layer = this.parseBoardItemLayer("dimension layer");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.tstamp)) {
+				dimension.tstamp = this.parseHex("tstamp");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.gr_text)) {
+				dimension.text = this.parseTextSection();
+				dimension.pos = dimension.text.pos;
+			} else
+			if (token.is(Token.feature1)) {
+				this.needLEFT();
+				token = this.nextTok();
+				this.expecting(token, Token.pts);
+				dimension.featureLineDO = this.parseXY("featureLineDO");
+				dimension.featureLineDF = this.parseXY("featureLineDF");
+				this.needRIGHT();
+				this.needRIGHT();
+			} else
+			if (token.is(Token.feature2)) {
+				this.needLEFT();
+				token = this.nextTok();
+				this.expecting(token, Token.pts);
+				dimension.featureLineGO = this.parseXY("featureLineGO");
+				dimension.featureLineGF = this.parseXY("featureLineGF");
+				this.needRIGHT();
+				this.needRIGHT();
+			} else
+			if (token.is(Token.crossbar)) {
+				this.needLEFT();
+				token = this.nextTok();
+				this.expecting(token, Token.pts);
+				dimension.crossBarO = this.parseXY("crossBarO");
+				dimension.crossBarF = this.parseXY("crossBarF");
+				this.needRIGHT();
+				this.needRIGHT();
+			} else
+			if (token.is(Token.arrow1a)) {
+				this.needLEFT();
+				token = this.nextTok();
+				this.expecting(token, Token.pts);
+				dimension.crossBarF = this.parseXY("crossBarF");
+				dimension.arrowD1F = this.parseXY("arrowD1F");
+				this.needRIGHT();
+				this.needRIGHT();
+			} else
+			if (token.is(Token.arrow1b)) {
+				this.needLEFT();
+				token = this.nextTok();
+				this.expecting(token, Token.pts);
+				dimension.crossBarF = this.parseXY("crossBarF");
+				dimension.arrowD2F = this.parseXY("arrowD2F");
+				this.needRIGHT();
+				this.needRIGHT();
+			} else
+			if (token.is(Token.arrow2a)) {
+				this.needLEFT();
+				token = this.nextTok();
+				this.expecting(token, Token.pts);
+				dimension.crossBarO = this.parseXY("crossBarO");
+				dimension.arrowG1F = this.parseXY("arrowG1F");
+				this.needRIGHT();
+				this.needRIGHT();
+			} else
+			if (token.is(Token.arrow2b)) {
+				this.needLEFT();
+				token = this.nextTok();
+				this.expecting(token, Token.pts);
+				dimension.crossBarO = this.parseXY("crossBarO");
+				dimension.arrowG2F = this.parseXY("arrowG2F");
+				this.needRIGHT();
+				this.needRIGHT();
+			} else {
+				this.expecting(token,
+					Token.layer,
+					Token.tstamp,
+					Token.gr_text,
+					Token.feature1,
+					Token.feature2,
+					Token.crossbar,
+					Token.arrow1a,
+					Token.arrow1b,
+					Token.arrow2a,
+					Token.arrow2b,
+				);
+			}
+		}
+		return dimension;
 	}
 
-	parseModuleSection() {
-		this.skipSection();
+	parseModuleSection(): Module {
+		console.log('parseModuleSection');
+		const mod = new Module();
+
+		this.needSYMBOLorNUMBER();
+		const name = this.curText();
+		const fpid = LibId.parse(name);
+
+		for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
+			console.log(token);
+			if (token.is(Token.LEFT)) {
+				token = this.nextTok();
+			}
+			if (token.is(Token.version)) {
+				const version = this.parseInt("version");
+				this.needRIGHT();
+				this.requiredVersion = Math.max(version, this.requiredVersion);
+				this.tooRecent = this.requiredVersion > SEXPR_BOARD_FILE_VERSION;
+			} else
+			if (token.is(Token.locked)) {
+				mod.locked = true;
+			} else
+			if (token.is(Token.placed)) {
+				mod.placed = true;
+			} else
+			if (token.is(Token.layer)) {
+				mod.layer = this.parseBoardItemLayer("module layer");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.tedit)) {
+				mod.lastEditTime = this.parseHex("tedit");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.tstamp)) {
+				mod.tstamp = this.parseHex("tstamp");
+			} else
+			if (token.is(Token.at)) {
+				const x = this.parseBoardUnits('at x');
+				const y = this.parseBoardUnits('at y');
+				mod.pos = new Point(x, y);
+
+				token = this.nextTok();
+				if (token.isNUMBER()) {
+					mod.orientation = this.parseFloat() * 10.0;
+					this.needRIGHT();
+				} else  {
+					this.expecting(token, Token.RIGHT);
+				}
+			} else
+			if (token.is(Token.descr)) {
+				this.needSYMBOLorNUMBER();
+				mod.description = this.curText();
+				this.needRIGHT();
+			} else
+			if (token.is(Token.tags)) {
+				this.needSYMBOLorNUMBER();
+				mod.keywords = this.curText();
+				this.needRIGHT();
+			} else
+			if (token.is(Token.path)) {
+				this.needSYMBOLorNUMBER();
+				mod.path = this.curText();
+				this.needRIGHT();
+			} else
+			if (token.is(Token.autoplace_cost90)) {
+				mod.placementCost90 = this.parseInt("place cost 90");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.autoplace_cost180)) {
+				mod.placementCost90 = this.parseInt("place cost 180");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.solder_mask_margin)) {
+				mod.solderMaskMargin = this.parseBoardUnits("solder mask margin");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.solder_paste_margin)) {
+				mod.solderPasteMargin = this.parseBoardUnits("solder paste margin");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.solder_paste_ratio)) {
+				mod.solderPasteRatio = this.parseFloat("solder paste ratio");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.clearance)) {
+				mod.clearance = this.parseBoardUnits("clearance");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.zone_connect)) {
+				mod.zoneConnection = this.parseInt("zone connect");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.thermal_width)) {
+				mod.thermalWidth = this.parseBoardUnits("thermal width");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.thermal_gap)) {
+				mod.thermalGap = this.parseBoardUnits("thermal gap");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.attr)) {
+				for (let token = this.nextTok(); Token.RIGHT.is(token); token = this.nextTok()) {
+					if (token.is(Token.smd)) {
+						mod.attributes |= MODULE_ATTR.MOD_CMS;
+					} else
+					if (token.is(Token.virtual)) {
+						mod.attributes |= MODULE_ATTR.MOD_VIRTUAL;
+					} else {
+						this.expecting(token, Token.smd, Token.virtual);
+					}
+				}
+			} else
+			if (token.is(Token.fp_text)) {
+				const text = this.parseTextModule();
+				text.angle = text.angle - mod.orientation;
+				if (text.type === TextModuleType.reference) {
+					mod.reference = text;
+				} else
+				if (text.type === TextModuleType.value) {
+					mod.value = text;
+				} else {
+					mod.graphics.push(text);
+				}
+			} else
+			if (token.is(Token.fp_arc) ||
+				token.is(Token.fp_circle) ||
+				token.is(Token.fp_curve) ||
+				token.is(Token.fp_line) ||
+				token.is(Token.fp_poly)) {
+
+				const edge = this.parseEdgeModule();
+				mod.graphics.push(edge);
+			} else
+			if (token.is(Token.pad)) {
+				const pad = this.parsePad();
+				const pos = pad.pos;
+				RotatePoint(pos, mod.orientation);
+				pad.pos = Point.add(pos, mod.pos);
+				mod.pads.push(pad);
+			} else
+			if (token.is(Token.model)) {
+				this.skipSection();
+			} else {
+				this.expecting(token,
+					Token.version,
+					Token.locked,
+					Token.placed,
+					Token.layer,
+					Token.tedit,
+					Token.tstamp,
+					Token.at,
+					Token.descr,
+					Token.tags,
+					Token.path,
+					Token.autoplace_cost90,
+					Token.autoplace_cost180,
+					Token.solder_mask_margin,
+					Token.solder_paste_margin,
+					Token.solder_paste_ratio,
+					Token.clearance,
+					Token.zone_connect,
+					Token.thermal_width,
+					Token.thermal_gap,
+					Token.attr,
+					Token.fp_text,
+					Token.fp_arc,
+					Token.fp_circle,
+					Token.fp_curve,
+					Token.fp_line,
+					Token.fp_poly,
+					Token.pad,
+					Token.model,
+				);
+			}
+		}
+
+		return mod;
 	}
 
 	parseSegmentSection() {
@@ -761,6 +1426,8 @@ export class Board {
 
 	netInfos: Array<NetInfoItem> = [];
 	drawSegments: Array<DrawSegment> = [];
+	texts: Array<Text> = [];
+	dimensions: Array<Dimension> = [];
 
 	copperLayerCount: number = 0;
 	enabledLayers: Array<number> = [];
@@ -993,10 +1660,41 @@ export class LSET {
 		}
 	}
 
-	layerIds: Array<PCB_LAYER_ID> = [];
+	private _layerIds: Array<PCB_LAYER_ID> = [];
 
 	constructor(...layerIds: Array<PCB_LAYER_ID>) {
-		this.layerIds = layerIds;
+		this._layerIds = layerIds;
+	}
+
+	add(...layerIds: Array<PCB_LAYER_ID>): this {
+		for (let id of layerIds) {
+			if (this._layerIds.indexOf(id) === -1) {
+				this._layerIds.push(id);
+			}
+		}
+		return this;
+	}
+
+	delete(id: PCB_LAYER_ID): this {
+		const pos = this._layerIds.indexOf(id);
+		if (pos === -1) return this;
+		this._layerIds.splice(pos, 1);
+		return this;
+	}
+
+	union(o: LSET): this {
+		this.add(... o._layerIds);
+		return this;
+	}
+
+	intersect(o: LSET): this {
+		// TODO
+		return this;
+	}
+
+	except(o: LSET): this {
+		// TODO
+		return this;
 	}
 }
 
@@ -1123,9 +1821,11 @@ class NetClass {
 }
 
 abstract class BoardItem {
-	layer: number;
-	tstamp: number;
-	status: number;
+	pos: Point = new Point(0, 0);
+	layer: number = 0;
+	tstamp: number = 0;
+	status: number = 0;
+	attributes: number = 0;
 }
 
 class NetInfoItem extends BoardItem {
@@ -1169,9 +1869,11 @@ class DrawSegment extends BoardItem {
 	polyPoints: Array<Point> = [];
 }
 
+class EdgeModule extends DrawSegment {
+}
+
 class Text extends BoardItem {
 	text: string;
-	textpos: Point;
 	angle: number;
 	size: number;
 	lineWidth: number;
@@ -1182,3 +1884,138 @@ class Text extends BoardItem {
 	vjustify: TextVjustify = TextVjustify.CENTER;
 	visibility: boolean = true;
 }
+
+enum Unit {
+	MM = "mm",
+	INCH = "inch",
+}
+
+class Dimension extends BoardItem {
+	lineWidth: number;
+	shape: number = 0;
+	unit: Unit = Unit.MM;
+	value: number;
+	height: number;
+	text: Text;
+
+	crossBarO: Point;
+	crossBarF: Point;
+	featureLineGO : Point;
+	featureLineGF: Point;
+	featureLineDO : Point;
+	featureLineDF: Point;
+	arrowD1F : Point;
+	arrowD2F: Point;
+	arrowG1F : Point;
+	arrowG2F: Point;
+}
+
+class Module extends BoardItem {
+	fpid: LibId;
+	locked: boolean;
+	placed: boolean;
+	lastEditTime: number;
+	orientation: number;
+	description: string;
+	keywords: string;
+	path: string;
+	placementCost90: number;
+	placementCost180: number;
+	solderMaskMargin: number;
+	solderPasteMargin: number;
+	solderPasteRatio: number;
+	clearance: number;
+	zoneConnection: number;
+	thermalWidth: number;
+	thermalGap: number;
+
+	graphics: Array<BoardItem> = [];
+	reference: TextModule;
+	value: TextModule;
+
+	pads: Array<Pad> = [];
+	model3D: any;
+}
+
+
+class LibId {
+	static parse(id: string) {
+		const [name, rev] = id.split(/\//);
+		const [nickname, itemname] = name.split(/:/);
+		return new this(nickname, itemname, rev);
+	}
+
+	constructor(public nickname: string, itemname: string, revision: string) {
+	}
+}
+
+class Pad {
+	pos: Point;
+	name: string;
+	shape: PadShape;
+	drillShape: PadDrillShape;
+	attribute: PadAttr;
+	drillSize: Size;
+	size: Size;
+	orientation: number = 0;
+	delta: Size;
+	offset: Point;
+	layers: LSET;
+	netCode: NetClass;
+	padToDieLength: number;
+	solderMaskMargin: number;
+	solderPasteMargin: number;
+	solderPasteRatio: number;
+	clearance: number;
+	zoneConnection: number;
+	thermalWidth: number;
+	thermalGap: number;
+	roundRectRatio: number;
+}
+
+enum PadShape {
+	CIRCLE,
+	RECT,
+	OVAL,
+	TRAPEZOID,
+	ROUNDRECT,
+};
+
+enum PadDrillShape {
+	CIRCLE,
+	OBLONG,
+};
+
+
+enum PadAttr {
+	STANDARD = "STANDARD",
+	SMD = "SMD",
+	CONN = "CONN",
+	HOLE_NOT_PLATED = "HOLE_NOT_PLATED",
+};
+
+
+class TextModule extends Text {
+	type: TextModuleType = TextModuleType.user;
+}
+
+enum TextModuleType {
+	reference = "reference",
+	value = "value",
+	user = "user",
+}
+
+// pcbnew/plot_board_layers.cpp
+// pcbnew/plot_brditems_plotter.cpp 
+class BoardItemPlotter {
+	constructor(plotter: Plotter) {
+	}
+}
+
+enum MODULE_ATTR {
+	MOD_DEFAULT = 0,    ///< default
+	MOD_CMS     = 1,    ///< Set for modules listed in the automatic insertion list
+						///< (usually SMD footprints)
+	MOD_VIRTUAL = 2     ///< Virtual component: when created by copper shapes on
+						///<  board (Like edge card connectors, mounting hole...)
+};
