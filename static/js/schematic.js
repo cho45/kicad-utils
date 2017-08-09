@@ -11,8 +11,11 @@ const app = new Vue({
 	el: '#app',
 	data: {
 		url: [
-			"https://raw.githubusercontent.com/cho45/Keble/master/Root-cache.lib",
-			"https://raw.githubusercontent.com/cho45/Keble/master/_keymodule_l.sch"
+			"https://github.com/cho45/Keble/blob/master/Root-cache.lib",
+			"https://github.com/cho45/Keble/blob/master/Root.sch",
+			"https://github.com/cho45/Keble/blob/master/_keymodule_l.sch",
+			"https://github.com/cho45/Keble/blob/master/_keymodule_r.sch",
+			"https://github.com/cho45/Keble/blob/master/_main.sch",
 		].join("\n"),
 		status: "init",
 		lib: {},
