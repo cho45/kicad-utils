@@ -103,12 +103,13 @@ const TEMPLATE_SHAPES = {
  */
 class Plotter {
     constructor() {
+        this.stateHistory = [];
+        this.errors = [];
+        this.pageInfo = kicad_common_1.PageInfo.A3;
         this.fill = kicad_common_1.Fill.NO_FILL;
         this.color = kicad_common_1.Color.BLACK;
         this.transform = kicad_common_1.Transform.identify();
-        this.stateHistory = [];
         this.font = kicad_strokefont_1.StrokeFont.instance;
-        this.errors = [];
     }
     startPlot() { }
     endPlot() { }
@@ -1085,9 +1086,9 @@ class SVGPlotter extends Plotter {
 			height="${height}"
 			/>`;
     }
-    plotSchematic(sch, libs) {
-        const width = sch.descr.width;
-        const height = sch.descr.height;
+    startPlot() {
+        const width = this.pageInfo.width;
+        const height = this.pageInfo.height;
         this.output = this.xmlTag `<svg preserveAspectRatio="xMinYMin"
 			width="${width}"
 			height="${height}"
@@ -1096,9 +1097,13 @@ class SVGPlotter extends Plotter {
 			xmlns:xlink="http://www.w3.org/1999/xlink"
 			version="1.1">`;
         this.output += this.xmlTag `<g stroke-linejoin="round" stroke-linecap="round">`;
-        super.plotSchematic(sch, libs);
+    }
+    endPlot() {
         this.output += this.xmlTag `</g>`;
         this.output += `</svg>`;
+    }
+    plotSchematic(sch, libs) {
+        super.plotSchematic(sch, libs);
     }
     xmlTag(literals, ...placeholders) {
         let result = "";

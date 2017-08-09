@@ -11397,12 +11397,13 @@ var Plotter = function () {
     function Plotter() {
         _classCallCheck(this, Plotter);
 
+        this.stateHistory = [];
+        this.errors = [];
+        this.pageInfo = kicad_common_1.PageInfo.A3;
         this.fill = kicad_common_1.Fill.NO_FILL;
         this.color = kicad_common_1.Color.BLACK;
         this.transform = kicad_common_1.Transform.identify();
-        this.stateHistory = [];
         this.font = kicad_strokefont_1.StrokeFont.instance;
-        this.errors = [];
     }
 
     _createClass(Plotter, [{
@@ -12548,15 +12549,23 @@ var SVGPlotter = function (_Plotter2) {
             this.output += this.xmlTag(_templateObject11, url, start.x, start.y, width, height);
         }
     }, {
-        key: "plotSchematic",
-        value: function plotSchematic(sch, libs) {
-            var width = sch.descr.width;
-            var height = sch.descr.height;
+        key: "startPlot",
+        value: function startPlot() {
+            var width = this.pageInfo.width;
+            var height = this.pageInfo.height;
             this.output = this.xmlTag(_templateObject12, width, height, width, height);
             this.output += this.xmlTag(_templateObject13);
-            _get(SVGPlotter.prototype.__proto__ || Object.getPrototypeOf(SVGPlotter.prototype), "plotSchematic", this).call(this, sch, libs);
+        }
+    }, {
+        key: "endPlot",
+        value: function endPlot() {
             this.output += this.xmlTag(_templateObject14);
             this.output += "</svg>";
+        }
+    }, {
+        key: "plotSchematic",
+        value: function plotSchematic(sch, libs) {
+            _get(SVGPlotter.prototype.__proto__ || Object.getPrototypeOf(SVGPlotter.prototype), "plotSchematic", this).call(this, sch, libs);
         }
     }, {
         key: "xmlTag",
@@ -13000,7 +13009,7 @@ var app = new Vue({
 
 							case 41:
 								if (_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done) {
-									_context.next = 73;
+									_context.next = 76;
 									break;
 								}
 
@@ -13010,12 +13019,15 @@ var app = new Vue({
 								sch = Schematic.load(schFile.content);
 								svgPlotter = new SVGPlotter();
 
+								svgPlotter.pageInfo = sch.descr.pageInfo;
+								svgPlotter.startPlot();
 								svgPlotter.plotSchematic(sch, libs);
+								svgPlotter.endPlot();
 								svg = svgPlotter.output;
 								_iteratorNormalCompletion3 = true;
 								_didIteratorError3 = false;
 								_iteratorError3 = undefined;
-								_context.prev = 51;
+								_context.prev = 54;
 
 								for (_iterator3 = svgPlotter.errors[Symbol.iterator](); !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
 									error = _step3.value;
@@ -13023,40 +13035,40 @@ var app = new Vue({
 									this.errors.push(error);
 								}
 
-								_context.next = 59;
+								_context.next = 62;
 								break;
 
-							case 55:
-								_context.prev = 55;
-								_context.t1 = _context["catch"](51);
+							case 58:
+								_context.prev = 58;
+								_context.t1 = _context["catch"](54);
 								_didIteratorError3 = true;
 								_iteratorError3 = _context.t1;
 
-							case 59:
-								_context.prev = 59;
-								_context.prev = 60;
+							case 62:
+								_context.prev = 62;
+								_context.prev = 63;
 
 								if (!_iteratorNormalCompletion3 && _iterator3.return) {
 									_iterator3.return();
 								}
 
-							case 62:
-								_context.prev = 62;
+							case 65:
+								_context.prev = 65;
 
 								if (!_didIteratorError3) {
-									_context.next = 65;
+									_context.next = 68;
 									break;
 								}
 
 								throw _iteratorError3;
 
-							case 65:
+							case 68:
+								return _context.finish(65);
+
+							case 69:
 								return _context.finish(62);
 
-							case 66:
-								return _context.finish(59);
-
-							case 67:
+							case 70:
 								src = void 0;
 
 								if (typeof Blob !== 'undefined') {
@@ -13071,54 +13083,54 @@ var app = new Vue({
 									src: src
 								});
 
-							case 70:
+							case 73:
 								_iteratorNormalCompletion2 = true;
 								_context.next = 41;
 								break;
 
-							case 73:
-								_context.next = 79;
+							case 76:
+								_context.next = 82;
 								break;
 
-							case 75:
-								_context.prev = 75;
+							case 78:
+								_context.prev = 78;
 								_context.t2 = _context["catch"](39);
 								_didIteratorError2 = true;
 								_iteratorError2 = _context.t2;
 
-							case 79:
-								_context.prev = 79;
-								_context.prev = 80;
+							case 82:
+								_context.prev = 82;
+								_context.prev = 83;
 
 								if (!_iteratorNormalCompletion2 && _iterator2.return) {
 									_iterator2.return();
 								}
 
-							case 82:
-								_context.prev = 82;
+							case 85:
+								_context.prev = 85;
 
 								if (!_didIteratorError2) {
-									_context.next = 85;
+									_context.next = 88;
 									break;
 								}
 
 								throw _iteratorError2;
 
-							case 85:
+							case 88:
+								return _context.finish(85);
+
+							case 89:
 								return _context.finish(82);
 
-							case 86:
-								return _context.finish(79);
-
-							case 87:
+							case 90:
 								this.status = 'done';
 
-							case 88:
+							case 91:
 							case "end":
 								return _context.stop();
 						}
 					}
-				}, _callee, this, [[14, 18, 22, 30], [23,, 25, 29], [39, 75, 79, 87], [51, 55, 59, 67], [60,, 62, 66], [80,, 82, 86]]);
+				}, _callee, this, [[14, 18, 22, 30], [23,, 25, 29], [39, 78, 82, 90], [54, 58, 62, 70], [63,, 65, 69], [83,, 85, 89]]);
 			}));
 
 			function loadFiles(_x) {

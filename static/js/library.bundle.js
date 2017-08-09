@@ -11397,12 +11397,13 @@ var Plotter = function () {
     function Plotter() {
         _classCallCheck(this, Plotter);
 
+        this.stateHistory = [];
+        this.errors = [];
+        this.pageInfo = kicad_common_1.PageInfo.A3;
         this.fill = kicad_common_1.Fill.NO_FILL;
         this.color = kicad_common_1.Color.BLACK;
         this.transform = kicad_common_1.Transform.identify();
-        this.stateHistory = [];
         this.font = kicad_strokefont_1.StrokeFont.instance;
-        this.errors = [];
     }
 
     _createClass(Plotter, [{
@@ -12548,15 +12549,23 @@ var SVGPlotter = function (_Plotter2) {
             this.output += this.xmlTag(_templateObject11, url, start.x, start.y, width, height);
         }
     }, {
-        key: "plotSchematic",
-        value: function plotSchematic(sch, libs) {
-            var width = sch.descr.width;
-            var height = sch.descr.height;
+        key: "startPlot",
+        value: function startPlot() {
+            var width = this.pageInfo.width;
+            var height = this.pageInfo.height;
             this.output = this.xmlTag(_templateObject12, width, height, width, height);
             this.output += this.xmlTag(_templateObject13);
-            _get(SVGPlotter.prototype.__proto__ || Object.getPrototypeOf(SVGPlotter.prototype), "plotSchematic", this).call(this, sch, libs);
+        }
+    }, {
+        key: "endPlot",
+        value: function endPlot() {
             this.output += this.xmlTag(_templateObject14);
             this.output += "</svg>";
+        }
+    }, {
+        key: "plotSchematic",
+        value: function plotSchematic(sch, libs) {
+            _get(SVGPlotter.prototype.__proto__ || Object.getPrototypeOf(SVGPlotter.prototype), "plotSchematic", this).call(this, sch, libs);
         }
     }, {
         key: "xmlTag",

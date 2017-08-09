@@ -89,7 +89,10 @@ const app = new Vue({
 				const sch = Schematic.load(schFile.content);
 
 				const svgPlotter = new SVGPlotter();
+				svgPlotter.pageInfo = sch.descr.pageInfo;
+				svgPlotter.startPlot();
 				svgPlotter.plotSchematic(sch, libs);
+				svgPlotter.endPlot();
 				const svg = svgPlotter.output;
 				for (let error of svgPlotter.errors) {
 					this.errors.push(error);

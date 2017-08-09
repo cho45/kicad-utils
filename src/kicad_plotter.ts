@@ -46,6 +46,7 @@ import {
 	Net,
 	Color,
 	ColorDefinition,
+	PageInfo,
 } from "./kicad_common";
 
 import {
@@ -159,17 +160,16 @@ export abstract class Plotter {
 		fill: Fill,
 		color: Color,
 		transform: Transform,
-	}>;
+	}> = [];
 	font: StrokeFont;
-	errors: Array<string>;
+	errors: Array<string> = [];
+	pageInfo: PageInfo = PageInfo.A3;
 
 	constructor() {
 		this.fill = Fill.NO_FILL;
 		this.color = Color.BLACK;
 		this.transform = Transform.identify();
-		this.stateHistory = [];
 		this.font = StrokeFont.instance;
-		this.errors = [];
 	}
 
 	startPlot(): void {}
@@ -1515,9 +1515,9 @@ export class SVGPlotter extends Plotter {
 			/>`;
 	}
 
-	plotSchematic(sch: Schematic, libs: Array<Library>) {
-		const width  = sch.descr.width;
-		const height = sch.descr.height;
+	startPlot() {
+		const width  = this.pageInfo.width;
+		const height = this.pageInfo.height;
 		this.output = this.xmlTag `<svg preserveAspectRatio="xMinYMin"
 			width="${width}"
 			height="${height}"
@@ -1526,9 +1526,15 @@ export class SVGPlotter extends Plotter {
 			xmlns:xlink="http://www.w3.org/1999/xlink"
 			version="1.1">`;
 		this.output += this.xmlTag `<g stroke-linejoin="round" stroke-linecap="round">`;
-		super.plotSchematic(sch, libs);
+	}
+
+	endPlot() {
 		this.output += this.xmlTag `</g>`;
 		this.output += `</svg>`;
+	}
+
+	plotSchematic(sch: Schematic, libs: Array<Library>) {
+		super.plotSchematic(sch, libs);
 	}
 
 	xmlTag(literals: TemplateStringsArray, ...placeholders: Array<any>): string {
