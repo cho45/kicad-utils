@@ -29,6 +29,7 @@
     "power-assert": "^1.4.4",
     "ts-loader": "^2.3.2",
     "typescript": "^2.4.2",
+    "uglify-save-license": "^0.4.1",
     "uglifyjs-webpack-plugin": "^0.4.6",
     "webpack": "^3.4.1"
   },

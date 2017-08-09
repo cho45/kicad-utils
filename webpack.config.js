@@ -1,6 +1,8 @@
 
 const path = require('path');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const saveLicense = require('uglify-save-license');
+
 
 const babelOptions = {
 	"presets": [ [ "env", {
@@ -61,11 +63,12 @@ module.exports = {
 	},
 
 	plugins: [
-		/*
 		new UglifyJSPlugin({
 			sourceMap: true,
-			parallel: true
+			parallel: true,
+			output: {
+				comments: saveLicense
+			}
 		})
-		*/
 	]
 };
