@@ -2,6 +2,7 @@
 const {
 	Transform,
 	CanvasPlotter,
+	SchPlotter,
 	Library,
 } = require("kicad-utils");
 
@@ -88,8 +89,9 @@ const app = new Vue({
 				ctx.fillStyle  = '#000';
 
 				const plotter = new CanvasPlotter(ctx);
-				plotter.plotLibComponent(component, 1, 1, new Transform());
-				plotter.plotLibComponentField(component, 1, 1, new Transform());
+				const schPlotter = new SchPlotter(plotter);
+				schPlotter.plotLibComponent(component, 1, 1, new Transform());
+				schPlotter.plotLibComponentField(component, 1, 1, new Transform());
 			}
 			this.status = "done";
 		}
