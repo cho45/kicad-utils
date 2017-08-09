@@ -4,8 +4,9 @@
 import {
 	Transform,
 	CanvasPlotter, SVGPlotter,
+	SchPlotter,
 	Library,
-	Schematic
+	Schematic,
 } from "./kicad-utils";
 
 //import { Transform } from "./kicad_common";
@@ -122,7 +123,9 @@ for (let schFile of schFiles) {
 		ctx.scale(scale, scale);
 
 		const plotter = new CanvasPlotter(ctx);
-		plotter.plotSchematic(sch, libs);
+		plotter.startPlot();
+		new SchPlotter(plotter).plotSchematic(sch, libs);
+		plotter.endPlot();
 		const out = fs.createWriteStream(outFile), stream = canvas.pngStream();
 		stream.on('data', function (chunk: any) {
 			out.write(chunk);
@@ -132,7 +135,9 @@ for (let schFile of schFiles) {
 		});
 	} else {
 		const svgPlotter = new SVGPlotter();
-		svgPlotter.plotSchematic(sch, libs);
+		svgPlotter.startPlot();
+		new SchPlotter(svgPlotter).plotSchematic(sch, libs);
+		svgPlotter.endPlot();
 		fs.writeFileSync(outFile, svgPlotter.output);
 	}
 }

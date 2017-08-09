@@ -12,6 +12,7 @@ import {
 	ReadDelimitedText,
 
 	RotatePoint,
+	RotatePointWithCenter,
 	Point,
 	Rect,
 	Transform,
@@ -60,6 +61,37 @@ describe("RotatePoint", () => {
 		RotatePoint(p, 450);
 		assert(2.121 < p.x && p.x < 2.122);
 		assert(0.707 < p.y && p.y < 0.708);
+	});
+});
+
+describe("RotatePointWithCenter", () => {
+	it("rotate a point with angle: center = 0,0 is same as RotatePoint", () => {
+		// edge cases
+		assert.deepEqual(RotatePointWithCenter(new Point(1, 2), new Point(0, 0), 0), new Point(1, 2));
+		assert.deepEqual(RotatePointWithCenter(new Point(1, 2), new Point(0, 0), 900), new Point(2, -1));
+		assert.deepEqual(RotatePointWithCenter(new Point(1, 2), new Point(0, 0), 1800), new Point(-1, -2));
+		assert.deepEqual(RotatePointWithCenter(new Point(1, 2), new Point(0, 0), 2700), new Point(-2, 1));
+		assert.deepEqual(RotatePointWithCenter(new Point(1, 2), new Point(0, 0), 3600), new Point(1, 2));
+
+		// fallback
+		const p = new Point(1, 2);
+		RotatePointWithCenter(p, new Point(0, 0), 450);
+		assert(2.121 < p.x && p.x < 2.122);
+		assert(0.707 < p.y && p.y < 0.708);
+	});
+	it("rotate a point with angle and center", () => {
+		// edge cases
+		assert.deepEqual(RotatePointWithCenter(new Point(1, 2), new Point(3, 4), 0), new Point(1, 2));
+		assert.deepEqual(RotatePointWithCenter(new Point(1, 2), new Point(3, 4), 900), new Point(1, 6));
+		assert.deepEqual(RotatePointWithCenter(new Point(1, 2), new Point(3, 4), 1800), new Point(5, 6));
+		assert.deepEqual(RotatePointWithCenter(new Point(1, 2), new Point(3, 4), 2700), new Point(5, 2));
+		assert.deepEqual(RotatePointWithCenter(new Point(1, 2), new Point(3, 4), 3600), new Point(1, 2));
+
+		// fallback
+		const p = new Point(1, 2);
+		RotatePointWithCenter(p, new Point(3, 4), 450);
+		assert(0.171 < p.x && p.x < 0.172);
+		assert(3.999 < p.y && p.y < 4.001);
 	});
 });
 

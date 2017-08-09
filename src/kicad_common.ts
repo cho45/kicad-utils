@@ -47,6 +47,59 @@ export function NORMALIZE_ANGLE_POS(angle: number): number {
 	return angle;
 }
 
+export function AddAngles(angle1: number, angle2: number): number {
+	return NORMALIZE_ANGLE_POS(angle1 + angle2);
+}
+
+export function ArcTangente(dy: number , dx: number): number {
+	if ( dx == 0 && dy == 0 ) return 0;
+
+	if ( dy == 0 ) {
+		if ( dx >= 0 )
+			return 0;
+		else
+			return -1800;
+	}
+
+	if ( dx == 0 ) {
+		if ( dy >= 0 )
+			return 900;
+		else
+			return -900;
+	}
+
+	if( dx == dy ) {
+		if ( dx >= 0 )
+			return 450;
+		else
+			return -1800 + 450;
+	}
+
+	if( dx == -dy ) {
+		if ( dx >= 0 )
+			return -450;
+		else
+			return 1800 - 450;
+	}
+
+	return RAD2DECIDEG( Math.atan2( dy, dx ) );
+}
+
+export function EuclideanNorm(v: Size | Point) {
+	if (v instanceof Size) {
+		return Math.hypot(v.width, v.height);
+	} else {
+		return Math.hypot(v.x, v.y);
+	}
+}
+
+export function GetLineLength(p1: Point, p2: Point) {
+	return Math.hypot(
+		p1.x - p2.x,
+		p1.y - p2.y
+	);
+}
+
 export function RotatePoint(p: Point, angle: number): Point {
 	angle = NORMALIZE_ANGLE_POS(angle);
 	if (angle === 0) {
@@ -256,6 +309,13 @@ export class Point {
 		this.y = y;
 	}
 
+	static from(p: Point) {
+		return new Point(
+			p.x,
+			p.y
+		);
+	}
+
 	static add(p1: Point, p2: Point): Point {
 		return {
 			x: p1.x + p2.x,
@@ -377,6 +437,10 @@ export class Color {
 		this.b = b;
 	}
 
+	is(c: Color): boolean {
+		return this.r === c.r && this.g === c.g && this.b === c.b;
+	}
+
 	toCSSColor(): string {
 		return `rgb(${this.r}, ${this.g}, ${this.b})`;
 	}
@@ -495,6 +559,10 @@ export enum Net {
 }
 
 export class Size {
+	static from(s: Size) {
+		return new Size(s.width, s.height);
+	}
+
 	constructor(public width: number, public height: number) {
 	}
 }

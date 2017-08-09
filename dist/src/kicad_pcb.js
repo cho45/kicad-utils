@@ -225,9 +225,10 @@ class PCB {
     parseBoard() {
         console.log('parseBoard');
         this.parseHeader();
-        for (let token = this.nextTok(); kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
+        for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
             this.expecting(token, kicad_pcb_token_1.Token.LEFT);
             token = this.nextTok();
+            console.log('parseBoard', token);
             if (token.is(kicad_pcb_token_1.Token.general)) {
                 this.parseGeneralSection();
             }
@@ -263,7 +264,7 @@ class PCB {
                 this.board.dimensions.push(this.parseDimensionSection());
             }
             else if (token.is(kicad_pcb_token_1.Token.module)) {
-                this.parseModuleSection();
+                this.board.modules.push(this.parseModuleSection());
             }
             else if (token.is(kicad_pcb_token_1.Token.segment)) {
                 this.parseSegmentSection();
@@ -416,7 +417,7 @@ class PCB {
         this.needRIGHT();
         const net = new NetInfoItem(this.board, name, netCode);
         this.board.netInfos.push(net);
-        this.netCodes[netCode] = net.netClass;
+        this.netCodes[netCode] = net;
     }
     parseNetClassSection() {
         const nc = new NetClass();
@@ -782,6 +783,7 @@ class PCB {
         this.needSYMBOLorNUMBER();
         pad.name = this.curText();
         let token = this.nextTok();
+        console.log('parsePad', token);
         if (token.is(kicad_pcb_token_1.Token.thru_hole)) {
             pad.attribute = PadAttr.STANDARD;
         }
@@ -800,6 +802,7 @@ class PCB {
             this.expecting(token, kicad_pcb_token_1.Token.thru_hole, kicad_pcb_token_1.Token.smd, kicad_pcb_token_1.Token.connect, kicad_pcb_token_1.Token.np_thru_hole);
         }
         token = this.nextTok();
+        console.log('parsePad', token);
         if (token.is(kicad_pcb_token_1.Token.circle)) {
             pad.shape = PadShape.CIRCLE;
         }
@@ -821,6 +824,7 @@ class PCB {
         for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
             this.expecting(token, kicad_pcb_token_1.Token.LEFT);
             token = this.nextTok();
+            console.log('parsePad', token);
             if (token.is(kicad_pcb_token_1.Token.size)) {
                 let width = this.parseBoardUnits("width");
                 let height = this.parseBoardUnits("height");
@@ -835,6 +839,7 @@ class PCB {
                 token = this.nextTok();
                 if (token.isNUMBER()) {
                     pad.orientation = this.parseFloat() * 10;
+                    this.needRIGHT();
                 }
                 else {
                     this.expecting(token, kicad_pcb_token_1.Token.RIGHT);
@@ -1001,14 +1006,17 @@ class PCB {
     parseDimensionSection() {
         const dimension = new Dimension();
         dimension.value = this.parseBoardUnits('dimension value');
+        console.log('parseDimensionSection');
         this.needLEFT();
         let token = this.nextTok();
+        console.log('parseDimensionSection', token);
         this.expecting(token, kicad_pcb_token_1.Token.width);
         dimension.lineWidth = this.parseBoardUnits("dimension width");
         this.needRIGHT();
-        for (let token = this.nextTok(); kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
+        for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
             this.expecting(token, kicad_pcb_token_1.Token.LEFT);
             token = this.nextTok();
+            console.log('parseDimensionSection', token);
             if (token.is(kicad_pcb_token_1.Token.layer)) {
                 dimension.layer = this.parseBoardItemLayer("dimension layer");
                 this.needRIGHT();
@@ -1097,10 +1105,10 @@ class PCB {
         const name = this.curText();
         const fpid = LibId.parse(name);
         for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
-            console.log(token);
             if (token.is(kicad_pcb_token_1.Token.LEFT)) {
                 token = this.nextTok();
             }
+            console.log('parseModuleSection', token);
             if (token.is(kicad_pcb_token_1.Token.version)) {
                 const version = this.parseInt("version");
                 this.needRIGHT();
@@ -1123,6 +1131,7 @@ class PCB {
             }
             else if (token.is(kicad_pcb_token_1.Token.tstamp)) {
                 mod.tstamp = this.parseHex("tstamp");
+                this.needRIGHT();
             }
             else if (token.is(kicad_pcb_token_1.Token.at)) {
                 const x = this.parseBoardUnits('at x');
@@ -1385,6 +1394,8 @@ class Board {
         this.drawSegments = [];
         this.texts = [];
         this.dimensions = [];
+        this.modules = [];
+        this.tracks = [];
         this.copperLayerCount = 0;
         this.enabledLayers = [];
         this.visibleLayers = [];
@@ -1516,6 +1527,15 @@ class LSET {
                 throw "layerId is out of range";
         }
     }
+    static intersect(a, b) {
+        return new this(...a._layerIds).intersect(b);
+    }
+    static union(a, b) {
+        return new this(...a._layerIds).union(b);
+    }
+    get length() {
+        return this._layerIds.length;
+    }
     add(...layerIds) {
         for (let id of layerIds) {
             if (this._layerIds.indexOf(id) === -1) {
@@ -1523,6 +1543,9 @@ class LSET {
             }
         }
         return this;
+    }
+    has(id) {
+        return this._layerIds.indexOf(id) !== -1;
     }
     delete(id) {
         const pos = this._layerIds.indexOf(id);
@@ -1536,7 +1559,7 @@ class LSET {
         return this;
     }
     intersect(o) {
-        // TODO
+        this._layerIds = this._layerIds.filter((id) => o._layerIds.indexOf(id) !== -1);
         return this;
     }
     except(o) {
@@ -1560,6 +1583,7 @@ class ViaDimension {
         return this.drill < o.drill;
     }
 }
+exports.ViaDimension = ViaDimension;
 class BoardDesignSetting {
     constructor() {
         this.viasDimenstionsList = [];
@@ -1567,12 +1591,13 @@ class BoardDesignSetting {
         this.netClasses = new NetClasses();
     }
 }
+exports.BoardDesignSetting = BoardDesignSetting;
 var ViaType;
 (function (ViaType) {
     ViaType[ViaType["VIA_BLIND_BURIED"] = 0] = "VIA_BLIND_BURIED";
     ViaType[ViaType["VIA_THROUGH"] = 1] = "VIA_THROUGH";
     ViaType[ViaType["VIA_MICROVIA"] = 2] = "VIA_MICROVIA";
-})(ViaType || (ViaType = {}));
+})(ViaType = exports.ViaType || (exports.ViaType = {}));
 class NetClasses {
     constructor() {
         this.netClasses = {};
@@ -1586,11 +1611,13 @@ class NetClasses {
         }
     }
 }
+exports.NetClasses = NetClasses;
 class NetClass {
     constructor(name = "") {
         this.members = [];
     }
 }
+exports.NetClass = NetClass;
 class BoardItem {
     constructor() {
         this.pos = new kicad_common_1.Point(0, 0);
@@ -1608,6 +1635,7 @@ class NetInfoItem extends BoardItem {
         this.netCode = netCode;
     }
 }
+exports.NetInfoItem = NetInfoItem;
 // T_STROKE
 var Shape;
 (function (Shape) {
@@ -1618,7 +1646,7 @@ var Shape;
     Shape[Shape["POLYGON"] = 4] = "POLYGON";
     Shape[Shape["CURVE"] = 5] = "CURVE";
     Shape[Shape["LAST"] = 6] = "LAST"; ///< last value for this list
-})(Shape || (Shape = {}));
+})(Shape = exports.Shape || (exports.Shape = {}));
 class DrawSegment extends BoardItem {
     constructor() {
         super(...arguments);
@@ -1626,8 +1654,10 @@ class DrawSegment extends BoardItem {
         this.polyPoints = [];
     }
 }
+exports.DrawSegment = DrawSegment;
 class EdgeModule extends DrawSegment {
 }
+exports.EdgeModule = EdgeModule;
 class Text extends BoardItem {
     constructor() {
         super(...arguments);
@@ -1639,11 +1669,12 @@ class Text extends BoardItem {
         this.visibility = true;
     }
 }
+exports.Text = Text;
 var Unit;
 (function (Unit) {
     Unit["MM"] = "mm";
     Unit["INCH"] = "inch";
-})(Unit || (Unit = {}));
+})(Unit = exports.Unit || (exports.Unit = {}));
 class Dimension extends BoardItem {
     constructor() {
         super(...arguments);
@@ -1651,6 +1682,7 @@ class Dimension extends BoardItem {
         this.unit = Unit.MM;
     }
 }
+exports.Dimension = Dimension;
 class Module extends BoardItem {
     constructor() {
         super(...arguments);
@@ -1679,11 +1711,14 @@ class LibId {
         return new this(nickname, itemname, rev);
     }
 }
+exports.LibId = LibId;
 class Pad {
     constructor() {
+        this.drillSize = new kicad_common_1.Size(0, 0);
         this.orientation = 0;
     }
 }
+exports.Pad = Pad;
 var PadShape;
 (function (PadShape) {
     PadShape[PadShape["CIRCLE"] = 0] = "CIRCLE";
@@ -1705,7 +1740,7 @@ var PadAttr;
     PadAttr["SMD"] = "SMD";
     PadAttr["CONN"] = "CONN";
     PadAttr["HOLE_NOT_PLATED"] = "HOLE_NOT_PLATED";
-})(PadAttr || (PadAttr = {}));
+})(PadAttr = exports.PadAttr || (exports.PadAttr = {}));
 ;
 class TextModule extends Text {
     constructor() {
@@ -1713,12 +1748,13 @@ class TextModule extends Text {
         this.type = TextModuleType.user;
     }
 }
+exports.TextModule = TextModule;
 var TextModuleType;
 (function (TextModuleType) {
     TextModuleType["reference"] = "reference";
     TextModuleType["value"] = "value";
     TextModuleType["user"] = "user";
-})(TextModuleType || (TextModuleType = {}));
+})(TextModuleType = exports.TextModuleType || (exports.TextModuleType = {}));
 var MODULE_ATTR;
 (function (MODULE_ATTR) {
     MODULE_ATTR[MODULE_ATTR["MOD_DEFAULT"] = 0] = "MOD_DEFAULT";
@@ -1726,20 +1762,22 @@ var MODULE_ATTR;
     ///< (usually SMD footprints)
     MODULE_ATTR[MODULE_ATTR["MOD_VIRTUAL"] = 2] = "MOD_VIRTUAL"; ///< Virtual component: when created by copper shapes on
     ///<  board (Like edge card connectors, mounting hole...)
-})(MODULE_ATTR || (MODULE_ATTR = {}));
+})(MODULE_ATTR = exports.MODULE_ATTR || (exports.MODULE_ATTR = {}));
 ;
 class Track extends BoardItem {
 }
+exports.Track = Track;
 (function (ViaType) {
     ViaType[ViaType["THROUGH"] = 3] = "THROUGH";
     ViaType[ViaType["BLIND_BURIED"] = 2] = "BLIND_BURIED";
     ViaType[ViaType["MICROVIA"] = 1] = "MICROVIA";
     ViaType[ViaType["NOT_DEFINED"] = 0] = "NOT_DEFINED"; /* not yet used */
-})(ViaType || (ViaType = {}));
+})(ViaType = exports.ViaType || (exports.ViaType = {}));
 class Via extends BoardItem {
     constructor() {
         super(...arguments);
         this.viaType = ViaType.THROUGH;
     }
 }
+exports.Via = Via;
 //# sourceMappingURL=kicad_pcb.js.map

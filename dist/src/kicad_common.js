@@ -49,6 +49,53 @@ function NORMALIZE_ANGLE_POS(angle) {
     return angle;
 }
 exports.NORMALIZE_ANGLE_POS = NORMALIZE_ANGLE_POS;
+function AddAngles(angle1, angle2) {
+    return NORMALIZE_ANGLE_POS(angle1 + angle2);
+}
+exports.AddAngles = AddAngles;
+function ArcTangente(dy, dx) {
+    if (dx == 0 && dy == 0)
+        return 0;
+    if (dy == 0) {
+        if (dx >= 0)
+            return 0;
+        else
+            return -1800;
+    }
+    if (dx == 0) {
+        if (dy >= 0)
+            return 900;
+        else
+            return -900;
+    }
+    if (dx == dy) {
+        if (dx >= 0)
+            return 450;
+        else
+            return -1800 + 450;
+    }
+    if (dx == -dy) {
+        if (dx >= 0)
+            return -450;
+        else
+            return 1800 - 450;
+    }
+    return RAD2DECIDEG(Math.atan2(dy, dx));
+}
+exports.ArcTangente = ArcTangente;
+function EuclideanNorm(v) {
+    if (v instanceof Size) {
+        return Math.hypot(v.width, v.height);
+    }
+    else {
+        return Math.hypot(v.x, v.y);
+    }
+}
+exports.EuclideanNorm = EuclideanNorm;
+function GetLineLength(p1, p2) {
+    return Math.hypot(p1.x - p2.x, p1.y - p2.y);
+}
+exports.GetLineLength = GetLineLength;
 function RotatePoint(p, angle) {
     angle = NORMALIZE_ANGLE_POS(angle);
     if (angle === 0) {
@@ -198,6 +245,9 @@ class Point {
         this.x = x;
         this.y = y;
     }
+    static from(p) {
+        return new Point(p.x, p.y);
+    }
     static add(p1, p2) {
         return {
             x: p1.x + p2.x,
@@ -264,6 +314,9 @@ class Color {
         this.r = r;
         this.g = g;
         this.b = b;
+    }
+    is(c) {
+        return this.r === c.r && this.g === c.g && this.b === c.b;
     }
     toCSSColor() {
         return `rgb(${this.r}, ${this.g}, ${this.b})`;
@@ -414,6 +467,9 @@ class Size {
     constructor(width, height) {
         this.width = width;
         this.height = height;
+    }
+    static from(s) {
+        return new Size(s.width, s.height);
     }
 }
 exports.Size = Size;

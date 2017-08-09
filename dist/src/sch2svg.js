@@ -108,7 +108,9 @@ for (let schFile of schFiles) {
         ctx.translate(0, 0);
         ctx.scale(scale, scale);
         const plotter = new kicad_utils_1.CanvasPlotter(ctx);
-        plotter.plotSchematic(sch, libs);
+        plotter.startPlot();
+        new kicad_utils_1.SchPlotter(plotter).plotSchematic(sch, libs);
+        plotter.endPlot();
         const out = fs.createWriteStream(outFile), stream = canvas.pngStream();
         stream.on('data', function (chunk) {
             out.write(chunk);
@@ -119,7 +121,9 @@ for (let schFile of schFiles) {
     }
     else {
         const svgPlotter = new kicad_utils_1.SVGPlotter();
-        svgPlotter.plotSchematic(sch, libs);
+        svgPlotter.startPlot();
+        new kicad_utils_1.SchPlotter(svgPlotter).plotSchematic(sch, libs);
+        svgPlotter.endPlot();
         fs.writeFileSync(outFile, svgPlotter.output);
     }
 }

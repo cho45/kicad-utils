@@ -56,7 +56,7 @@ export class PCB {
 	pos: number;
 	layerIndices: { [key: string]: number } = {};
 	layerMasks: { [key: string]: LSET } = {};
-	netCodes: { [key: number]: NetClass } = {};
+	netCodes: { [key: number]: NetInfoItem } = {};
 	tooRecent = false;
 	requiredVersion = 0;
 
@@ -267,10 +267,11 @@ export class PCB {
 		console.log('parseBoard');
 		this.parseHeader();
 
-		for (let token = this.nextTok(); Token.RIGHT.is(token); token = this.nextTok()) {
+		for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
 			this.expecting(token, Token.LEFT);
 
 			token = this.nextTok();
+			console.log('parseBoard', token);
 
 			if (token.is(Token.general)) {
 				this.parseGeneralSection();
@@ -307,7 +308,7 @@ export class PCB {
 				this.board.dimensions.push(this.parseDimensionSection());
 			} else
 			if (token.is(Token.module)) {
-				this.parseModuleSection();
+				this.board.modules.push(this.parseModuleSection());
 			} else
 			if (token.is(Token.segment)) {
 				this.parseSegmentSection();
@@ -474,7 +475,7 @@ export class PCB {
 
 		const net = new NetInfoItem(this.board, name, netCode);
 		this.board.netInfos.push(net);
-		this.netCodes[netCode] = net.netClass;
+		this.netCodes[netCode] = net;
 	}
 
 	parseNetClassSection() {
@@ -860,6 +861,8 @@ export class PCB {
 		pad.name = this.curText();
 
 		let token = this.nextTok();
+		console.log('parsePad', token);
+
 		if (token.is(Token.thru_hole)) {
 			pad.attribute = PadAttr.STANDARD;
 		} else
@@ -878,6 +881,7 @@ export class PCB {
 		}
 
 		token = this.nextTok();
+		console.log('parsePad', token);
 
 		if (token.is(Token.circle)) {
 			pad.shape = PadShape.CIRCLE;
@@ -901,6 +905,8 @@ export class PCB {
 			this.expecting(token, Token.LEFT);
 
 			token = this.nextTok();
+			console.log('parsePad', token);
+
 			if (token.is(Token.size)) {
 				let width = this.parseBoardUnits("width");
 				let height = this.parseBoardUnits("height");
@@ -915,6 +921,7 @@ export class PCB {
 				token = this.nextTok();
 				if (token.isNUMBER()) {
 					pad.orientation = this.parseFloat() * 10;
+					this.needRIGHT();
 				} else {
 					this.expecting(token, Token.RIGHT);
 				}
@@ -1093,14 +1100,19 @@ export class PCB {
 	parseDimensionSection() {
 		const dimension = new Dimension();
 		dimension.value = this.parseBoardUnits('dimension value');
+		console.log('parseDimensionSection');
+
 		this.needLEFT();
 		let token = this.nextTok();
+		console.log('parseDimensionSection', token);
 		this.expecting(token, Token.width);
 		dimension.lineWidth = this.parseBoardUnits("dimension width");
 		this.needRIGHT();
-		for (let token = this.nextTok(); Token.RIGHT.is(token); token = this.nextTok()) {
+
+		for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
 			this.expecting(token, Token.LEFT);
 			token = this.nextTok();
+			console.log('parseDimensionSection', token);
 			if (token.is(Token.layer)) {
 				dimension.layer = this.parseBoardItemLayer("dimension layer");
 				this.needRIGHT();
@@ -1202,10 +1214,10 @@ export class PCB {
 		const fpid = LibId.parse(name);
 
 		for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
-			console.log(token);
 			if (token.is(Token.LEFT)) {
 				token = this.nextTok();
 			}
+			console.log('parseModuleSection', token);
 			if (token.is(Token.version)) {
 				const version = this.parseInt("version");
 				this.needRIGHT();
@@ -1228,6 +1240,7 @@ export class PCB {
 			} else
 			if (token.is(Token.tstamp)) {
 				mod.tstamp = this.parseHex("tstamp");
+				this.needRIGHT();
 			} else
 			if (token.is(Token.at)) {
 				const x = this.parseBoardUnits('at x');
@@ -1531,6 +1544,8 @@ export class Board {
 	drawSegments: Array<DrawSegment> = [];
 	texts: Array<Text> = [];
 	dimensions: Array<Dimension> = [];
+	modules: Array<Module> = [];
+	tracks: Array<Track> = [];
 
 	copperLayerCount: number = 0;
 	enabledLayers: Array<number> = [];
@@ -1706,8 +1721,20 @@ export class LSET {
 
 	private _layerIds: Array<PCB_LAYER_ID> = [];
 
+	static intersect(a: LSET, b: LSET): LSET {
+		return new this(... a._layerIds).intersect(b);
+	}
+
+	static union(a: LSET, b: LSET): LSET {
+		return new this(...a._layerIds).union(b);
+	}
+
 	constructor(...layerIds: Array<PCB_LAYER_ID>) {
 		this._layerIds = layerIds;
+	}
+
+	get length() {
+		return this._layerIds.length;
 	}
 
 	add(...layerIds: Array<PCB_LAYER_ID>): this {
@@ -1717,6 +1744,10 @@ export class LSET {
 			}
 		}
 		return this;
+	}
+
+	has(id: PCB_LAYER_ID): boolean {
+		return this._layerIds.indexOf(id) !== -1;
 	}
 
 	delete(id: PCB_LAYER_ID): this {
@@ -1732,7 +1763,7 @@ export class LSET {
 	}
 
 	intersect(o: LSET): this {
-		// TODO
+		this._layerIds = this._layerIds.filter( (id) => o._layerIds.indexOf(id) !== -1);
 		return this;
 	}
 
@@ -1742,7 +1773,7 @@ export class LSET {
 	}
 }
 
-class ViaDimension {
+export class ViaDimension {
 	constructor(public diameter: number, public drill: number) {
 	}
 
@@ -1758,7 +1789,7 @@ class ViaDimension {
 	}
 }
 
-class BoardDesignSetting {
+export class BoardDesignSetting {
 	viasDimenstionsList: Array<ViaDimension> = [];
 	trackWidthList: Array<number> = [];
 	netClasses: NetClasses = new NetClasses();
@@ -1827,13 +1858,13 @@ class BoardDesignSetting {
 	currentNetClassName: string;
 }
 
-enum ViaType {
+export enum ViaType {
 	VIA_BLIND_BURIED, 
 	VIA_THROUGH,
 	VIA_MICROVIA   
 }
 
-class NetClasses {
+export class NetClasses {
 	default: NetClass;
 	netClasses: { [key: string]: NetClass } = {};
 
@@ -1846,7 +1877,7 @@ class NetClasses {
 	}
 }
 
-class NetClass {
+export class NetClass {
 	name: string;
 	description: string;
 	members: Array<string> = [];
@@ -1872,7 +1903,7 @@ abstract class BoardItem {
 	attributes: number = 0;
 }
 
-class NetInfoItem extends BoardItem {
+export class NetInfoItem extends BoardItem {
 	netCode: number;
 	name: string;
 	shortName: string;
@@ -1888,7 +1919,7 @@ class NetInfoItem extends BoardItem {
 }
 
 // T_STROKE
-enum Shape {
+export enum Shape {
 	SEGMENT = 0,  ///< usual segment : line with rounded ends
 	RECT,         ///< segment with non rounded ends
 	ARC,          ///< Arcs (with rounded ends)
@@ -1898,7 +1929,7 @@ enum Shape {
 	LAST          ///< last value for this list
 }
 
-class DrawSegment extends BoardItem {
+export class DrawSegment extends BoardItem {
 
 	lineWidth: number;
 	start: Point;
@@ -1913,10 +1944,10 @@ class DrawSegment extends BoardItem {
 	polyPoints: Array<Point> = [];
 }
 
-class EdgeModule extends DrawSegment {
+export class EdgeModule extends DrawSegment {
 }
 
-class Text extends BoardItem {
+export class Text extends BoardItem {
 	text: string;
 	angle: number;
 	size: number;
@@ -1929,12 +1960,12 @@ class Text extends BoardItem {
 	visibility: boolean = true;
 }
 
-enum Unit {
+export enum Unit {
 	MM = "mm",
 	INCH = "inch",
 }
 
-class Dimension extends BoardItem {
+export class Dimension extends BoardItem {
 	lineWidth: number;
 	shape: number = 0;
 	unit: Unit = Unit.MM;
@@ -1982,7 +2013,7 @@ export class Module extends BoardItem {
 }
 
 
-class LibId {
+export class LibId {
 	static parse(id: string) {
 		const [name, rev] = id.split(/\//);
 		const [nickname, itemname] = name.split(/:/);
@@ -1993,19 +2024,19 @@ class LibId {
 	}
 }
 
-class Pad {
+export class Pad {
 	pos: Point;
 	name: string;
 	shape: PadShape;
 	drillShape: PadDrillShape;
 	attribute: PadAttr;
-	drillSize: Size;
+	drillSize: Size = new Size(0, 0);
 	size: Size;
 	orientation: number = 0;
 	delta: Size;
 	offset: Point;
 	layers: LSET;
-	netCode: NetClass;
+	netCode: NetInfoItem;
 	padToDieLength: number;
 	solderMaskMargin: number;
 	solderPasteMargin: number;
@@ -2031,7 +2062,7 @@ export enum PadDrillShape {
 };
 
 
-enum PadAttr {
+export enum PadAttr {
 	STANDARD = "STANDARD",
 	SMD = "SMD",
 	CONN = "CONN",
@@ -2039,17 +2070,17 @@ enum PadAttr {
 };
 
 
-class TextModule extends Text {
+export class TextModule extends Text {
 	type: TextModuleType = TextModuleType.user;
 }
 
-enum TextModuleType {
+export enum TextModuleType {
 	reference = "reference",
 	value = "value",
 	user = "user",
 }
 
-enum MODULE_ATTR {
+export enum MODULE_ATTR {
 	MOD_DEFAULT = 0,    ///< default
 	MOD_CMS     = 1,    ///< Set for modules listed in the automatic insertion list
 						///< (usually SMD footprints)
@@ -2057,14 +2088,14 @@ enum MODULE_ATTR {
 						///<  board (Like edge card connectors, mounting hole...)
 };
 
-class Track extends BoardItem {
+export class Track extends BoardItem {
 	start: Point;
 	end: Point;
-	net: NetClass;
+	net: NetInfoItem;
 	width: number;
 }
 
-enum ViaType {
+export enum ViaType {
 	THROUGH      = 3,      /* Always a through hole via */
 	BLIND_BURIED = 2,      /* this via can be on internal layers */
 	MICROVIA     = 1,      /* this via which connect from an external layer
@@ -2072,7 +2103,7 @@ enum ViaType {
 	NOT_DEFINED  = 0       /* not yet used */
 }
 
-class Via extends BoardItem {
+export class Via extends BoardItem {
 	viaType: ViaType = ViaType.THROUGH;
 	start: Point;
 	end: Point;
@@ -2080,5 +2111,5 @@ class Via extends BoardItem {
 	drill: number;
 	layer1: PCB_LAYER_ID;
 	layer2: PCB_LAYER_ID;
-	net: NetClass;
+	net: NetInfoItem;
 }

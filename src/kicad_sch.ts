@@ -36,6 +36,8 @@ import {
 	Net,
 	ReadDelimitedText,
 	PageInfo,
+	Point,
+	Size,
 } from "./kicad_common";
 
 export enum TextOrientationType {
@@ -138,10 +140,8 @@ export abstract class SchItem {
 }
 
 export class Sheet extends SchItem {
-	posx: number;
-	posy: number;
-	sizex: number;
-	sizey: number;
+	pos: Point;
+	size: Size;
 	timestamp: number;
 
 	sheetName: string;
@@ -162,10 +162,12 @@ export class Sheet extends SchItem {
 			if (line === '$EndSheet') break;
 			const tokens = line.split(/\s+/);
 			if (tokens[0] === 'S') {
-				this.posx = Number(tokens[1]);
-				this.posy = Number(tokens[2]);
-				this.sizex = Number(tokens[3]);
-				this.sizey = Number(tokens[4]);
+				let posx = Number(tokens[1]);
+				let posy = Number(tokens[2]);
+				let sizex = Number(tokens[3]);
+				let sizey = Number(tokens[4]);
+				this.pos = new Point(posx, posy);
+				this.size = new Size(sizex, sizey);
 			} else
 			if (tokens[0] === 'U') {
 				this.timestamp = Number(tokens[1]);
@@ -194,8 +196,7 @@ export class SchComponent extends SchItem {
 	unit: number;
 	convert: number;
 	timestamp: number;
-	posx: number;
-	posy: number;
+	pos: Point;
 	ar: { [ key: string]: string };
 	fields: Array<Field>;
 	transform: Transform;
@@ -228,8 +229,9 @@ export class SchComponent extends SchItem {
 				this.timestamp = Number(tokens[3]);
 			} else
 			if (tokens[0] === 'P') {
-				this.posx = Number(tokens[1]);
-				this.posy = Number(tokens[2]);
+				let posx = Number(tokens[1]);
+				let posy = Number(tokens[2]);
+				this.pos = new Point(posx, posy);
 			} else
 			if (tokens[0] === 'AR') {
 				tokens.slice(1).reduce( (r, i) => {
@@ -252,7 +254,7 @@ export class SchComponent extends SchItem {
 		}
 
 		const matrix = transform.split(/\s+/).slice(0, 4).map( (i) => Number(i) ) ;
-		matrix.push(this.posx, this.posy);
+		matrix.push(this.pos.x, this.pos.y);
 		this.transform = new Transform( ...matrix);
 
 		return this;
@@ -264,8 +266,7 @@ export class Field extends SchItem {
 	text: string;
 	name: string;
 	angle: TextAngle;
-	posx: number;
-	posy: number;
+	pos: Point;
 	size: number;
 	visibility: boolean;
 	hjustify: TextHjustify;
@@ -282,8 +283,8 @@ export class Field extends SchItem {
 			this.name = ReadDelimitedText(tokens[i++]);
 		}
 		this.angle = tokens[i++] === 'V' ? TextAngle.VERT : TextAngle.HORIZ;
-		this.posx = Number(tokens[i++]);
-		this.posy = Number(tokens[i++]);
+		let posx = Number(tokens[i++]);
+		let posy = Number(tokens[i++]);
 		this.size = Number(tokens[i++]);
 		this.visibility = Number(tokens[i++]) === 0;
 		this.hjustify = tokens[i++] as TextHjustify;
@@ -291,6 +292,7 @@ export class Field extends SchItem {
 		this.vjustify = char3[0] as TextVjustify;
 		this.italic = char3[1] === 'I';
 		this.bold = char3[2] === 'B';
+		this.pos = new Point(posx, posy);
 	}
 }
 
@@ -365,11 +367,9 @@ export class Descr {
 }
 
 export class Bitmap extends SchItem {
-	posx: number;
-	posy: number;
+	pos: Point;
+	size: Size;
 	scale: number;
-	width: number;
-	height: number;
 	data: Uint8Array;
 
 	static PNG_SIGNATURE = "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A";
@@ -384,8 +384,9 @@ export class Bitmap extends SchItem {
 			if (line === '$EndBitmap') break;
 			const tokens = line.split(/ +/);
 			if (tokens[0] === 'Pos') {
-				this.posx = Number(tokens[1]);
-				this.posy = Number(tokens[2]);
+				let posx = Number(tokens[1]);
+				let posy = Number(tokens[2]);
+				this.pos = new Point(posx, posy);
 			} else
 			if (tokens[0] === 'Scale') {
 				this.scale = Number(tokens[1]);
@@ -428,15 +429,15 @@ export class Bitmap extends SchItem {
 			throw "this is not a valid png file: invalid IHDR";
 		}
 
-		this.width = IHDR.getUint32(0x08);
-		this.height = IHDR.getUint32(0x0c);
+		let width = IHDR.getUint32(0x08);
+		let height = IHDR.getUint32(0x0c);
+		this.size = new Size(width, height);
 	}
 }
 
 export class Text extends SchItem {
 	name1: string;
-	posx: number;
-	posy: number;
+	pos: Point;
 	orientationType: TextOrientationType;
 	orientation: number;
 	size: number;
@@ -451,15 +452,25 @@ export class Text extends SchItem {
 		super();
 		if (!tokens) return;
 		this.name1 = tokens[0];
-		this.posx = Number(tokens[1]);
-		this.posy = Number(tokens[2]);
+		let posx = Number(tokens[1]);
+		let posy = Number(tokens[2]);
+		this.pos = new Point(posx, posy);
 		let orientationType = Number(tokens[3]) as TextOrientationType;
 		this.setOrientationType(orientationType);
 		this.size = Number(tokens[4]);
-		this.shape = tokens[5][0] as Net;
+		let shape = tokens[5][0] as Net;
 		this.italic = tokens[6] == "Italic";
-		this.bold  = Number(tokens[7]) !== 0;
+		this.bold  = Number(tokens[7] || '0') !== 0;
 
+		if (shape === Net.INPUT ||
+			shape === Net.OUTPUT ||
+			shape === Net.BIDI ||
+			shape === Net.TRISTATE ||
+			shape === Net.UNSPECIFIED) {
+			this.shape = shape;
+		} else {
+			this.shape = Net.INPUT;
+		}
 	}
 
 	setOrientationType(orientationType: TextOrientationType) {
@@ -548,10 +559,8 @@ export class Text extends SchItem {
 export class Wire extends SchItem {
 	name1: string;
 	name2: string;
-	startx: number;
-	starty: number;
-	endx: number;
-	endy: number;
+	start: Point;
+	end: Point;
 
 	constructor(tokens: Array<string>) {
 		super();
@@ -566,7 +575,9 @@ export class Wire extends SchItem {
 	parse(lines: Array<string>): this {
 		const wire = lines.shift();
 		if (!wire) throw "expected text wire but not";
-		[ this.startx, this.starty, this.endx, this.endy] = wire.substring(1).split(/\s+/).map( (i) => Number(i) );
+		let [ startx, starty, endx, endy] = wire.substring(1).split(/\s+/).map( (i) => Number(i) );
+		this.start = new Point(startx, starty);
+		this.end   = new Point(endx, endy);
 		return this;
 	}
 }
@@ -574,10 +585,8 @@ export class Wire extends SchItem {
 export class Entry extends SchItem {
 	name1: string;
 	name2: string;
-	posx: number;
-	posy: number;
-	sizex: number;
-	sizey: number;
+	pos: Point;
+	size: Size;
 
 	constructor(tokens: Array<string>) {
 		super();
@@ -592,23 +601,25 @@ export class Entry extends SchItem {
 	parse(lines: Array<string>): this {
 		const entry = lines.shift();
 		if (!entry) throw "expected text entry but not";
-		[ this.posx, this.posy, this.sizex, this.sizey] = entry.substring(1).split(/\s+/).map( (i) => Number(i) );
-		this.sizex -= this.posx;
-		this.sizey -= this.posy;
+		let [ posx, posy, sizex, sizey] = entry.substring(1).split(/\s+/).map( (i) => Number(i) );
+		sizex -= posx;
+		sizey -= posy;
+		this.pos = new Point(posx, posy);
+		this.size = new Size(sizex, sizey);
 		return this;
 	}
 }
 
 export class Connection extends SchItem {
 	name1: string;
-	posx: number;
-	posy: number;
+	pos: Point;
 
 	constructor(tokens: Array<string>) {
 		super();
 		this.name1 = tokens[0];
-		this.posx  = Number(tokens[1]);
-		this.posy  = Number(tokens[2]);
+		let posx  = Number(tokens[1]);
+		let posy  = Number(tokens[2]);
+		this.pos = new Point(posx, posy);
 	}
 
 	parse(lines: Array<string>): this {
@@ -618,14 +629,14 @@ export class Connection extends SchItem {
 
 export class NoConn extends SchItem {
 	name1: string;
-	posx: number;
-	posy: number;
+	pos: Point;
 
 	constructor(tokens: Array<string>) {
 		super();
 		this.name1 = tokens[0];
-		this.posx  = Number(tokens[1]);
-		this.posy  = Number(tokens[2]);
+		let posx  = Number(tokens[1]);
+		let posy  = Number(tokens[2]);
+		this.pos = new Point(posx, posy);
 	}
 
 	parse(lines: Array<string>): this {
@@ -642,8 +653,9 @@ export class SheetPin extends Text {
 		this.text = ReadDelimitedText(tokens[0]);
 		this.shape = tokens[1][0] as Net;
 		this.sheetSide = tokens[2][0] as SheetSide;
-		this.posx = Number(tokens[3]);
-		this.posy = Number(tokens[4]);
+		let posx = Number(tokens[3]);
+		let posy = Number(tokens[4]);
+		this.pos = new Point(posx, posy);
 		this.size = Number(tokens[5]);
 
 		this.name1 = 'HLabel';

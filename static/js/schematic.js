@@ -2,6 +2,7 @@ const {
 	Transform,
 	CanvasPlotter,
 	SVGPlotter,
+	SchPlotter,
 	Library,
 	Schematic,
 } = require("kicad-utils");
@@ -91,7 +92,7 @@ const app = new Vue({
 				const svgPlotter = new SVGPlotter();
 				svgPlotter.pageInfo = sch.descr.pageInfo;
 				svgPlotter.startPlot();
-				svgPlotter.plotSchematic(sch, libs);
+				new SchPlotter(svgPlotter).plotSchematic(sch, libs);
 				svgPlotter.endPlot();
 				const svg = svgPlotter.output;
 				for (let error of svgPlotter.errors) {

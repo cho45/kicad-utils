@@ -114,9 +114,9 @@ describe("Schematic.load", () => {
 			F3 "sheetpr" I R 10050 5450 60 
 			$EndSheet
 			Wire Wire Line
-				2900 2950 2900 3300
+				2901 2650 3000 2750
 			Wire Bus Bus
-				2750 2950 2900 2950
+				3501 3502 3603 3604
 			Connection ~ 1150 2050
 			NoConn ~ 2750 2200
 			Text Notes 2300 3200 0    60   ~ 0
@@ -124,7 +124,7 @@ describe("Schematic.load", () => {
 			Entry Wire Line
 				2901 2650 3000 2750
 			Entry Bus Bus
-				3500 3500 3600 3600
+				3501 3502 3603 3604
 			$Bitmap
 			Pos 3500 4800
 			Scale 1.000000
@@ -185,8 +185,8 @@ describe("Schematic.load", () => {
 			assert( item.sheetPins[0].text === "sheetppp" );
 			assert( item.sheetPins[0].shape === Net.INPUT);
 			assert( item.sheetPins[0].sheetSide === SheetSide.LEFT );
-			assert( item.sheetPins[0].posx == 8250);
-			assert( item.sheetPins[0].posy === 5400);
+			assert( item.sheetPins[0].pos.x == 8250);
+			assert( item.sheetPins[0].pos.y === 5400);
 			assert( item.sheetPins[0].size === 60);
 			assert( item.sheetPins[0].orientationType === 2);
 			assert( item.sheetPins[0].orientation === TextAngle.HORIZ);
@@ -196,8 +196,8 @@ describe("Schematic.load", () => {
 			assert( item.sheetPins[1].text === "sheetpr" );
 			assert( item.sheetPins[1].shape === Net.INPUT);
 			assert( item.sheetPins[1].sheetSide === SheetSide.RIGHT );
-			assert( item.sheetPins[1].posx === 10050);
-			assert( item.sheetPins[1].posy === 5450);
+			assert( item.sheetPins[1].pos.x === 10050);
+			assert( item.sheetPins[1].pos.y === 5450);
 			assert( item.sheetPins[1].size === 60);
 			assert( item.sheetPins[1].orientationType === 0);
 			assert( item.sheetPins[1].orientation === TextAngle.HORIZ);
@@ -206,12 +206,82 @@ describe("Schematic.load", () => {
 		}
 
 		assert(sch.items[2] instanceof Wire);
+		{
+			const item = sch.items[2] as Wire;
+			assert( item.name1 === "Wire" );
+			assert( item.name2 === "Line" );
+			assert( item.start.x === 2901 );
+			assert( item.start.y === 2650 );
+			assert( item.end.x === 3000 );
+			assert( item.end.y === 2750 );
+		}
+
 		assert(sch.items[3] instanceof Wire);
+		{
+			const item = sch.items[3] as Wire;
+			assert( item.name1 === "Bus" );
+			assert( item.name2 === "Bus" );
+			assert( item.start.x === 3501 );
+			assert( item.start.y === 3502 );
+			assert( item.end.x === 3603 );
+			assert( item.end.y === 3604 );
+		}
+
 		assert(sch.items[4] instanceof Connection);
+		{
+			const item = sch.items[4] as Connection;
+			assert( item.name1 === "~");
+			assert( item.pos.x === 1150);
+			assert( item.pos.y === 2050);
+		}
+
 		assert(sch.items[5] instanceof NoConn);
+		{
+			const item = sch.items[5] as Connection;
+			assert( item.name1 === "~");
+			assert( item.pos.x === 2750);
+			assert( item.pos.y === 2200);
+		}
+
 		assert(sch.items[6] instanceof Text);
+		{
+			const item = sch.items[6] as Text;
+			console.log(item);
+			assert( item.name1 === "Notes" );
+			assert( item.pos.x === 2300 );
+			assert( item.pos.y === 3200 );
+			assert( item.orientationType === TextOrientationType.HORIZ_LEFT );
+			assert( item.orientation === TextAngle.HORIZ );
+			assert( item.hjustify === TextHjustify.LEFT );
+			assert( item.vjustify === TextVjustify.BOTTOM );
+			assert( item.size === 60 );
+			assert( !item.bold );
+			assert( !item.italic );
+			assert( item.text === "fooabar foobar" );
+			assert( item.shape === Net.INPUT );
+		}
+
 		assert(sch.items[7] instanceof Entry);
+		{
+			const item = sch.items[7] as Entry;
+			assert( item.name1 === "Wire" );
+			assert( item.name2 === "Line" );
+			assert( item.pos.x === 2901 );
+			assert( item.pos.y === 2650 );
+			assert( item.size.width === 99 );
+			assert( item.size.height === 100 );
+		}
 		assert(sch.items[8] instanceof Entry);
+		{
+			const item = sch.items[8] as Entry;
+			assert( item.name1 === "Bus" );
+			assert( item.name2 === "Bus" );
+			assert( item.pos.x === 3501 );
+			assert( item.pos.y === 3502 );
+			assert( item.size.width === 102 );
+			assert( item.size.height === 102 );
+		}
+
 		assert(sch.items[9] instanceof Bitmap);
 		{
 			const item = sch.items[9] as Bitmap;
@@ -219,8 +289,8 @@ describe("Schematic.load", () => {
 			assert(item.isValidPNG);
 			assert.doesNotThrow( () => {
 				item.parseIHDR();
-				assert(item.width === 16);
-				assert(item.height === 16);
+				assert(item.size.width === 16);
+				assert(item.size.height === 16);
 			});
 		}
 	});

@@ -135,10 +135,12 @@ class Sheet extends SchItem {
                 break;
             const tokens = line.split(/\s+/);
             if (tokens[0] === 'S') {
-                this.posx = Number(tokens[1]);
-                this.posy = Number(tokens[2]);
-                this.sizex = Number(tokens[3]);
-                this.sizey = Number(tokens[4]);
+                let posx = Number(tokens[1]);
+                let posy = Number(tokens[2]);
+                let sizex = Number(tokens[3]);
+                let sizey = Number(tokens[4]);
+                this.pos = new kicad_common_1.Point(posx, posy);
+                this.size = new kicad_common_1.Size(sizex, sizey);
             }
             else if (tokens[0] === 'U') {
                 this.timestamp = Number(tokens[1]);
@@ -191,8 +193,9 @@ class SchComponent extends SchItem {
                 this.timestamp = Number(tokens[3]);
             }
             else if (tokens[0] === 'P') {
-                this.posx = Number(tokens[1]);
-                this.posy = Number(tokens[2]);
+                let posx = Number(tokens[1]);
+                let posy = Number(tokens[2]);
+                this.pos = new kicad_common_1.Point(posx, posy);
             }
             else if (tokens[0] === 'AR') {
                 tokens.slice(1).reduce((r, i) => {
@@ -214,7 +217,7 @@ class SchComponent extends SchItem {
             throw 'unexpected line';
         }
         const matrix = transform.split(/\s+/).slice(0, 4).map((i) => Number(i));
-        matrix.push(this.posx, this.posy);
+        matrix.push(this.pos.x, this.pos.y);
         this.transform = new kicad_common_1.Transform(...matrix);
         return this;
     }
@@ -230,8 +233,8 @@ class Field extends SchItem {
             this.name = kicad_common_1.ReadDelimitedText(tokens[i++]);
         }
         this.angle = tokens[i++] === 'V' ? kicad_common_1.TextAngle.VERT : kicad_common_1.TextAngle.HORIZ;
-        this.posx = Number(tokens[i++]);
-        this.posy = Number(tokens[i++]);
+        let posx = Number(tokens[i++]);
+        let posy = Number(tokens[i++]);
         this.size = Number(tokens[i++]);
         this.visibility = Number(tokens[i++]) === 0;
         this.hjustify = tokens[i++];
@@ -239,6 +242,7 @@ class Field extends SchItem {
         this.vjustify = char3[0];
         this.italic = char3[1] === 'I';
         this.bold = char3[2] === 'B';
+        this.pos = new kicad_common_1.Point(posx, posy);
     }
 }
 exports.Field = Field;
@@ -309,8 +313,9 @@ class Bitmap extends SchItem {
                 break;
             const tokens = line.split(/ +/);
             if (tokens[0] === 'Pos') {
-                this.posx = Number(tokens[1]);
-                this.posy = Number(tokens[2]);
+                let posx = Number(tokens[1]);
+                let posy = Number(tokens[2]);
+                this.pos = new kicad_common_1.Point(posx, posy);
             }
             else if (tokens[0] === 'Scale') {
                 this.scale = Number(tokens[1]);
@@ -351,8 +356,9 @@ class Bitmap extends SchItem {
         if (name !== 'IHDR' || size !== 13) {
             throw "this is not a valid png file: invalid IHDR";
         }
-        this.width = IHDR.getUint32(0x08);
-        this.height = IHDR.getUint32(0x0c);
+        let width = IHDR.getUint32(0x08);
+        let height = IHDR.getUint32(0x0c);
+        this.size = new kicad_common_1.Size(width, height);
     }
 }
 Bitmap.PNG_SIGNATURE = "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A";
@@ -363,14 +369,25 @@ class Text extends SchItem {
         if (!tokens)
             return;
         this.name1 = tokens[0];
-        this.posx = Number(tokens[1]);
-        this.posy = Number(tokens[2]);
+        let posx = Number(tokens[1]);
+        let posy = Number(tokens[2]);
+        this.pos = new kicad_common_1.Point(posx, posy);
         let orientationType = Number(tokens[3]);
         this.setOrientationType(orientationType);
         this.size = Number(tokens[4]);
-        this.shape = tokens[5][0];
+        let shape = tokens[5][0];
         this.italic = tokens[6] == "Italic";
-        this.bold = Number(tokens[7]) !== 0;
+        this.bold = Number(tokens[7] || '0') !== 0;
+        if (shape === kicad_common_1.Net.INPUT ||
+            shape === kicad_common_1.Net.OUTPUT ||
+            shape === kicad_common_1.Net.BIDI ||
+            shape === kicad_common_1.Net.TRISTATE ||
+            shape === kicad_common_1.Net.UNSPECIFIED) {
+            this.shape = shape;
+        }
+        else {
+            this.shape = kicad_common_1.Net.INPUT;
+        }
     }
     setOrientationType(orientationType) {
         this.orientationType = orientationType;
@@ -472,7 +489,9 @@ class Wire extends SchItem {
         const wire = lines.shift();
         if (!wire)
             throw "expected text wire but not";
-        [this.startx, this.starty, this.endx, this.endy] = wire.substring(1).split(/\s+/).map((i) => Number(i));
+        let [startx, starty, endx, endy] = wire.substring(1).split(/\s+/).map((i) => Number(i));
+        this.start = new kicad_common_1.Point(startx, starty);
+        this.end = new kicad_common_1.Point(endx, endy);
         return this;
     }
 }
@@ -490,9 +509,11 @@ class Entry extends SchItem {
         const entry = lines.shift();
         if (!entry)
             throw "expected text entry but not";
-        [this.posx, this.posy, this.sizex, this.sizey] = entry.substring(1).split(/\s+/).map((i) => Number(i));
-        this.sizex -= this.posx;
-        this.sizey -= this.posy;
+        let [posx, posy, sizex, sizey] = entry.substring(1).split(/\s+/).map((i) => Number(i));
+        sizex -= posx;
+        sizey -= posy;
+        this.pos = new kicad_common_1.Point(posx, posy);
+        this.size = new kicad_common_1.Size(sizex, sizey);
         return this;
     }
 }
@@ -501,8 +522,9 @@ class Connection extends SchItem {
     constructor(tokens) {
         super();
         this.name1 = tokens[0];
-        this.posx = Number(tokens[1]);
-        this.posy = Number(tokens[2]);
+        let posx = Number(tokens[1]);
+        let posy = Number(tokens[2]);
+        this.pos = new kicad_common_1.Point(posx, posy);
     }
     parse(lines) {
         return this;
@@ -513,8 +535,9 @@ class NoConn extends SchItem {
     constructor(tokens) {
         super();
         this.name1 = tokens[0];
-        this.posx = Number(tokens[1]);
-        this.posy = Number(tokens[2]);
+        let posx = Number(tokens[1]);
+        let posy = Number(tokens[2]);
+        this.pos = new kicad_common_1.Point(posx, posy);
     }
     parse(lines) {
         return this;
@@ -528,8 +551,9 @@ class SheetPin extends Text {
         this.text = kicad_common_1.ReadDelimitedText(tokens[0]);
         this.shape = tokens[1][0];
         this.sheetSide = tokens[2][0];
-        this.posx = Number(tokens[3]);
-        this.posy = Number(tokens[4]);
+        let posx = Number(tokens[3]);
+        let posy = Number(tokens[4]);
+        this.pos = new kicad_common_1.Point(posx, posy);
         this.size = Number(tokens[5]);
         this.name1 = 'HLabel';
         if (this.sheetSide === kicad_common_1.SheetSide.LEFT) {

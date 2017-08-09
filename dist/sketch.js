@@ -2,6 +2,7 @@
 //#!tsc && NODE_PATH=dist/src node dist/sketch.js 
 Object.defineProperty(exports, "__esModule", { value: true });
 const kicad_plotter_1 = require("kicad_plotter");
+const kicad_sch_plotter_1 = require("kicad_sch_plotter");
 const kicad_lib_1 = require("kicad_lib");
 const kicad_sch_1 = require("kicad_sch");
 const fs = require("fs");
@@ -41,7 +42,7 @@ function ensure(arg) {
     // plotter.scale(-1, 1);
     // plotter.plotLibComponent(lib.findByName("RJ45"), 1, 1, { x: 500, y: 500 }, new Transform(0, 1, 1, 0));
     plotter.startPlot();
-    plotter.plotSchematic(sch, [lib]);
+    new kicad_sch_plotter_1.SchPlotter(plotter).plotSchematic(sch, [lib]);
     plotter.endPlot();
     const out = fs.createWriteStream('text.png'), stream = canvas.pngStream();
     stream.on('data', function (chunk) {
@@ -55,7 +56,7 @@ function ensure(arg) {
     //	svgPlotter.scale(-1, 1);
     plotter.pageInfo = sch.descr.pageInfo;
     plotter.startPlot();
-    svgPlotter.plotSchematic(sch, [lib]);
+    new kicad_sch_plotter_1.SchPlotter(svgPlotter).plotSchematic(sch, [lib]);
     plotter.endPlot();
     let dpi = 72; // 72 dpi == 72000 dot/mil
     // sch.descr.{width,height} is mil
