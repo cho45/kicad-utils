@@ -38,6 +38,69 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const kicad_common_1 = require("./kicad_common");
 const kicad_pcb_token_1 = require("./kicad_pcb_token");
 const SEXPR_BOARD_FILE_VERSION = 20170123;
+var PCB_LAYER_ID;
+(function (PCB_LAYER_ID) {
+    PCB_LAYER_ID[PCB_LAYER_ID["UNDEFINED_LAYER"] = -1] = "UNDEFINED_LAYER";
+    PCB_LAYER_ID[PCB_LAYER_ID["UNSELECTED_LAYER"] = -2] = "UNSELECTED_LAYER";
+    PCB_LAYER_ID[PCB_LAYER_ID["F_Cu"] = 0] = "F_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In1_Cu"] = 1] = "In1_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In2_Cu"] = 2] = "In2_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In3_Cu"] = 3] = "In3_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In4_Cu"] = 4] = "In4_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In5_Cu"] = 5] = "In5_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In6_Cu"] = 6] = "In6_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In7_Cu"] = 7] = "In7_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In8_Cu"] = 8] = "In8_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In9_Cu"] = 9] = "In9_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In10_Cu"] = 10] = "In10_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In11_Cu"] = 11] = "In11_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In12_Cu"] = 12] = "In12_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In13_Cu"] = 13] = "In13_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In14_Cu"] = 14] = "In14_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In15_Cu"] = 15] = "In15_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In16_Cu"] = 16] = "In16_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In17_Cu"] = 17] = "In17_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In18_Cu"] = 18] = "In18_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In19_Cu"] = 19] = "In19_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In20_Cu"] = 20] = "In20_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In21_Cu"] = 21] = "In21_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In22_Cu"] = 22] = "In22_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In23_Cu"] = 23] = "In23_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In24_Cu"] = 24] = "In24_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In25_Cu"] = 25] = "In25_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In26_Cu"] = 26] = "In26_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In27_Cu"] = 27] = "In27_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In28_Cu"] = 28] = "In28_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In29_Cu"] = 29] = "In29_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["In30_Cu"] = 30] = "In30_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["B_Cu"] = 31] = "B_Cu";
+    PCB_LAYER_ID[PCB_LAYER_ID["B_Adhes"] = 32] = "B_Adhes";
+    PCB_LAYER_ID[PCB_LAYER_ID["F_Adhes"] = 33] = "F_Adhes";
+    PCB_LAYER_ID[PCB_LAYER_ID["B_Paste"] = 34] = "B_Paste";
+    PCB_LAYER_ID[PCB_LAYER_ID["F_Paste"] = 35] = "F_Paste";
+    PCB_LAYER_ID[PCB_LAYER_ID["B_SilkS"] = 36] = "B_SilkS";
+    PCB_LAYER_ID[PCB_LAYER_ID["F_SilkS"] = 37] = "F_SilkS";
+    PCB_LAYER_ID[PCB_LAYER_ID["B_Mask"] = 38] = "B_Mask";
+    PCB_LAYER_ID[PCB_LAYER_ID["F_Mask"] = 39] = "F_Mask";
+    PCB_LAYER_ID[PCB_LAYER_ID["Dwgs_User"] = 40] = "Dwgs_User";
+    PCB_LAYER_ID[PCB_LAYER_ID["Cmts_User"] = 41] = "Cmts_User";
+    PCB_LAYER_ID[PCB_LAYER_ID["Eco1_User"] = 42] = "Eco1_User";
+    PCB_LAYER_ID[PCB_LAYER_ID["Eco2_User"] = 43] = "Eco2_User";
+    PCB_LAYER_ID[PCB_LAYER_ID["Edge_Cuts"] = 44] = "Edge_Cuts";
+    PCB_LAYER_ID[PCB_LAYER_ID["Margin"] = 45] = "Margin";
+    PCB_LAYER_ID[PCB_LAYER_ID["B_CrtYd"] = 46] = "B_CrtYd";
+    PCB_LAYER_ID[PCB_LAYER_ID["F_CrtYd"] = 47] = "F_CrtYd";
+    PCB_LAYER_ID[PCB_LAYER_ID["B_Fab"] = 48] = "B_Fab";
+    PCB_LAYER_ID[PCB_LAYER_ID["F_Fab"] = 49] = "F_Fab";
+    PCB_LAYER_ID[PCB_LAYER_ID["PCB_LAYER_ID_COUNT"] = 50] = "PCB_LAYER_ID_COUNT";
+})(PCB_LAYER_ID = exports.PCB_LAYER_ID || (exports.PCB_LAYER_ID = {}));
+;
+var PadDrillShape;
+(function (PadDrillShape) {
+    PadDrillShape[PadDrillShape["CIRCLE"] = 0] = "CIRCLE";
+    PadDrillShape[PadDrillShape["OBLONG"] = 1] = "OBLONG";
+})(PadDrillShape = exports.PadDrillShape || (exports.PadDrillShape = {}));
+;
 class PCB {
     constructor() {
         this.layerIndices = {};
@@ -267,16 +330,16 @@ class PCB {
                 this.board.modules.push(this.parseModuleSection());
             }
             else if (token.is(kicad_pcb_token_1.Token.segment)) {
-                this.parseSegmentSection();
+                this.board.tracks.push(this.parseSegmentSection());
             }
             else if (token.is(kicad_pcb_token_1.Token.via)) {
-                this.parseViaSection();
+                this.board.vias.push(this.parseViaSection());
             }
             else if (token.is(kicad_pcb_token_1.Token.zone)) {
-                this.parseZoneSection();
+                this.board.zones.push(this.parseZoneSection());
             }
             else if (token.is(kicad_pcb_token_1.Token.target)) {
-                this.parseTargetSection();
+                this.board.targets.push(this.parseTargetSection());
             }
             else {
                 throw "unknown token " + token + ' at line ' + token.line;
@@ -397,6 +460,7 @@ class PCB {
         let token = this.nextTok();
         if (token.is(kicad_pcb_token_1.Token.hide)) {
             visible = false;
+            this.needRIGHT();
         }
         else if (token.is(kicad_pcb_token_1.Token.RIGHT)) {
             // done
@@ -646,9 +710,8 @@ class PCB {
                 text.layer = this.parseBoardItemLayer("layer");
                 this.needRIGHT();
             }
-            else if (token.is(kicad_pcb_token_1.Token.tstamp)) {
-                text.tstamp = this.parseHex("tstamp");
-                this.needRIGHT();
+            else if (token.is(kicad_pcb_token_1.Token.hide)) {
+                text.visibility = false;
             }
             else if (token.is(kicad_pcb_token_1.Token.effects)) {
                 this.parseEDATEXT(text);
@@ -1209,6 +1272,7 @@ class PCB {
                         this.expecting(token, kicad_pcb_token_1.Token.smd, kicad_pcb_token_1.Token.virtual);
                     }
                 }
+                this.needRIGHT();
             }
             else if (token.is(kicad_pcb_token_1.Token.fp_text)) {
                 const text = this.parseTextModule();
@@ -1288,9 +1352,10 @@ class PCB {
     parseViaSection() {
         const via = new Via();
         for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
-            if (token.is(kicad_pcb_token_1.Token.LEFT))
-                continue;
-            token = this.nextTok();
+            if (token.is(kicad_pcb_token_1.Token.LEFT)) {
+                token = this.nextTok();
+            }
+            console.log('parseViaSection', token);
             if (token.is(kicad_pcb_token_1.Token.blind)) {
                 via.viaType = ViaType.BLIND_BURIED;
             }
@@ -1316,6 +1381,7 @@ class PCB {
             else if (token.is(kicad_pcb_token_1.Token.layers)) {
                 this.nextTok();
                 via.layer1 = this.layerIndices[this.curText()];
+                this.nextTok();
                 via.layer2 = this.layerIndices[this.curText()];
                 this.needRIGHT();
             }
@@ -1339,10 +1405,256 @@ class PCB {
         return via;
     }
     parseZoneSection() {
-        this.skipSection();
+        const zone = new Zone();
+        for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
+            if (token.is(kicad_pcb_token_1.Token.LEFT)) {
+                token = this.nextTok();
+            }
+            console.log('parseZoneSection', token);
+            if (token.is(kicad_pcb_token_1.Token.net)) {
+                const net = this.parseInt("net");
+                zone.netCode = this.netCodes[net];
+                this.needRIGHT();
+            }
+            else if (token.is(kicad_pcb_token_1.Token.net_name)) {
+                this.needSYMBOLorNUMBER();
+                const netname = this.curText();
+                this.needRIGHT();
+            }
+            else if (token.is(kicad_pcb_token_1.Token.layer)) {
+                zone.layer = this.parseBoardItemLayer("layer");
+                this.needRIGHT();
+            }
+            else if (token.is(kicad_pcb_token_1.Token.tstamp)) {
+                zone.tstamp = this.parseHex("tstamp");
+                this.needRIGHT();
+            }
+            else if (token.is(kicad_pcb_token_1.Token.hatch)) {
+                token = this.nextTok();
+                if (token.is(kicad_pcb_token_1.Token.none)) {
+                    zone.hatchStyle = HatchStyle.NO_HATCH;
+                }
+                else if (token.is(kicad_pcb_token_1.Token.edge)) {
+                    zone.hatchStyle = HatchStyle.DIAGONAL_EDGE;
+                }
+                else if (token.is(kicad_pcb_token_1.Token.full)) {
+                    zone.hatchStyle = HatchStyle.DIAGONAL_FULL;
+                }
+                else {
+                    this.expecting(token, kicad_pcb_token_1.Token.none, kicad_pcb_token_1.Token.edge, kicad_pcb_token_1.Token.full);
+                }
+                zone.hatchPitch = this.parseBoardUnits("hatch pitch");
+                this.needRIGHT();
+            }
+            else if (token.is(kicad_pcb_token_1.Token.priority)) {
+                zone.priority = this.parseInt("zone priority");
+                this.needRIGHT();
+            }
+            else if (token.is(kicad_pcb_token_1.Token.connect_pads)) {
+                for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
+                    if (token.is(kicad_pcb_token_1.Token.LEFT))
+                        token = this.nextTok();
+                    if (token.is(kicad_pcb_token_1.Token.yes)) {
+                        zone.padConnection = PadConnection.CONN_FULL;
+                    }
+                    else if (token.is(kicad_pcb_token_1.Token.no)) {
+                        zone.padConnection = PadConnection.CONN_NONE;
+                    }
+                    else if (token.is(kicad_pcb_token_1.Token.thru_hole_only)) {
+                        zone.padConnection = PadConnection.CONN_THT_THERMAL;
+                    }
+                    else if (token.is(kicad_pcb_token_1.Token.clearance)) {
+                        zone.zoneClearance = this.parseBoardUnits("zone clearance");
+                        this.needRIGHT();
+                    }
+                    else {
+                        this.expecting(token, kicad_pcb_token_1.Token.yes, kicad_pcb_token_1.Token.no, kicad_pcb_token_1.Token.thru_hole_only, kicad_pcb_token_1.Token.clearance);
+                    }
+                }
+            }
+            else if (token.is(kicad_pcb_token_1.Token.min_thickness)) {
+                zone.minThickness = this.parseBoardUnits("min thickness");
+                this.needRIGHT();
+            }
+            else if (token.is(kicad_pcb_token_1.Token.fill)) {
+                for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
+                    if (token.is(kicad_pcb_token_1.Token.LEFT))
+                        token = this.nextTok();
+                    if (token.is(kicad_pcb_token_1.Token.yes)) {
+                        zone.filled = true;
+                    }
+                    else if (token.is(kicad_pcb_token_1.Token.mode)) {
+                        token = this.nextTok();
+                        if (token.is(kicad_pcb_token_1.Token.polygon)) {
+                            zone.fillMode = 0;
+                        }
+                        else if (token.is(kicad_pcb_token_1.Token.segment)) {
+                            zone.fillMode = 1;
+                        }
+                        else {
+                            this.expecting(token, kicad_pcb_token_1.Token.polygon, kicad_pcb_token_1.Token.segment);
+                        }
+                        this.needRIGHT();
+                    }
+                    else if (token.is(kicad_pcb_token_1.Token.arc_segments)) {
+                        zone.arcSegumentCount = this.parseInt("arc segment count");
+                        this.needRIGHT();
+                    }
+                    else if (token.is(kicad_pcb_token_1.Token.thermal_gap)) {
+                        zone.thermalReliefGap = this.parseBoardUnits("thermal gap");
+                        this.needRIGHT();
+                    }
+                    else if (token.is(kicad_pcb_token_1.Token.thermal_bridge_width)) {
+                        zone.thermalReliefCopperBridge = this.parseBoardUnits("thermal bridge width");
+                        this.needRIGHT();
+                    }
+                    else if (token.is(kicad_pcb_token_1.Token.smoothing)) {
+                        token = this.nextTok();
+                        if (token.is(kicad_pcb_token_1.Token.none)) {
+                            zone.cornerSmoothingType = CornerSmoothingType.NONE;
+                        }
+                        else if (token.is(kicad_pcb_token_1.Token.chamfer)) {
+                            zone.cornerSmoothingType = CornerSmoothingType.CHAMFER;
+                        }
+                        else if (token.is(kicad_pcb_token_1.Token.fillet)) {
+                            zone.cornerSmoothingType = CornerSmoothingType.FILLET;
+                        }
+                        else {
+                            this.expecting(token, kicad_pcb_token_1.Token.none, kicad_pcb_token_1.Token.chamfer, kicad_pcb_token_1.Token.fillet);
+                        }
+                        this.needRIGHT();
+                    }
+                    else if (token.is(kicad_pcb_token_1.Token.radius)) {
+                        zone.cornerRadius = this.parseBoardUnits("corner radius");
+                        this.needRIGHT();
+                    }
+                    else {
+                        this.expecting(token, kicad_pcb_token_1.Token.yes, kicad_pcb_token_1.Token.mode, kicad_pcb_token_1.Token.arc_segments, kicad_pcb_token_1.Token.thermal_gap, kicad_pcb_token_1.Token.thermal_bridge_width, kicad_pcb_token_1.Token.smoothing, kicad_pcb_token_1.Token.radius);
+                    }
+                }
+            }
+            else if (token.is(kicad_pcb_token_1.Token.keepout)) {
+                zone.keepout = true;
+                for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
+                    if (token.is(kicad_pcb_token_1.Token.LEFT))
+                        token = this.nextTok();
+                    if (token.is(kicad_pcb_token_1.Token.tracks)) {
+                        token = this.nextTok();
+                        if (token.is(kicad_pcb_token_1.Token.allowed)) {
+                            zone.doNotAllowTracks = false;
+                        }
+                        else if (token.is(kicad_pcb_token_1.Token.not_allowed)) {
+                            zone.doNotAllowTracks = true;
+                        }
+                        else {
+                            this.expecting(token, kicad_pcb_token_1.Token.allowed, kicad_pcb_token_1.Token.not_allowed);
+                        }
+                    }
+                    else if (token.is(kicad_pcb_token_1.Token.vias)) {
+                        token = this.nextTok();
+                        if (token.is(kicad_pcb_token_1.Token.allowed)) {
+                            zone.doNotAllowVias = false;
+                        }
+                        else if (token.is(kicad_pcb_token_1.Token.not_allowed)) {
+                            zone.doNotAllowVias = true;
+                        }
+                        else {
+                            this.expecting(token, kicad_pcb_token_1.Token.allowed, kicad_pcb_token_1.Token.not_allowed);
+                        }
+                    }
+                    else if (token.is(kicad_pcb_token_1.Token.copperpour)) {
+                        token = this.nextTok();
+                        if (token.is(kicad_pcb_token_1.Token.allowed)) {
+                            zone.doNotAllowCopperPour = false;
+                        }
+                        else if (token.is(kicad_pcb_token_1.Token.not_allowed)) {
+                            zone.doNotAllowCopperPour = true;
+                        }
+                        else {
+                            this.expecting(token, kicad_pcb_token_1.Token.allowed, kicad_pcb_token_1.Token.not_allowed);
+                        }
+                    }
+                    else {
+                        this.expecting(token, kicad_pcb_token_1.Token.tracks, kicad_pcb_token_1.Token.vias, kicad_pcb_token_1.Token.copperpour);
+                    }
+                    this.needRIGHT();
+                }
+            }
+            else if (token.is(kicad_pcb_token_1.Token.polygon)) {
+                this.needLEFT();
+                token = this.nextTok();
+                this.expecting(token, kicad_pcb_token_1.Token.pts);
+                const corners = [];
+                for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
+                    corners.push(this.parseXY("xy"));
+                }
+                this.needRIGHT();
+                zone.polygons.push(corners);
+            }
+            else if (token.is(kicad_pcb_token_1.Token.filled_polygon)) {
+                this.needLEFT();
+                token = this.nextTok();
+                this.expecting(token, kicad_pcb_token_1.Token.pts);
+                const corners = [];
+                for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
+                    corners.push(this.parseXY("xy"));
+                }
+                this.needRIGHT();
+                zone.filledPolygons.push(corners);
+            }
+            else if (token.is(kicad_pcb_token_1.Token.fill_segments)) {
+                const segments = [];
+                for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
+                    this.expecting(token, kicad_pcb_token_1.Token.LEFT);
+                    token = this.nextTok();
+                    this.expecting(token, kicad_pcb_token_1.Token.pts);
+                    const segment = new Segment(this.parseXY("segment start"), this.parseXY("segment end"));
+                    this.needRIGHT();
+                    segments.push(segment);
+                }
+                zone.fillSegments.push(segments);
+            }
+            else {
+                this.expecting(token, kicad_pcb_token_1.Token.net, kicad_pcb_token_1.Token.net_name, kicad_pcb_token_1.Token.layer, kicad_pcb_token_1.Token.tstamp, kicad_pcb_token_1.Token.hatch, kicad_pcb_token_1.Token.priority, kicad_pcb_token_1.Token.connect_pads, kicad_pcb_token_1.Token.min_thickness, kicad_pcb_token_1.Token.fill, kicad_pcb_token_1.Token.keepout, kicad_pcb_token_1.Token.polygon, kicad_pcb_token_1.Token.filled_polygon, kicad_pcb_token_1.Token.fill_segments);
+            }
+        }
+        return zone;
     }
     parseTargetSection() {
-        this.skipSection();
+        const target = new Target();
+        for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
+            if (token.is(kicad_pcb_token_1.Token.LEFT))
+                token = this.nextTok();
+            if (token.is(kicad_pcb_token_1.Token.x)) {
+                target.shape = 1;
+            }
+            else if (token.is(kicad_pcb_token_1.Token.plus)) {
+                target.shape = 0;
+            }
+            else if (token.is(kicad_pcb_token_1.Token.at)) {
+                let x = this.parseBoardUnits("target x");
+                let y = this.parseBoardUnits("target y");
+                target.pos = new kicad_common_1.Point(x, y);
+                this.needRIGHT();
+            }
+            else if (token.is(kicad_pcb_token_1.Token.size)) {
+                target.size = this.parseBoardUnits("target size");
+                this.needRIGHT();
+            }
+            else if (token.is(kicad_pcb_token_1.Token.width)) {
+                target.lineWidth = this.parseBoardUnits("target line width");
+            }
+            else if (token.is(kicad_pcb_token_1.Token.layer)) {
+                target.layer = this.parseBoardItemLayer("layer");
+            }
+            else if (token.is(kicad_pcb_token_1.Token.tstamp)) {
+                target.tstamp = this.parseHex("tstamp");
+            }
+            else {
+                this.expecting(token, kicad_pcb_token_1.Token.x, kicad_pcb_token_1.Token.plus, kicad_pcb_token_1.Token.at, kicad_pcb_token_1.Token.size, kicad_pcb_token_1.Token.width, kicad_pcb_token_1.Token.layer, kicad_pcb_token_1.Token.tstamp);
+            }
+        }
+        return target;
     }
     skipSection() {
         let token;
@@ -1396,6 +1708,9 @@ class Board {
         this.dimensions = [];
         this.modules = [];
         this.tracks = [];
+        this.vias = [];
+        this.zones = [];
+        this.targets = [];
         this.copperLayerCount = 0;
         this.enabledLayers = [];
         this.visibleLayers = [];
@@ -1403,70 +1718,15 @@ class Board {
     }
 }
 exports.Board = Board;
-var PCB_LAYER_ID;
-(function (PCB_LAYER_ID) {
-    PCB_LAYER_ID[PCB_LAYER_ID["UNDEFINED_LAYER"] = -1] = "UNDEFINED_LAYER";
-    PCB_LAYER_ID[PCB_LAYER_ID["UNSELECTED_LAYER"] = -2] = "UNSELECTED_LAYER";
-    PCB_LAYER_ID[PCB_LAYER_ID["F_Cu"] = 0] = "F_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In1_Cu"] = 1] = "In1_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In2_Cu"] = 2] = "In2_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In3_Cu"] = 3] = "In3_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In4_Cu"] = 4] = "In4_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In5_Cu"] = 5] = "In5_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In6_Cu"] = 6] = "In6_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In7_Cu"] = 7] = "In7_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In8_Cu"] = 8] = "In8_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In9_Cu"] = 9] = "In9_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In10_Cu"] = 10] = "In10_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In11_Cu"] = 11] = "In11_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In12_Cu"] = 12] = "In12_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In13_Cu"] = 13] = "In13_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In14_Cu"] = 14] = "In14_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In15_Cu"] = 15] = "In15_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In16_Cu"] = 16] = "In16_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In17_Cu"] = 17] = "In17_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In18_Cu"] = 18] = "In18_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In19_Cu"] = 19] = "In19_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In20_Cu"] = 20] = "In20_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In21_Cu"] = 21] = "In21_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In22_Cu"] = 22] = "In22_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In23_Cu"] = 23] = "In23_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In24_Cu"] = 24] = "In24_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In25_Cu"] = 25] = "In25_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In26_Cu"] = 26] = "In26_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In27_Cu"] = 27] = "In27_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In28_Cu"] = 28] = "In28_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In29_Cu"] = 29] = "In29_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["In30_Cu"] = 30] = "In30_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["B_Cu"] = 31] = "B_Cu";
-    PCB_LAYER_ID[PCB_LAYER_ID["B_Adhes"] = 32] = "B_Adhes";
-    PCB_LAYER_ID[PCB_LAYER_ID["F_Adhes"] = 33] = "F_Adhes";
-    PCB_LAYER_ID[PCB_LAYER_ID["B_Paste"] = 34] = "B_Paste";
-    PCB_LAYER_ID[PCB_LAYER_ID["F_Paste"] = 35] = "F_Paste";
-    PCB_LAYER_ID[PCB_LAYER_ID["B_SilkS"] = 36] = "B_SilkS";
-    PCB_LAYER_ID[PCB_LAYER_ID["F_SilkS"] = 37] = "F_SilkS";
-    PCB_LAYER_ID[PCB_LAYER_ID["B_Mask"] = 38] = "B_Mask";
-    PCB_LAYER_ID[PCB_LAYER_ID["F_Mask"] = 39] = "F_Mask";
-    PCB_LAYER_ID[PCB_LAYER_ID["Dwgs_User"] = 40] = "Dwgs_User";
-    PCB_LAYER_ID[PCB_LAYER_ID["Cmts_User"] = 41] = "Cmts_User";
-    PCB_LAYER_ID[PCB_LAYER_ID["Eco1_User"] = 42] = "Eco1_User";
-    PCB_LAYER_ID[PCB_LAYER_ID["Eco2_User"] = 43] = "Eco2_User";
-    PCB_LAYER_ID[PCB_LAYER_ID["Edge_Cuts"] = 44] = "Edge_Cuts";
-    PCB_LAYER_ID[PCB_LAYER_ID["Margin"] = 45] = "Margin";
-    PCB_LAYER_ID[PCB_LAYER_ID["B_CrtYd"] = 46] = "B_CrtYd";
-    PCB_LAYER_ID[PCB_LAYER_ID["F_CrtYd"] = 47] = "F_CrtYd";
-    PCB_LAYER_ID[PCB_LAYER_ID["B_Fab"] = 48] = "B_Fab";
-    PCB_LAYER_ID[PCB_LAYER_ID["F_Fab"] = 49] = "F_Fab";
-    PCB_LAYER_ID[PCB_LAYER_ID["PCB_LAYER_ID_COUNT"] = 50] = "PCB_LAYER_ID_COUNT";
-})(PCB_LAYER_ID = exports.PCB_LAYER_ID || (exports.PCB_LAYER_ID = {}));
-;
 class LSET {
     constructor(...layerIds) {
         this._layerIds = [];
         this._layerIds = layerIds;
     }
     static AllCuMask(count) {
-        return new LSET(PCB_LAYER_ID.In1_Cu, PCB_LAYER_ID.In2_Cu, PCB_LAYER_ID.In3_Cu, PCB_LAYER_ID.In4_Cu, PCB_LAYER_ID.In5_Cu, PCB_LAYER_ID.In6_Cu, PCB_LAYER_ID.In7_Cu, PCB_LAYER_ID.In8_Cu, PCB_LAYER_ID.In9_Cu, PCB_LAYER_ID.In10_Cu, PCB_LAYER_ID.In11_Cu, PCB_LAYER_ID.In12_Cu, PCB_LAYER_ID.In13_Cu, PCB_LAYER_ID.In14_Cu, PCB_LAYER_ID.In15_Cu, PCB_LAYER_ID.In16_Cu, PCB_LAYER_ID.In17_Cu, PCB_LAYER_ID.In18_Cu, PCB_LAYER_ID.In19_Cu, PCB_LAYER_ID.In20_Cu, PCB_LAYER_ID.In21_Cu, PCB_LAYER_ID.In22_Cu, PCB_LAYER_ID.In23_Cu, PCB_LAYER_ID.In24_Cu, PCB_LAYER_ID.In25_Cu, PCB_LAYER_ID.In26_Cu, PCB_LAYER_ID.In27_Cu, PCB_LAYER_ID.In28_Cu, PCB_LAYER_ID.In29_Cu, PCB_LAYER_ID.In30_Cu);
+        const internalCu = new LSET(PCB_LAYER_ID.In1_Cu, PCB_LAYER_ID.In2_Cu, PCB_LAYER_ID.In3_Cu, PCB_LAYER_ID.In4_Cu, PCB_LAYER_ID.In5_Cu, PCB_LAYER_ID.In6_Cu, PCB_LAYER_ID.In7_Cu, PCB_LAYER_ID.In8_Cu, PCB_LAYER_ID.In9_Cu, PCB_LAYER_ID.In10_Cu, PCB_LAYER_ID.In11_Cu, PCB_LAYER_ID.In12_Cu, PCB_LAYER_ID.In13_Cu, PCB_LAYER_ID.In14_Cu, PCB_LAYER_ID.In15_Cu, PCB_LAYER_ID.In16_Cu, PCB_LAYER_ID.In17_Cu, PCB_LAYER_ID.In18_Cu, PCB_LAYER_ID.In19_Cu, PCB_LAYER_ID.In20_Cu, PCB_LAYER_ID.In21_Cu, PCB_LAYER_ID.In22_Cu, PCB_LAYER_ID.In23_Cu, PCB_LAYER_ID.In24_Cu, PCB_LAYER_ID.In25_Cu, PCB_LAYER_ID.In26_Cu, PCB_LAYER_ID.In27_Cu, PCB_LAYER_ID.In28_Cu, PCB_LAYER_ID.In29_Cu, PCB_LAYER_ID.In30_Cu);
+        const fbCu = new LSET(PCB_LAYER_ID.F_Cu, PCB_LAYER_ID.B_Cu);
+        return LSET.union(internalCu, fbCu);
     }
     static Name(layerId) {
         switch (layerId) {
@@ -1533,6 +1793,9 @@ class LSET {
     static union(a, b) {
         return new this(...a._layerIds).union(b);
     }
+    [Symbol.iterator]() {
+        return this._layerIds[Symbol.iterator]();
+    }
     get length() {
         return this._layerIds.length;
     }
@@ -1554,6 +1817,13 @@ class LSET {
         this._layerIds.splice(pos, 1);
         return this;
     }
+    is(o) {
+        return this.length === o.length &&
+            LSET.intersect(this, o).length === this.length;
+    }
+    entries() {
+        return this._layerIds;
+    }
     union(o) {
         this.add(...o._layerIds);
         return this;
@@ -1563,7 +1833,7 @@ class LSET {
         return this;
     }
     except(o) {
-        // TODO
+        this._layerIds = this._layerIds.filter((id) => o._layerIds.indexOf(id) === -1);
         return this;
     }
 }
@@ -1661,6 +1931,8 @@ exports.EdgeModule = EdgeModule;
 class Text extends BoardItem {
     constructor() {
         super(...arguments);
+        this.text = "";
+        this.angle = 0;
         this.bold = false;
         this.italic = false;
         this.mirror = false;
@@ -1728,12 +2000,6 @@ var PadShape;
     PadShape[PadShape["ROUNDRECT"] = 4] = "ROUNDRECT";
 })(PadShape = exports.PadShape || (exports.PadShape = {}));
 ;
-var PadDrillShape;
-(function (PadDrillShape) {
-    PadDrillShape[PadDrillShape["CIRCLE"] = 0] = "CIRCLE";
-    PadDrillShape[PadDrillShape["OBLONG"] = 1] = "OBLONG";
-})(PadDrillShape = exports.PadDrillShape || (exports.PadDrillShape = {}));
-;
 var PadAttr;
 (function (PadAttr) {
     PadAttr["STANDARD"] = "STANDARD";
@@ -1780,4 +2046,47 @@ class Via extends BoardItem {
     }
 }
 exports.Via = Via;
+class Zone extends BoardItem {
+    constructor() {
+        super(...arguments);
+        this.priority = 0;
+        this.filled = false;
+        this.fillMode = 0;
+        this.keepout = false;
+        this.polygons = [];
+        this.filledPolygons = [];
+        this.fillSegments = [];
+    }
+    setHatch(hashStyle, hatchPitch) {
+    }
+}
+exports.Zone = Zone;
+var HatchStyle;
+(function (HatchStyle) {
+    HatchStyle[HatchStyle["NO_HATCH"] = 0] = "NO_HATCH";
+    HatchStyle[HatchStyle["DIAGONAL_EDGE"] = 1] = "DIAGONAL_EDGE";
+    HatchStyle[HatchStyle["DIAGONAL_FULL"] = 2] = "DIAGONAL_FULL";
+})(HatchStyle = exports.HatchStyle || (exports.HatchStyle = {}));
+var PadConnection;
+(function (PadConnection) {
+    PadConnection[PadConnection["CONN_FULL"] = 0] = "CONN_FULL";
+    PadConnection[PadConnection["CONN_NONE"] = 1] = "CONN_NONE";
+    PadConnection[PadConnection["CONN_THT_THERMAL"] = 2] = "CONN_THT_THERMAL";
+})(PadConnection = exports.PadConnection || (exports.PadConnection = {}));
+var CornerSmoothingType;
+(function (CornerSmoothingType) {
+    CornerSmoothingType[CornerSmoothingType["NONE"] = 0] = "NONE";
+    CornerSmoothingType[CornerSmoothingType["CHAMFER"] = 1] = "CHAMFER";
+    CornerSmoothingType[CornerSmoothingType["FILLET"] = 2] = "FILLET";
+})(CornerSmoothingType = exports.CornerSmoothingType || (exports.CornerSmoothingType = {}));
+class Segment {
+    constructor(start, end) {
+        this.start = start;
+        this.end = end;
+    }
+}
+exports.Segment = Segment;
+class Target extends BoardItem {
+}
+exports.Target = Target;
 //# sourceMappingURL=kicad_pcb.js.map

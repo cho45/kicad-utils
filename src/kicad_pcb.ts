@@ -51,6 +51,78 @@ import { Token } from "./kicad_pcb_token";
 
 const SEXPR_BOARD_FILE_VERSION = 20170123;
 
+export enum PCB_LAYER_ID {
+	UNDEFINED_LAYER = -1,
+	UNSELECTED_LAYER = -2,
+
+	F_Cu = 0,           // 0
+	In1_Cu,
+	In2_Cu,
+	In3_Cu,
+	In4_Cu,
+	In5_Cu,
+	In6_Cu,
+	In7_Cu,
+	In8_Cu,
+	In9_Cu,
+	In10_Cu,
+	In11_Cu,
+	In12_Cu,
+	In13_Cu,
+	In14_Cu,
+	In15_Cu,
+	In16_Cu,
+	In17_Cu,
+	In18_Cu,
+	In19_Cu,
+	In20_Cu,
+	In21_Cu,
+	In22_Cu,
+	In23_Cu,
+	In24_Cu,
+	In25_Cu,
+	In26_Cu,
+	In27_Cu,
+	In28_Cu,
+	In29_Cu,
+	In30_Cu,
+	B_Cu,           // 31
+
+	B_Adhes,
+	F_Adhes,
+
+	B_Paste,
+	F_Paste,
+
+	B_SilkS,
+	F_SilkS,
+
+	B_Mask,
+	F_Mask,
+
+	Dwgs_User,
+	Cmts_User,
+	Eco1_User,
+	Eco2_User,
+	Edge_Cuts,
+	Margin,
+
+	B_CrtYd,
+	F_CrtYd,
+
+	B_Fab,
+	F_Fab,
+
+	PCB_LAYER_ID_COUNT
+};
+
+
+export enum PadDrillShape {
+	CIRCLE,
+	OBLONG,
+};
+
+
 export class PCB {
 	tokens: Array<Token>;
 	pos: number;
@@ -311,16 +383,16 @@ export class PCB {
 				this.board.modules.push(this.parseModuleSection());
 			} else
 			if (token.is(Token.segment)) {
-				this.parseSegmentSection();
+				this.board.tracks.push(this.parseSegmentSection());
 			} else
 			if (token.is(Token.via)) {
-				this.parseViaSection();
+				this.board.vias.push(this.parseViaSection());
 			} else
 			if (token.is(Token.zone)) {
-				this.parseZoneSection();
+				this.board.zones.push(this.parseZoneSection());
 			} else
 			if (token.is(Token.target)) {
-				this.parseTargetSection();
+				this.board.targets.push(this.parseTargetSection());
 			} else {
 				throw "unknown token " + token + ' at line ' + token.line;
 			}
@@ -453,6 +525,7 @@ export class PCB {
 		let token = this.nextTok();
 		if (token.is(Token.hide)) {
 			visible = false;
+			this.needRIGHT();
 		} else
 		if (token.is(Token.RIGHT)) {
 			// done
@@ -717,9 +790,8 @@ export class PCB {
 				text.layer = this.parseBoardItemLayer("layer");
 				this.needRIGHT();
 			} else
-			if (token.is(Token.tstamp)) {
-				text.tstamp = this.parseHex("tstamp");
-				this.needRIGHT();
+			if (token.is(Token.hide)) {
+				text.visibility = false;
 			} else
 			if (token.is(Token.effects)) {
 				this.parseEDATEXT(text);
@@ -1317,6 +1389,7 @@ export class PCB {
 						this.expecting(token, Token.smd, Token.virtual);
 					}
 				}
+				this.needRIGHT();
 			} else
 			if (token.is(Token.fp_text)) {
 				const text = this.parseTextModule();
@@ -1429,8 +1502,10 @@ export class PCB {
 	parseViaSection() {
 		const via = new Via();
 		for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
-			if (token.is(Token.LEFT)) continue;
-			token = this.nextTok();
+			if (token.is(Token.LEFT)) {
+				token = this.nextTok();
+			}
+			console.log('parseViaSection', token);
 
 			if (token.is(Token.blind)) {
 				via.viaType = ViaType.BLIND_BURIED;
@@ -1457,6 +1532,7 @@ export class PCB {
 			if (token.is(Token.layers)) {
 				this.nextTok();
 				via.layer1 = this.layerIndices[this.curText()];
+				this.nextTok();
 				via.layer2 = this.layerIndices[this.curText()];
 				this.needRIGHT();
 			} else
@@ -1491,11 +1567,280 @@ export class PCB {
 	}
 
 	parseZoneSection() {
-		this.skipSection();
+		const zone = new Zone();
+		for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
+			if (token.is(Token.LEFT)) {
+				token = this.nextTok();
+			}
+			console.log('parseZoneSection', token);
+
+			if (token.is(Token.net)) {
+				const net = this.parseInt("net");
+				zone.netCode = this.netCodes[net];
+				this.needRIGHT();
+			} else
+			if (token.is(Token.net_name)) {
+				this.needSYMBOLorNUMBER();
+				const netname = this.curText();
+				this.needRIGHT();
+			} else
+			if (token.is(Token.layer)) {
+				zone.layer = this.parseBoardItemLayer("layer");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.tstamp)) {
+				zone.tstamp = this.parseHex("tstamp");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.hatch)) {
+				token = this.nextTok();
+				if (token.is(Token.none)) {
+					zone.hatchStyle = HatchStyle.NO_HATCH;
+				} else
+				if (token.is(Token.edge)) {
+					zone.hatchStyle = HatchStyle.DIAGONAL_EDGE;
+				} else
+				if (token.is(Token.full)) {
+					zone.hatchStyle = HatchStyle.DIAGONAL_FULL;
+				} else {
+					this.expecting(token, Token.none, Token.edge, Token.full);
+				}
+
+				zone.hatchPitch = this.parseBoardUnits("hatch pitch");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.priority)) {
+				zone.priority = this.parseInt("zone priority");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.connect_pads)) {
+				for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
+					if (token.is(Token.LEFT)) token = this.nextTok();
+
+					if (token.is(Token.yes)) {
+						zone.padConnection = PadConnection.CONN_FULL;
+					} else
+					if (token.is(Token.no)) {
+						zone.padConnection = PadConnection.CONN_NONE;
+					} else
+					if (token.is(Token.thru_hole_only)) {
+						zone.padConnection = PadConnection.CONN_THT_THERMAL;
+					} else
+					if (token.is(Token.clearance)) {
+						zone.zoneClearance = this.parseBoardUnits("zone clearance");
+						this.needRIGHT();
+					} else {
+						this.expecting(token, Token.yes, Token.no, Token.thru_hole_only, Token.clearance);
+					}
+				}
+			} else
+			if (token.is(Token.min_thickness)) {
+				zone.minThickness = this.parseBoardUnits("min thickness");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.fill)) {
+				for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
+					if (token.is(Token.LEFT)) token = this.nextTok();
+
+					if (token.is(Token.yes)) {
+						zone.filled = true;
+					} else
+					if (token.is(Token.mode)) {
+						token = this.nextTok();
+						if (token.is(Token.polygon)) {
+							zone.fillMode = 0;
+						} else
+						if (token.is(Token.segment)) {
+							zone.fillMode = 1;
+						} else {
+							this.expecting(token, Token.polygon, Token.segment);
+						}
+						this.needRIGHT();
+					} else
+					if (token.is(Token.arc_segments)) {
+						zone.arcSegumentCount = this.parseInt("arc segment count");
+						this.needRIGHT();
+					} else
+					if (token.is(Token.thermal_gap)) {
+						zone.thermalReliefGap = this.parseBoardUnits("thermal gap");
+						this.needRIGHT();
+					} else
+					if (token.is(Token.thermal_bridge_width)) {
+						zone.thermalReliefCopperBridge = this.parseBoardUnits("thermal bridge width");
+						this.needRIGHT();
+					} else
+					if (token.is(Token.smoothing)) {
+						token = this.nextTok();
+						if (token.is(Token.none)) {
+							zone.cornerSmoothingType = CornerSmoothingType.NONE;
+						} else
+						if (token.is(Token.chamfer)) {
+							zone.cornerSmoothingType = CornerSmoothingType.CHAMFER;
+						} else
+						if (token.is(Token.fillet)) {
+							zone.cornerSmoothingType = CornerSmoothingType.FILLET;
+						} else {
+							this.expecting(token, Token.none, Token.chamfer, Token.fillet);
+						}
+						this.needRIGHT();
+					} else
+					if (token.is(Token.radius)) {
+						zone.cornerRadius = this.parseBoardUnits("corner radius");
+						this.needRIGHT();
+					} else {
+						this.expecting(token,
+							Token.yes,
+							Token.mode,
+							Token.arc_segments,
+							Token.thermal_gap,
+							Token.thermal_bridge_width,
+							Token.smoothing,
+							Token.radius
+						);
+					}
+				}
+			} else
+			if (token.is(Token.keepout)) {
+				zone.keepout = true;
+				for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
+					if (token.is(Token.LEFT)) token = this.nextTok();
+					if (token.is(Token.tracks)) {
+						token = this.nextTok();
+						if (token.is(Token.allowed)) {
+							zone.doNotAllowTracks = false;
+						} else
+						if (token.is(Token.not_allowed)) {
+							zone.doNotAllowTracks = true;
+						} else {
+							this.expecting(token, Token.allowed, Token.not_allowed);
+						}
+					} else
+					if (token.is(Token.vias)) {
+						token = this.nextTok();
+						if (token.is(Token.allowed)) {
+							zone.doNotAllowVias = false;
+						} else
+						if (token.is(Token.not_allowed)) {
+							zone.doNotAllowVias = true;
+						} else {
+							this.expecting(token, Token.allowed, Token.not_allowed);
+						}
+					} else
+					if (token.is(Token.copperpour)) {
+						token = this.nextTok();
+						if (token.is(Token.allowed)) {
+							zone.doNotAllowCopperPour = false;
+						} else
+						if (token.is(Token.not_allowed)) {
+							zone.doNotAllowCopperPour = true;
+						} else {
+							this.expecting(token, Token.allowed, Token.not_allowed);
+						}
+					} else {
+						this.expecting(token, Token.tracks, Token.vias, Token.copperpour);
+					}
+					this.needRIGHT();
+				}
+			} else
+			if (token.is(Token.polygon)) {
+				this.needLEFT();
+				token = this.nextTok();
+				this.expecting(token, Token.pts);
+
+				const corners: Array<Point> = [];
+				for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
+					corners.push( this.parseXY("xy") );
+				}
+				this.needRIGHT();
+				zone.polygons.push(corners);
+			} else
+			if (token.is(Token.filled_polygon)) {
+				this.needLEFT();
+				token = this.nextTok();
+				this.expecting(token, Token.pts);
+
+				const corners: Array<Point> = [];
+				for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
+					corners.push( this.parseXY("xy") );
+				}
+				this.needRIGHT();
+				zone.filledPolygons.push(corners);
+			} else
+			if (token.is(Token.fill_segments)) {
+				const segments: Array<Segment> = [];
+
+				for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
+					this.expecting(token, Token.LEFT);
+					token = this.nextTok();
+					this.expecting(token, Token.pts);
+					const segment = new Segment(this.parseXY("segment start"), this.parseXY("segment end"));
+					this.needRIGHT();
+					segments.push(segment);
+				}
+				zone.fillSegments.push(segments);
+			} else {
+				this.expecting(
+					token,
+					Token.net,
+					Token.net_name,
+					Token.layer,
+					Token.tstamp,
+					Token.hatch,
+					Token.priority,
+					Token.connect_pads,
+					Token.min_thickness,
+					Token.fill,
+					Token.keepout,
+					Token.polygon,
+					Token.filled_polygon,
+					Token.fill_segments
+				)
+			}
+		}
+		return zone;
 	}
 
 	parseTargetSection() {
-		this.skipSection();
+		const target = new Target();
+		for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
+			if (token.is(Token.LEFT)) token = this.nextTok();
+			if (token.is(Token.x)) {
+				target.shape = 1;
+			} else
+			if (token.is(Token.plus)) {
+				target.shape = 0;
+			} else
+			if (token.is(Token.at)) {
+				let x = this.parseBoardUnits("target x");
+				let y = this.parseBoardUnits("target y");
+				target.pos = new Point(x, y);
+				this.needRIGHT();
+			} else
+			if (token.is(Token.size)) {
+				target.size = this.parseBoardUnits("target size");
+				this.needRIGHT();
+			} else
+			if (token.is(Token.width)) {
+				target.lineWidth = this.parseBoardUnits("target line width");
+			} else
+			if (token.is(Token.layer)) {
+				target.layer = this.parseBoardItemLayer("layer");
+			} else
+			if (token.is(Token.tstamp)) {
+				target.tstamp = this.parseHex("tstamp");
+			} else {
+				this.expecting(token,
+					Token.x,
+					Token.plus,
+					Token.at,
+					Token.size,
+					Token.width,
+					Token.layer,
+					Token.tstamp
+				);
+			}
+		}
+		return target;
 	}
 
 	skipSection(): void {
@@ -1546,6 +1891,9 @@ export class Board {
 	dimensions: Array<Dimension> = [];
 	modules: Array<Module> = [];
 	tracks: Array<Track> = [];
+	vias: Array<Via> = [];
+	zones: Array<Zone> = [];
+	targets: Array<Target> = [];
 
 	copperLayerCount: number = 0;
 	enabledLayers: Array<number> = [];
@@ -1554,74 +1902,9 @@ export class Board {
 }
 
 
-export enum PCB_LAYER_ID {
-	UNDEFINED_LAYER = -1,
-	UNSELECTED_LAYER = -2,
-
-	F_Cu = 0,           // 0
-	In1_Cu,
-	In2_Cu,
-	In3_Cu,
-	In4_Cu,
-	In5_Cu,
-	In6_Cu,
-	In7_Cu,
-	In8_Cu,
-	In9_Cu,
-	In10_Cu,
-	In11_Cu,
-	In12_Cu,
-	In13_Cu,
-	In14_Cu,
-	In15_Cu,
-	In16_Cu,
-	In17_Cu,
-	In18_Cu,
-	In19_Cu,
-	In20_Cu,
-	In21_Cu,
-	In22_Cu,
-	In23_Cu,
-	In24_Cu,
-	In25_Cu,
-	In26_Cu,
-	In27_Cu,
-	In28_Cu,
-	In29_Cu,
-	In30_Cu,
-	B_Cu,           // 31
-
-	B_Adhes,
-	F_Adhes,
-
-	B_Paste,
-	F_Paste,
-
-	B_SilkS,
-	F_SilkS,
-
-	B_Mask,
-	F_Mask,
-
-	Dwgs_User,
-	Cmts_User,
-	Eco1_User,
-	Eco2_User,
-	Edge_Cuts,
-	Margin,
-
-	B_CrtYd,
-	F_CrtYd,
-
-	B_Fab,
-	F_Fab,
-
-	PCB_LAYER_ID_COUNT
-};
-
 export class LSET {
 	static AllCuMask(count?: number) {
-		return new LSET(
+		const internalCu = new LSET(
 			PCB_LAYER_ID.In1_Cu,
 			PCB_LAYER_ID.In2_Cu,
 			PCB_LAYER_ID.In3_Cu,
@@ -1653,6 +1936,13 @@ export class LSET {
 			PCB_LAYER_ID.In29_Cu,
 			PCB_LAYER_ID.In30_Cu,
 		);
+
+		const fbCu = new LSET(
+			PCB_LAYER_ID.F_Cu,
+			PCB_LAYER_ID.B_Cu,
+		);
+
+		return LSET.union(internalCu, fbCu);
 	}
 
 	static Name(layerId: PCB_LAYER_ID) {
@@ -1733,6 +2023,10 @@ export class LSET {
 		this._layerIds = layerIds;
 	}
 
+	[Symbol.iterator]() {
+		return this._layerIds[Symbol.iterator]();
+	}
+
 	get length() {
 		return this._layerIds.length;
 	}
@@ -1757,6 +2051,15 @@ export class LSET {
 		return this;
 	}
 
+	is(o: LSET): boolean {
+		return this.length === o.length &&
+			LSET.intersect(this, o).length === this.length;
+	}
+
+	entries() {
+		return this._layerIds;
+	}
+
 	union(o: LSET): this {
 		this.add(... o._layerIds);
 		return this;
@@ -1768,7 +2071,7 @@ export class LSET {
 	}
 
 	except(o: LSET): this {
-		// TODO
+		this._layerIds = this._layerIds.filter( (id) => o._layerIds.indexOf(id) === -1);
 		return this;
 	}
 }
@@ -1948,8 +2251,8 @@ export class EdgeModule extends DrawSegment {
 }
 
 export class Text extends BoardItem {
-	text: string;
-	angle: number;
+	text: string = "";
+	angle: number = 0;
 	size: number;
 	lineWidth: number;
 	bold: boolean = false;
@@ -2056,11 +2359,6 @@ export enum PadShape {
 	ROUNDRECT,
 };
 
-export enum PadDrillShape {
-	CIRCLE,
-	OBLONG,
-};
-
 
 export enum PadAttr {
 	STANDARD = "STANDARD",
@@ -2112,4 +2410,68 @@ export class Via extends BoardItem {
 	layer1: PCB_LAYER_ID;
 	layer2: PCB_LAYER_ID;
 	net: NetInfoItem;
+}
+
+export class Zone extends BoardItem {
+	priority: number = 0;
+	netCode: NetInfoItem;
+
+	hatchStyle: HatchStyle;
+	hatchPitch: number;
+
+	padConnection: PadConnection;
+	zoneClearance: number;
+
+	minThickness: number;
+
+	filled: boolean = false;
+	fillMode: 0|1 = 0;
+
+	arcSegumentCount: number;
+	thermalReliefGap: number;
+	thermalReliefCopperBridge: number;
+
+	cornerSmoothingType: CornerSmoothingType;
+	cornerRadius: number;
+
+	keepout: boolean = false;
+	doNotAllowTracks: boolean;
+	doNotAllowVias: boolean;
+	doNotAllowCopperPour: boolean;
+
+	polygons: Array< Array<Point> > = [];
+	filledPolygons:  Array< Array<Point> > = [];
+	fillSegments: Array< Array<Segment> > = [];
+
+	setHatch(hashStyle: HatchStyle, hatchPitch: number) {
+	}
+}
+
+export enum HatchStyle {
+	NO_HATCH,
+	DIAGONAL_EDGE,
+	DIAGONAL_FULL,
+}
+
+export enum PadConnection {
+	CONN_FULL,
+	CONN_NONE,
+	CONN_THT_THERMAL,
+}
+
+export enum CornerSmoothingType {
+	NONE,
+	CHAMFER,
+	FILLET,
+}
+
+export class Segment {
+	constructor(public start: Point, public end: Point) {
+	}
+}
+
+export class Target extends BoardItem {
+	shape: 0|1;
+	size: number;
+	lineWidth: number;
 }

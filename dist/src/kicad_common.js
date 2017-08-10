@@ -149,6 +149,14 @@ function ReadDelimitedText(s) {
     return inner.replace(/\\([\\"])/g, (_, c) => c);
 }
 exports.ReadDelimitedText = ReadDelimitedText;
+function Clamp(lower, value, upper) {
+    if (value < lower)
+        return lower;
+    if (upper < value)
+        return upper;
+    return value;
+}
+exports.Clamp = Clamp;
 class Transform {
     constructor(x1 = 1, x2 = 0, y1 = 0, y2 = -1, tx = 0, ty = 0) {
         this.x1 = x1;
@@ -183,6 +191,10 @@ class Transform {
         return Transform.translate(tx, ty).multiply(this);
     }
     scale(sx, sy) {
+        // only supports same xy ratio
+        if (Math.abs(sx) !== Math.abs(sy)) {
+            throw "invalid scale ratio";
+        }
         return Transform.scale(sx, sy).multiply(this);
     }
     rotate(radian) {
@@ -196,6 +208,9 @@ class Transform {
         const x = (this.x1 * p.x + this.y1 * p.y) + this.tx;
         const y = (this.x2 * p.x + this.y2 * p.y) + this.ty;
         return new Point(x, y);
+    }
+    transformScalar(n) {
+        return n * this.x1;
     }
     mapAngles(angle1, angle2) {
         let angle, delta;
@@ -320,6 +335,9 @@ class Color {
     }
     toCSSColor() {
         return `rgb(${this.r}, ${this.g}, ${this.b})`;
+    }
+    mix(c) {
+        return new Color(this.r | c.r, this.g | c.g, this.b | c.b);
     }
 }
 // common/colors.cpp 

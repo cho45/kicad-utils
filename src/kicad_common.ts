@@ -151,6 +151,12 @@ export function ReadDelimitedText(s: string): string {
 	return inner.replace(/\\([\\"])/g, (_, c) => c);
 }
 
+export function Clamp(lower: number, value: number, upper: number) {
+	if (value < lower) return lower;
+	if (upper < value) return upper;
+	return value;
+}
+
 export class Transform {
 	constructor(
 		public x1:number = 1,
@@ -218,6 +224,10 @@ export class Transform {
 	}
 
 	scale(sx: number, sy: number) {
+		// only supports same xy ratio
+		if (Math.abs(sx) !== Math.abs(sy)) {
+			throw "invalid scale ratio";
+		}
 		return Transform.scale(sx, sy).multiply(this);
 	}
 
@@ -244,6 +254,10 @@ export class Transform {
 		const x = (this.x1 * p.x + this.y1 * p.y) + this.tx;
 		const y = (this.x2 * p.x + this.y2 * p.y) + this.ty;
 		return new Point(x, y);
+	}
+
+	transformScalar(n: number): number {
+		return n * this.x1;
 	}
 
 	mapAngles(angle1: number, angle2: number): Array<number> {
@@ -443,6 +457,14 @@ export class Color {
 
 	toCSSColor(): string {
 		return `rgb(${this.r}, ${this.g}, ${this.b})`;
+	}
+
+	mix(c: Color): Color {
+		return new Color(
+			this.r | c.r,
+			this.g | c.g,
+			this.b | c.b,
+		);
 	}
 }
 

@@ -376,11 +376,13 @@ export class SVGPlotter extends Plotter {
 
 		p = this.transform.transformCoordinate(p);
 
+		dia = this.transform.transformScalar(dia);
+		const lineWidth = this.transform.transformScalar(this.lineWidth);
 		this.output += this.xmlTag `<circle cx="${p.x}" cy="${p.y}" r="${dia/2}" `;
 		if (this.fill === Fill.NO_FILL) {
-			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${this.lineWidth}"/>\n`;
+			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}"/>\n`;
 		} else {
-			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${this.lineWidth}" />\n`;
+			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" />\n`;
 		}
 	}
 
@@ -414,12 +416,15 @@ export class SVGPlotter extends Plotter {
 		const isSweep = false;
 		// console.log('ARC', startAngle, endAngle, radius, start, end, radius, isLargeArc, isSweep);
 
+		radius = this.transform.transformScalar(radius);
+		const lineWidth = this.transform.transformScalar(this.lineWidth);
+
 		const x = this.xmlTag;
 		this.output += this.xmlTag `<path d="M${start.x} ${start.y} A${radius} ${radius} 0.0 ${isLargeArc ? 1 : 0} ${isSweep ? 1 : 0} ${end.x} ${end.y}"`;
 		if (this.fill === Fill.NO_FILL) {
-			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${this.lineWidth}" />\n`;
+			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}" />\n`;
 		} else {
-			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${this.lineWidth}" />\n`;
+			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" />\n`;
 		}
 	}
 
@@ -490,12 +495,13 @@ export class SVGPlotter extends Plotter {
 	penTo(p: Point, s: "U"|"D"|"Z"): void {
 		const x = this.xmlTag;
 		p = this.transform.transformCoordinate(p);
+		const lineWidth = this.transform.transformScalar(this.lineWidth);
 		if (s === "Z") {
 			if (this.penState !== "Z") {
 				if (this.fill === Fill.NO_FILL) {
-					this.output += this.xmlTag `" style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${this.lineWidth}" />\n`;
+					this.output += this.xmlTag `" style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}" />\n`;
 				} else {
-					this.output += this.xmlTag `" style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${this.lineWidth}" />\n`;
+					this.output += this.xmlTag `" style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" />\n`;
 				}
 			} else {
 				throw "invalid pen state Z -> Z";
@@ -538,8 +544,8 @@ export class SVGPlotter extends Plotter {
 			xlink:href="${url}"
 			x="${start.x}"
 			y="${start.y}"
-			width="${width}"
-			height="${height}"
+			width="${this.transform.transformScalar(width)}"
+			height="${this.transform.transformScalar(height)}"
 			/>`;
 	}
 
@@ -547,8 +553,8 @@ export class SVGPlotter extends Plotter {
 		const width  = this.pageInfo.width;
 		const height = this.pageInfo.height;
 		this.output = this.xmlTag `<svg preserveAspectRatio="xMinYMin"
-			width="${width}"
-			height="${height}"
+			width="${this.transform.transformScalar(width)}"
+			height="${this.transform.transformScalar(height)}"
 			viewBox="0 0 ${width} ${height}"
 			xmlns="http://www.w3.org/2000/svg"
 			xmlns:xlink="http://www.w3.org/1999/xlink"
