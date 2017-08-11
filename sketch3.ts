@@ -30,8 +30,8 @@ import {
 
 import * as fs from "fs";
 // const content = fs.readFileSync('../keyboard-schematic/Main.kicad_pcb', 'utf-8');
-const content = fs.readFileSync('../keyboard-schematic/KeyModule-L.kicad_pcb', 'utf-8');
-// const content = fs.readFileSync('../ledlight/ledlight.kicad_pcb', 'utf-8');
+// const content = fs.readFileSync('../keyboard-schematic/KeyModule-L.kicad_pcb', 'utf-8');
+const content = fs.readFileSync('../ledlight/ledlight.kicad_pcb', 'utf-8');
 // const content = fs.readFileSync('../../KiCad/footprint.pretty/ESP-WROOM-32.kicad_mod', 'utf-8');
 // const content = fs.readFileSync('../../../Documents/KiCAD/my/myfootprint.pretty/BLE_NANO.kicad_mod', 'utf-8');
 // const content = fs.readFileSync('../../KiCad/footprint.pretty/RJ45-7810-XPXC.kicad_mod', 'utf-8');
@@ -98,19 +98,19 @@ const content = fs.readFileSync('../keyboard-schematic/KeyModule-L.kicad_pcb', '
 //		pcbPlotter.plotStandardLayer(item);
 //		pcbPlotter.plotSilkScreen(item);
 
-//		plotter.save();
-//		plotter.translate(0, -2000);
-//		pcbPlotter.plotBoardLayers(item, new LSET(
-//			PCB_LAYER_ID.F_Cu,
-//			PCB_LAYER_ID.F_Fab,
-//			PCB_LAYER_ID.F_CrtYd,
-//			PCB_LAYER_ID.F_Adhes,
-//			PCB_LAYER_ID.F_Paste,
-//			PCB_LAYER_ID.F_SilkS,
-//			PCB_LAYER_ID.Dwgs_User,
-//			PCB_LAYER_ID.Edge_Cuts,
-//		));
-//		plotter.restore();
+		plotter.save();
+		plotter.translate(0, -2000);
+		pcbPlotter.plotBoardLayers(item, new LSET(
+			PCB_LAYER_ID.F_Cu,
+			PCB_LAYER_ID.F_Fab,
+			PCB_LAYER_ID.F_CrtYd,
+			PCB_LAYER_ID.F_Adhes,
+			PCB_LAYER_ID.F_Paste,
+			PCB_LAYER_ID.F_SilkS,
+			PCB_LAYER_ID.Dwgs_User,
+			PCB_LAYER_ID.Edge_Cuts,
+		));
+		plotter.restore();
 
 		plotter.save();
 		plotter.translate(0, item.pageInfo.height - 4500);
