@@ -7,6 +7,8 @@ const {
 	Schematic,
 } = require("kicad-utils");
 
+const Vue = require("vue");
+
 const app = new Vue({
 	el: '#app',
 	data: {

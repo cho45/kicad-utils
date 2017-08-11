@@ -28,6 +28,9 @@ module.exports = {
 	devtool: 'source-map',
 
 	resolve: {
+		alias: {
+			'vue$': 'vue/dist/vue.common.js'
+		},
 		extensions: ['.ts', '.js'],
 		modules: [
 			path.join(__dirname, "src"),
@@ -37,6 +40,14 @@ module.exports = {
 
 	module: {
 		rules: [
+			{
+				test: /\.html?$/,
+				use: [
+					{
+						loader: 'raw-loader',
+					},
+				]
+			},
 			{
 				test: /\.ts?$/,
 				use: [
