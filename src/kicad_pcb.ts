@@ -122,6 +122,9 @@ export enum PadDrillShape {
 	OBLONG,
 };
 
+export function IsCopperLayer(layerId: PCB_LAYER_ID) {
+	return layerId >= PCB_LAYER_ID.F_Cu && layerId <= PCB_LAYER_ID.B_Cu; 
+}
 
 export class PCB {
 	tokens: Array<Token>;
@@ -2103,39 +2106,39 @@ export class BoardDesignSetting {
 	currentViaType: ViaType;
 
 	useConnectedTrackWidth: boolean;
-	drawSegmentWidth: number;             
-	edgeSegmentWidth: number;             
-	pcbTextWidth: number;                 
-	pcbTextSize: number;                  
-	trackMinWidth: number;                
-	viasMinSize: number;                  
-	viasMinDrill: number;                 
-	microViasMinSize: number;             
-	microViasMinDrill: number;            
+	drawSegmentWidth: number;
+	edgeSegmentWidth: number;
+	pcbTextWidth: number;
+	pcbTextSize: number;
+	trackMinWidth: number;
+	viasMinSize: number;
+	viasMinDrill: number;
+	microViasMinSize: number;
+	microViasMinDrill: number;
 
-	solderMaskMargin: number;             
-	solderMaskMinWidth: number;           
+	solderMaskMargin: number = 0;
+	solderMaskMinWidth: number = 0;
 	
-	solderPasteMargin: number;            
-	solderPasteMarginRatio: number;       
+	solderPasteMargin: number;
+	solderPasteMarginRatio: number;
 	
-	moduleSegmentWidth: number;           
+	moduleSegmentWidth: number;
 	
-	moduleTextSize: number;               
-	moduleTextWidth: number;              
+	moduleTextSize: number;
+	moduleTextWidth: number;
 
-	refDefaultText: string;           
+	refDefaultText: string;
 	
-	refDefaultVisibility: boolean;         
-	refDefaultlayer: boolean;              
+	refDefaultVisibility: boolean;
+	refDefaultlayer: boolean;
 	
-	valueDefaultText: string;         
+	valueDefaultText: string;
 	
-	valueDefaultVisibility: string;       
-	valueDefaultlayer: number;            
+	valueDefaultVisibility: string;
+	valueDefaultlayer: number;
 	
-	auxOrigin: Point;                    
-	gridOrigin: Point;                   
+	auxOrigin: Point;
+	gridOrigin: Point;
 
 	viaSizeIndex: number;
 
@@ -2150,13 +2153,13 @@ export class BoardDesignSetting {
 	
 	customViaSize: ViaDimension;
 
-	copperLayerCount: number; 
+	copperLayerCount: number;
 
-	enabledLayers: LSET;    
-	visibleLayers: LSET;    
+	enabledLayers: LSET;
+	visibleLayers: LSET;
 
-	visibleElements: number;  
-	boardThickness: number;   
+	visibleElements: number;
+	boardThickness: number;
 
 	currentNetClassName: string;
 }

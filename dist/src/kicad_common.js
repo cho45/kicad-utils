@@ -325,19 +325,20 @@ class Rect {
 exports.Rect = Rect;
 class Color {
     // max 255 int
-    constructor(r, g, b) {
+    constructor(r, g, b, a = 1.0) {
         this.r = r;
         this.g = g;
         this.b = b;
+        this.a = a;
     }
     is(c) {
-        return this.r === c.r && this.g === c.g && this.b === c.b;
+        return this.r === c.r && this.g === c.g && this.b === c.b && this.a === c.a;
     }
     toCSSColor() {
-        return `rgb(${this.r}, ${this.g}, ${this.b})`;
+        return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
     }
     mix(c) {
-        return new Color(this.r | c.r, this.g | c.g, this.b | c.b);
+        return new Color(this.r | c.r, this.g | c.g, this.b | c.b, this.a * c.a);
     }
 }
 // common/colors.cpp 

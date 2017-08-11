@@ -63,6 +63,7 @@ class PCBPlotter {
     constructor(plotter) {
         this.plotter = plotter;
         this.layerMask = new kicad_pcb_1.LSET(kicad_pcb_1.PCB_LAYER_ID.F_Cu, kicad_pcb_1.PCB_LAYER_ID.B_Cu);
+        this.plotOpt = new PCBPlotOptions();
     }
     flashPadCircle(pos, dia, fill) {
         if (fill === kicad_common_1.Fill.FILLED_SHAPE) {
@@ -252,15 +253,22 @@ class PCBPlotter {
             kicad_common_1.RotatePoint(pos, angle);
             pos = kicad_common_1.Point.add(pos, mod.pos);
         }
-        this.plotter.text(pos, color, text.text, text.angle, text.size, text.hjustify, text.vjustify, text.lineWidth, text.italic, text.bold);
+        const size = text.mirror ? -text.size : text.size;
+        this.plotter.text(pos, color, text.text, text.angle, size, text.hjustify, text.vjustify, text.lineWidth, text.italic, text.bold);
     }
     plotAllTextModule(mod) {
-        this.plotTextModule(mod, mod.reference, this.getColor(mod.reference.layer));
-        this.plotTextModule(mod, mod.value, this.getColor(mod.value.layer));
+        if (this.layerMask.has(mod.reference.layer)) {
+            this.plotTextModule(mod, mod.reference, this.getColor(mod.reference.layer));
+        }
+        if (this.layerMask.has(mod.value.layer)) {
+            this.plotTextModule(mod, mod.value, this.getColor(mod.value.layer));
+        }
         for (let text of mod.graphics) {
             if (!this.layerMask.has(text.layer))
                 continue;
             if (text instanceof kicad_pcb_1.TextModule) {
+                if (!text.visibility)
+                    continue;
                 this.plotTextModule(mod, text, this.getColor(text.layer));
             }
         }
@@ -320,15 +328,6 @@ class PCBPlotter {
     plotStandardLayer(board) {
         console.log('plotStandardLayer');
         for (let mod of board.modules) {
-            for (let edge of mod.graphics) {
-                if (!this.layerMask.has(edge.layer))
-                    continue;
-                if (edge instanceof kicad_pcb_1.EdgeModule) {
-                    this.plotEdgeModule(edge, mod);
-                }
-            }
-        }
-        for (let mod of board.modules) {
             for (let pad of mod.pads) {
                 if (!kicad_pcb_1.LSET.intersect(this.layerMask, pad.layers).length)
                     continue;
@@ -373,15 +372,87 @@ class PCBPlotter {
                 continue;
             this.plotFilledAreas(board, zone);
         }
-        // TODO this is silkscreen...
+        for (let mod of board.modules) {
+            if (!this.layerMask.has(mod.layer))
+                continue;
+            for (let edge of mod.graphics) {
+                if (!this.layerMask.has(edge.layer))
+                    continue;
+                if (edge instanceof kicad_pcb_1.EdgeModule) {
+                    this.plotEdgeModule(edge, mod);
+                }
+            }
+        }
+        this.plotDrillMarks(board);
+    }
+    plotSilkScreen(board) {
+        this.plotBoardGraphicItems(board);
         for (let mod of board.modules) {
             this.plotAllTextModule(mod);
         }
-        this.plotDrillMarks(board);
     }
     plotLayerOutline(board) {
     }
     plotSolderMaskLayer(board, minThickness) {
+    }
+    plotBoardLayers(board, layerMask) {
+        this.layerMask = layerMask;
+        this.plotStandardLayer(board);
+        this.plotSilkScreen(board);
+    }
+    plotOneBoardLayer(board, layerId) {
+        const layerMask = new kicad_pcb_1.LSET(layerId);
+        this.layerMask = layerMask;
+        if (kicad_pcb_1.IsCopperLayer(layerId)) {
+            this.plotOpt.skipNPTH_Pads = true;
+            this.plotStandardLayer(board);
+        }
+        else {
+            switch (layerId) {
+                case kicad_pcb_1.PCB_LAYER_ID.B_Mask:
+                case kicad_pcb_1.PCB_LAYER_ID.F_Mask:
+                    this.plotOpt.skipNPTH_Pads = false;
+                    this.plotOpt.drillMarks = DrillMarksType.NO_DRILL_SHAPE;
+                    if (board.boardDesignSetting.solderMaskMinWidth === 0) {
+                        this.plotStandardLayer(board);
+                    }
+                    else {
+                        this.plotSolderMaskLayer(board, board.boardDesignSetting.solderMaskMinWidth);
+                    }
+                    break;
+                case kicad_pcb_1.PCB_LAYER_ID.B_Adhes:
+                case kicad_pcb_1.PCB_LAYER_ID.F_Adhes:
+                case kicad_pcb_1.PCB_LAYER_ID.B_Paste:
+                case kicad_pcb_1.PCB_LAYER_ID.F_Paste:
+                    this.plotOpt.skipNPTH_Pads = false;
+                    this.plotOpt.drillMarks = DrillMarksType.NO_DRILL_SHAPE;
+                    this.plotStandardLayer(board);
+                    break;
+                case kicad_pcb_1.PCB_LAYER_ID.F_SilkS:
+                case kicad_pcb_1.PCB_LAYER_ID.B_SilkS:
+                    this.plotSilkScreen(board);
+                    break;
+                case kicad_pcb_1.PCB_LAYER_ID.Dwgs_User:
+                case kicad_pcb_1.PCB_LAYER_ID.Cmts_User:
+                case kicad_pcb_1.PCB_LAYER_ID.Eco1_User:
+                case kicad_pcb_1.PCB_LAYER_ID.Eco2_User:
+                case kicad_pcb_1.PCB_LAYER_ID.Edge_Cuts:
+                case kicad_pcb_1.PCB_LAYER_ID.Margin:
+                case kicad_pcb_1.PCB_LAYER_ID.F_CrtYd:
+                case kicad_pcb_1.PCB_LAYER_ID.B_CrtYd:
+                case kicad_pcb_1.PCB_LAYER_ID.F_Fab:
+                case kicad_pcb_1.PCB_LAYER_ID.B_Fab:
+                    this.plotOpt.skipNPTH_Pads = false;
+                    this.plotOpt.drillMarks = DrillMarksType.NO_DRILL_SHAPE;
+                    this.plotSilkScreen(board);
+                    break;
+                default:
+                    this.plotOpt.skipNPTH_Pads = false;
+                    this.plotOpt.drillMarks = DrillMarksType.NO_DRILL_SHAPE;
+                    this.plotSilkScreen(board);
+                    break;
+            }
+        }
     }
     plotFilledAreas(board, zone) {
         const polyList = zone.filledPolygons;
@@ -481,6 +552,8 @@ class PCBPlotter {
         }
     }
     plotBoardText(board, text) {
+        if (!this.layerMask.has(text.layer))
+            return;
         // console.log('plotBoardText', text);
         const color = this.getColor(text.layer);
         const t = text.text.replace(/\\n/g, "\n");
@@ -512,6 +585,8 @@ class PCBPlotter {
         }
     }
     plotDimension(board, dim) {
+        if (!this.layerMask.has(dim.layer))
+            return;
         const draw = new kicad_pcb_1.DrawSegment();
         draw.lineWidth = dim.lineWidth;
         draw.layer = dim.layer;
@@ -553,4 +628,17 @@ class PCBPlotter {
     }
 }
 exports.PCBPlotter = PCBPlotter;
+var DrillMarksType;
+(function (DrillMarksType) {
+    DrillMarksType[DrillMarksType["NO_DRILL_SHAPE"] = 0] = "NO_DRILL_SHAPE";
+    DrillMarksType[DrillMarksType["SMALL_DRILL_SHAPE"] = 1] = "SMALL_DRILL_SHAPE";
+    DrillMarksType[DrillMarksType["FULL_DRILL_SHAPE"] = 2] = "FULL_DRILL_SHAPE";
+})(DrillMarksType = exports.DrillMarksType || (exports.DrillMarksType = {}));
+class PCBPlotOptions {
+    constructor() {
+        this.drillMarks = DrillMarksType.SMALL_DRILL_SHAPE;
+        this.skipNPTH_Pads = true;
+    }
+}
+exports.PCBPlotOptions = PCBPlotOptions;
 //# sourceMappingURL=kicad_pcb_plotter.js.map

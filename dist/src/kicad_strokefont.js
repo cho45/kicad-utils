@@ -170,6 +170,10 @@ class StrokeFont {
         plotter.save();
         plotter.setCurrentLineWidth(lineWidth * BOLD_FACTOR);
         plotter.translate(p.x, p.y);
+        if (size < 0) {
+            size = -size;
+            plotter.scale(-1, 1);
+        }
         plotter.rotate(-kicad_common_1.DECIDEG2RAD(angle));
         let offset = 0;
         const lines = text.split(/\n/);

@@ -411,6 +411,7 @@ export class Color {
 	r: number;
 	g: number;
 	b: number;
+	a: number;
 
 	// common/colors.cpp 
 	static BLACK =         new Color(0    , 0   , 0    );
@@ -445,18 +446,19 @@ export class Color {
 	static PUREYELLOW =    new Color(255  , 255 , 0      );
 
 	// max 255 int
-	constructor(r: number, g: number, b:number) {
+	constructor(r: number, g: number, b:number, a:number=1.0) {
 		this.r = r;
 		this.g = g;
 		this.b = b;
+		this.a = a;
 	}
 
 	is(c: Color): boolean {
-		return this.r === c.r && this.g === c.g && this.b === c.b;
+		return this.r === c.r && this.g === c.g && this.b === c.b && this.a === c.a;
 	}
 
 	toCSSColor(): string {
-		return `rgb(${this.r}, ${this.g}, ${this.b})`;
+		return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
 	}
 
 	mix(c: Color): Color {
@@ -464,6 +466,7 @@ export class Color {
 			this.r | c.r,
 			this.g | c.g,
 			this.b | c.b,
+			this.a * c.a,
 		);
 	}
 }

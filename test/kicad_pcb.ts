@@ -52,6 +52,13 @@ describe("LSET", () => {
 		assert( lset.length === 2 );
 	});
 
+	it("has `has` method", () => {
+		const lset = new LSET(L.F_Cu, L.B_Cu);
+		assert( lset.has(L.F_Cu) );
+		assert( lset.has(L.B_Cu) );
+		assert( !lset.has(L.In1_Cu) );
+	});
+
 	it("can be used with for-of", () => {
 		const lset = new LSET(L.F_Cu, L.B_Cu);
 		{

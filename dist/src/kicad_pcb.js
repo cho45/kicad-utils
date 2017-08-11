@@ -101,6 +101,10 @@ var PadDrillShape;
     PadDrillShape[PadDrillShape["OBLONG"] = 1] = "OBLONG";
 })(PadDrillShape = exports.PadDrillShape || (exports.PadDrillShape = {}));
 ;
+function IsCopperLayer(layerId) {
+    return layerId >= PCB_LAYER_ID.F_Cu && layerId <= PCB_LAYER_ID.B_Cu;
+}
+exports.IsCopperLayer = IsCopperLayer;
 class PCB {
     constructor() {
         this.layerIndices = {};
@@ -1859,6 +1863,8 @@ class BoardDesignSetting {
         this.viasDimenstionsList = [];
         this.trackWidthList = [];
         this.netClasses = new NetClasses();
+        this.solderMaskMargin = 0;
+        this.solderMaskMinWidth = 0;
     }
 }
 exports.BoardDesignSetting = BoardDesignSetting;
