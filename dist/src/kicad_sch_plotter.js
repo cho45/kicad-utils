@@ -347,23 +347,7 @@ class SchPlotter {
         }
     }
     plotSchematic(sch, libs) {
-        // default page layout
-        const MARGIN = kicad_common_1.MM2MIL(10);
-        this.plotter.rect({ x: MARGIN, y: MARGIN }, { x: sch.descr.width - MARGIN, y: sch.descr.height - MARGIN }, kicad_common_1.Fill.NO_FILL, DEFAULT_LINE_WIDTH);
-        const OFFSET = kicad_common_1.MM2MIL(2);
-        this.plotter.rect({ x: MARGIN + OFFSET, y: MARGIN + OFFSET }, { x: sch.descr.width - MARGIN - OFFSET, y: sch.descr.height - MARGIN - OFFSET }, kicad_common_1.Fill.NO_FILL, DEFAULT_LINE_WIDTH);
-        // up
-        this.plotter.moveTo(sch.descr.width / 2, MARGIN);
-        this.plotter.finishTo(sch.descr.width / 2, MARGIN + OFFSET);
-        // bottom
-        this.plotter.moveTo(sch.descr.width / 2, sch.descr.height - MARGIN - OFFSET);
-        this.plotter.finishTo(sch.descr.width / 2, sch.descr.height - MARGIN);
-        // left
-        this.plotter.moveTo(MARGIN, sch.descr.height / 2);
-        this.plotter.finishTo(MARGIN + OFFSET, sch.descr.height / 2);
-        // right
-        this.plotter.moveTo(sch.descr.width - MARGIN - OFFSET, sch.descr.height / 2);
-        this.plotter.finishTo(sch.descr.width - MARGIN, sch.descr.height / 2);
+        this.plotter.plotPageInfo(sch.descr.pageInfo);
         for (let item of sch.items) {
             if (item instanceof kicad_sch_1.SchComponent) {
                 let component;

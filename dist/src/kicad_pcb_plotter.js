@@ -274,7 +274,7 @@ class PCBPlotter {
         }
     }
     plotEdgeModule(edge, mod) {
-        console.log('plotEdgeModule', edge);
+        // console.log('plotEdgeModule', edge);
         this.plotter.setColor(this.getColor(edge.layer));
         const lineWidth = edge.lineWidth;
         const shape = edge.shape;
@@ -320,7 +320,7 @@ class PCBPlotter {
         }
     }
     plotBoard(board) {
-        console.log('plotBoard', board);
+        // console.log('plotBoard', board);
     }
     plotBoardLayer(board, layer) {
         this.plotter.setColor(this.getColor(layer));
@@ -554,7 +554,6 @@ class PCBPlotter {
     plotBoardText(board, text) {
         if (!this.layerMask.has(text.layer))
             return;
-        // console.log('plotBoardText', text);
         const color = this.getColor(text.layer);
         const t = text.text.replace(/\\n/g, "\n");
         this.plotter.text(text.pos, color, t, text.angle, text.size, text.hjustify, text.vjustify, text.lineWidth, text.bold, text.italic);
@@ -591,6 +590,7 @@ class PCBPlotter {
         draw.lineWidth = dim.lineWidth;
         draw.layer = dim.layer;
         this.plotter.setColor(this.getColor(dim.layer));
+        console.log(dim.text);
         this.plotBoardText(board, dim.text);
         draw.start = dim.crossBarO;
         draw.end = dim.crossBarF;

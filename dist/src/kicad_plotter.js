@@ -125,6 +125,24 @@ class Plotter {
     finishPen() {
         this.penTo({ x: 0, y: 0 }, "Z");
     }
+    plotPageInfo(page) {
+        const MARGIN = kicad_common_1.MM2MIL(10);
+        this.rect({ x: MARGIN, y: MARGIN }, { x: page.width - MARGIN, y: page.height - MARGIN }, kicad_common_1.Fill.NO_FILL, DEFAULT_LINE_WIDTH);
+        const OFFSET = kicad_common_1.MM2MIL(2);
+        this.rect({ x: MARGIN + OFFSET, y: MARGIN + OFFSET }, { x: page.width - MARGIN - OFFSET, y: page.height - MARGIN - OFFSET }, kicad_common_1.Fill.NO_FILL, DEFAULT_LINE_WIDTH);
+        // up
+        this.moveTo(page.width / 2, MARGIN);
+        this.finishTo(page.width / 2, MARGIN + OFFSET);
+        // bottom
+        this.moveTo(page.width / 2, page.height - MARGIN - OFFSET);
+        this.finishTo(page.width / 2, page.height - MARGIN);
+        // left
+        this.moveTo(MARGIN, page.height / 2);
+        this.finishTo(MARGIN + OFFSET, page.height / 2);
+        // right
+        this.moveTo(page.width - MARGIN - OFFSET, page.height / 2);
+        this.finishTo(page.width - MARGIN, page.height / 2);
+    }
 }
 exports.Plotter = Plotter;
 class CanvasPlotter extends Plotter {
@@ -253,6 +271,9 @@ class CanvasPlotter extends Plotter {
     setCurrentLineWidth(w) {
         this.ctx.lineWidth = w;
     }
+    getCurrentLineWidth() {
+        return this.ctx.lineWidth;
+    }
     image(p, scale, originalWidth, originalHeight, data) {
         p = this.transform.transformCoordinate(p);
         const start = kicad_common_1.Point.sub(p, { x: originalWidth / 2, y: originalHeight / 2 });
@@ -320,6 +341,10 @@ class SVGPlotter extends Plotter {
         else {
             this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" />\n`;
         }
+    }
+    text(p, color, text, orientation, size, hjustfy, vjustify, width, italic, bold, multiline) {
+        this.output += this.xmlTag `<!-- draw text ${text} -->`;
+        super.text(p, color, text, orientation, size, hjustfy, vjustify, width, italic, bold, multiline);
     }
     /*
     text(
@@ -420,6 +445,9 @@ class SVGPlotter extends Plotter {
     setCurrentLineWidth(w) {
         this.lineWidth = w;
     }
+    getCurrentLineWidth() {
+        return this.lineWidth;
+    }
     image(p, scale, originalWidth, originalHeight, data) {
         p = this.transform.transformCoordinate(p);
         const width = originalWidth * scale;
@@ -458,7 +486,11 @@ class SVGPlotter extends Plotter {
         let result = "";
         for (let i = 0; i < placeholders.length; i++) {
             result += literals[i];
-            result += this.xmlentities(placeholders[i]);
+            let placeholder = placeholders[i];
+            //			if (typeof placeholder === 'number') {
+            //				placeholder = placeholder.toFixed(4);
+            //			}
+            result += this.xmlentities(placeholder);
         }
         result += literals[literals.length - 1];
         return result;

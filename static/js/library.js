@@ -3,7 +3,7 @@ const {
 	Transform,
 	CanvasPlotter,
 	SchPlotter,
-	Library,
+	Lib,
 } = require("kicad-utils");
 
 const Vue = require("vue");
@@ -60,7 +60,7 @@ const app = new Vue({
 			const res = await fetch(url);
 			const text = await res.text();
 			this.status = "parsing";
-			const lib = Library.load(text);
+			const lib = Lib.Library.load(text);
 			this.lib = lib;
 			this.components = lib.components;
 			await Vue.nextTick();

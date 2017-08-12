@@ -85,6 +85,7 @@ export abstract class Plotter {
 	abstract image(p: Point, scale: number, originalWidth:number, originalHeight:number, data: Uint8Array): void;
 
 	abstract setCurrentLineWidth(w: number): void;
+	abstract getCurrentLineWidth(): number;
 
 	setFill(fill : Fill) {
 		this.fill = fill;
@@ -207,6 +208,34 @@ export abstract class Plotter {
 		this.penTo({x: 0, y: 0}, "Z");
 	}
 
+	plotPageInfo(page: PageInfo) {
+		const MARGIN = MM2MIL(10);
+		this.rect(
+			{ x: MARGIN, y: MARGIN },
+			{ x: page.width - MARGIN, y: page.height - MARGIN },
+			Fill.NO_FILL,
+			DEFAULT_LINE_WIDTH
+		);
+		const OFFSET = MM2MIL(2);
+		this.rect(
+			{ x: MARGIN + OFFSET, y: MARGIN + OFFSET },
+			{ x: page.width - MARGIN - OFFSET, y: page.height - MARGIN - OFFSET },
+			Fill.NO_FILL,
+			DEFAULT_LINE_WIDTH
+		);
+		// up
+		this.moveTo(page.width / 2, MARGIN);
+		this.finishTo(page.width / 2, MARGIN + OFFSET);
+		// bottom
+		this.moveTo(page.width / 2, page.height - MARGIN - OFFSET);
+		this.finishTo(page.width / 2, page.height - MARGIN);
+		// left
+		this.moveTo(MARGIN, page.height / 2);
+		this.finishTo(MARGIN + OFFSET, page.height / 2);
+		// right
+		this.moveTo(page.width - MARGIN - OFFSET, page.height / 2);
+		this.finishTo(page.width - MARGIN, page.height / 2);
+	}
 }
 
 export class CanvasPlotter extends Plotter {
@@ -344,6 +373,10 @@ export class CanvasPlotter extends Plotter {
 		this.ctx.lineWidth = w;
 	}
 
+	getCurrentLineWidth(): number {
+		return this.ctx.lineWidth;
+	}
+
 	image(p: Point, scale: number, originalWidth:number, originalHeight:number, data: Uint8Array): void {
 		p = this.transform.transformCoordinate(p);
 		const start = Point.sub(p, { x: originalWidth / 2, y: originalHeight / 2 });
@@ -426,6 +459,23 @@ export class SVGPlotter extends Plotter {
 		} else {
 			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" />\n`;
 		}
+	}
+
+	text(
+		p: Point,
+		color: Color,
+		text: string,
+		orientation: number,
+		size: number,
+		hjustfy: TextHjustify,
+		vjustify: TextVjustify,
+		width: number,
+		italic: boolean,
+		bold: boolean,
+		multiline?: boolean,
+	): void {
+		this.output += this.xmlTag `<!-- draw text ${text} -->`;
+		super.text(p, color, text, orientation, size, hjustfy, vjustify, width, italic, bold, multiline);
 	}
 
 	/*
@@ -529,6 +579,10 @@ export class SVGPlotter extends Plotter {
 		this.lineWidth = w;
 	}
 
+	getCurrentLineWidth(): number {
+		return this.lineWidth;
+	}
+
 	image(p: Point, scale: number, originalWidth:number, originalHeight:number, data: Uint8Array): void {
 		p = this.transform.transformCoordinate(p);
 		const width = originalWidth * scale;
@@ -572,7 +626,11 @@ export class SVGPlotter extends Plotter {
 
 		for (let i = 0; i < placeholders.length; i++) {
 			result += literals[i];
-			result += this.xmlentities(placeholders[i]);
+			let placeholder = placeholders[i];
+//			if (typeof placeholder === 'number') {
+//				placeholder = placeholder.toFixed(4);
+//			}
+			result += this.xmlentities(placeholder);
 		}
 
 		result += literals[literals.length - 1];

@@ -210,7 +210,7 @@ class Transform {
         return new Point(x, y);
     }
     transformScalar(n) {
-        return n * this.x1;
+        return (Math.abs(n * this.x1) + Math.abs(n * this.x2) + Math.abs(n * this.y1) + Math.abs(n * this.y2)) / 2;
     }
     mapAngles(angle1, angle2) {
         let angle, delta;

@@ -55,7 +55,7 @@ function lib(path) {
         v("Loading LIB", path);
         try {
             const content = fs.readFileSync(path, 'utf-8');
-            _libs[path] = kicad_utils_1.Library.load(content);
+            _libs[path] = kicad_utils_1.Lib.Library.load(content);
         }
         catch (e) {
             console.warn(e);
@@ -95,7 +95,7 @@ for (let schFile of schFiles) {
         }
     }
     v("Loading SCH", schFile);
-    const sch = kicad_utils_1.Schematic.load(fs.readFileSync(schFile, 'utf-8'));
+    const sch = kicad_utils_1.Sch.Schematic.load(fs.readFileSync(schFile, 'utf-8'));
     if (argv.png) {
         const MAX_WIDTH = 1920 * 2;
         const MAX_HEIGHT = 1080 * 2;

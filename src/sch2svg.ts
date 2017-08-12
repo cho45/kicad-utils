@@ -3,10 +3,11 @@
 
 import {
 	Transform,
-	CanvasPlotter, SVGPlotter,
+	CanvasPlotter,
+	SVGPlotter,
 	SchPlotter,
-	Library,
-	Schematic,
+	Lib,
+	Sch,
 } from "./kicad-utils";
 
 //import { Transform } from "./kicad_common";
@@ -17,7 +18,6 @@ import {
 import * as fs from "fs";
 import * as path from "path";
 import * as minimist from "minimist";
-
 
 const argv = minimist(process.argv.slice(2), {
 	boolean: true,
@@ -60,13 +60,13 @@ for (let arg of argv._) {
 	}
 }
 
-const _libs: { [key: string]: Library } = {};
-function lib(path: string): Library {
+const _libs: { [key: string]: Lib.Library } = {};
+function lib(path: string): Lib.Library {
 	if (!_libs[path]) {
 		v("Loading LIB", path);
 		try {
 			const content = fs.readFileSync(path, 'utf-8');
-			_libs[path] = Library.load(content);
+			_libs[path] = Lib.Library.load(content);
 		} catch (e) {
 			console.warn(e);
 		}
@@ -107,7 +107,7 @@ for (let schFile of schFiles) {
 
 
 	v("Loading SCH", schFile);
-	const sch = Schematic.load(fs.readFileSync(schFile, 'utf-8'));
+	const sch = Sch.Schematic.load(fs.readFileSync(schFile, 'utf-8'));
 
 	if (argv.png) {
 		const MAX_WIDTH = 1920 * 2;

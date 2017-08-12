@@ -14,6 +14,7 @@ module.exports = {
 	entry: {
 		library: ['url-search-params-polyfill', 'babel-polyfill', 'whatwg-fetch', './static/js/library.js'],
 		schematic: ['url-search-params-polyfill', 'babel-polyfill', 'whatwg-fetch', './static/js/schematic.js'],
+		pcb: ['url-search-params-polyfill', 'babel-polyfill', 'whatwg-fetch', './static/js/pcb.js'],
 	},
 
 	output: {
@@ -74,12 +75,12 @@ module.exports = {
 	},
 
 	plugins: [
-		new UglifyJSPlugin({
-			sourceMap: true,
-			parallel: true,
-			output: {
-				comments: saveLicense
-			}
-		})
+//		new UglifyJSPlugin({
+//			sourceMap: true,
+//			parallel: true,
+//			output: {
+//				comments: saveLicense
+//			}
+//		})
 	]
 };
