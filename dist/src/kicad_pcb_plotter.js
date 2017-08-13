@@ -294,7 +294,7 @@ class PCBPlotter {
             const radius = kicad_common_1.GetLineLength(pos, end);
             const startAngle = kicad_common_1.ArcTangente(end.y - pos.y, end.x - pos.x);
             const endAngle = startAngle + edge.angle;
-            this.thickArc(pos, -endAngle, -startAngle, radius, lineWidth, this.getPlotMode());
+            this.thickArc(pos, endAngle, startAngle, radius, lineWidth, this.getPlotMode());
         }
         else if (shape === kicad_pcb_1.Shape.CIRCLE) {
             const radius = kicad_common_1.GetLineLength(pos, end);
@@ -572,7 +572,7 @@ class PCBPlotter {
             const radius = kicad_common_1.GetLineLength(end, start);
             const startAngle = kicad_common_1.ArcTangente(end.y - start.y, end.x - start.x);
             const endAngle = startAngle + seg.angle;
-            this.thickArc(start, -endAngle, -startAngle, radius, lineWidth, this.getPlotMode());
+            this.thickArc(start, endAngle, startAngle, radius, lineWidth, this.getPlotMode());
         }
         else if (seg.shape === kicad_pcb_1.Shape.CURVE) {
             for (var i = 1, len = seg.bezierPoints.length; i < len; i++) {

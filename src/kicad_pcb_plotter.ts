@@ -400,7 +400,7 @@ export class PCBPlotter {
 			const radius = GetLineLength(pos, end);
 			const startAngle  = ArcTangente( end.y - pos.y, end.x - pos.x );
 			const endAngle = startAngle + edge.angle;
-			this.thickArc( pos, -endAngle, -startAngle, radius, lineWidth, this.getPlotMode());
+			this.thickArc( pos, endAngle, startAngle, radius, lineWidth, this.getPlotMode());
 		} else
 		if (shape === Shape.CIRCLE) {
 			const radius = GetLineLength(pos, end);
@@ -705,7 +705,7 @@ export class PCBPlotter {
 			const radius = GetLineLength(end, start);
 			const startAngle = ArcTangente(end.y - start.y, end.x - start.x);
 			const endAngle   = startAngle + seg.angle;
-			this.thickArc(start, -endAngle, -startAngle, radius, lineWidth, this.getPlotMode());
+			this.thickArc(start, endAngle, startAngle, radius, lineWidth, this.getPlotMode());
 		} else
 		if (seg.shape === Shape.CURVE) {
 			for (var i = 1, len = seg.bezierPoints.length; i < len; i++) {

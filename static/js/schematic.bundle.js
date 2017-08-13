@@ -5727,12 +5727,12 @@ var PCB = function () {
     }, {
         key: "parseBoard",
         value: function parseBoard() {
-            console.log('parseBoard');
+            // console.log('parseBoard');
             this.parseHeader();
             for (var token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
                 this.expecting(token, kicad_pcb_token_1.Token.LEFT);
                 token = this.nextTok();
-                console.log('parseBoard', token);
+                // console.log('parseBoard', token);
                 if (token.is(kicad_pcb_token_1.Token.general)) {
                     this.parseGeneralSection();
                 } else if (token.is(kicad_pcb_token_1.Token.page)) {
@@ -5775,7 +5775,7 @@ var PCB = function () {
             var token = this.nextTok();
             if (token.is(kicad_pcb_token_1.Token.version)) {
                 var version = this.parseInt("version");
-                console.log('version', version);
+                // console.log('version', version);
                 this.needRIGHT();
                 // (host pcbnew 4.0.2-stable)
                 this.needLEFT();
@@ -6269,7 +6269,7 @@ var PCB = function () {
             this.needSYMBOLorNUMBER();
             pad.name = this.curText();
             var token = this.nextTok();
-            console.log('parsePad', token);
+            // console.log('parsePad', token);
             if (token.is(kicad_pcb_token_1.Token.thru_hole)) {
                 pad.attribute = PadAttr.STANDARD;
             } else if (token.is(kicad_pcb_token_1.Token.smd)) {
@@ -6284,7 +6284,7 @@ var PCB = function () {
                 this.expecting(token, kicad_pcb_token_1.Token.thru_hole, kicad_pcb_token_1.Token.smd, kicad_pcb_token_1.Token.connect, kicad_pcb_token_1.Token.np_thru_hole);
             }
             token = this.nextTok();
-            console.log('parsePad', token);
+            // console.log('parsePad', token);
             if (token.is(kicad_pcb_token_1.Token.circle)) {
                 pad.shape = PadShape.CIRCLE;
             } else if (token.is(kicad_pcb_token_1.Token.rect)) {
@@ -6301,7 +6301,7 @@ var PCB = function () {
             for (var _token6 = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(_token6); _token6 = this.nextTok()) {
                 this.expecting(_token6, kicad_pcb_token_1.Token.LEFT);
                 _token6 = this.nextTok();
-                console.log('parsePad', _token6);
+                // console.log('parsePad', token);
                 if (_token6.is(kicad_pcb_token_1.Token.size)) {
                     var width = this.parseBoardUnits("width");
                     var height = this.parseBoardUnits("height");
@@ -6452,17 +6452,16 @@ var PCB = function () {
         value: function parseDimensionSection() {
             var dimension = new Dimension();
             dimension.value = this.parseBoardUnits('dimension value');
-            console.log('parseDimensionSection');
             this.needLEFT();
             var token = this.nextTok();
-            console.log('parseDimensionSection', token);
+            // console.log('parseDimensionSection', token);
             this.expecting(token, kicad_pcb_token_1.Token.width);
             dimension.lineWidth = this.parseBoardUnits("dimension width");
             this.needRIGHT();
             for (var _token10 = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(_token10); _token10 = this.nextTok()) {
                 this.expecting(_token10, kicad_pcb_token_1.Token.LEFT);
                 _token10 = this.nextTok();
-                console.log('parseDimensionSection', _token10);
+                // console.log('parseDimensionSection', token);
                 if (_token10.is(kicad_pcb_token_1.Token.layer)) {
                     dimension.layer = this.parseBoardItemLayer("dimension layer");
                     this.needRIGHT();
@@ -6537,7 +6536,7 @@ var PCB = function () {
     }, {
         key: "parseModuleSection",
         value: function parseModuleSection() {
-            console.log('parseModuleSection');
+            // console.log('parseModuleSection');
             var mod = new Module();
             this.needSYMBOLorNUMBER();
             var name = this.curText();
@@ -6546,7 +6545,7 @@ var PCB = function () {
                 if (token.is(kicad_pcb_token_1.Token.LEFT)) {
                     token = this.nextTok();
                 }
-                console.log('parseModuleSection', token);
+                // console.log('parseModuleSection', token);
                 if (token.is(kicad_pcb_token_1.Token.version)) {
                     var version = this.parseInt("version");
                     this.needRIGHT();
@@ -6694,7 +6693,7 @@ var PCB = function () {
                 if (token.is(kicad_pcb_token_1.Token.LEFT)) {
                     token = this.nextTok();
                 }
-                console.log('parseViaSection', token);
+                // console.log('parseViaSection', token);
                 if (token.is(kicad_pcb_token_1.Token.blind)) {
                     via.viaType = ViaType.BLIND_BURIED;
                 } else if (token.is(kicad_pcb_token_1.Token.micro)) {
@@ -6742,7 +6741,7 @@ var PCB = function () {
                 if (token.is(kicad_pcb_token_1.Token.LEFT)) {
                     token = this.nextTok();
                 }
-                console.log('parseZoneSection', token);
+                // console.log('parseZoneSection', token);
                 if (token.is(kicad_pcb_token_1.Token.net)) {
                     var net = this.parseInt("net");
                     zone.netCode = this.netCodes[net];
@@ -15984,7 +15983,7 @@ var PCBPlotter = function () {
                 var radius = kicad_common_1.GetLineLength(pos, end);
                 var startAngle = kicad_common_1.ArcTangente(end.y - pos.y, end.x - pos.x);
                 var endAngle = startAngle + edge.angle;
-                this.thickArc(pos, -endAngle, -startAngle, radius, lineWidth, this.getPlotMode());
+                this.thickArc(pos, endAngle, startAngle, radius, lineWidth, this.getPlotMode());
             } else if (shape === kicad_pcb_1.Shape.CIRCLE) {
                 var _radius = kicad_common_1.GetLineLength(pos, end);
                 this.thickCircle(pos, _radius * 2, lineWidth, this.getPlotMode());
@@ -16695,7 +16694,7 @@ var PCBPlotter = function () {
                 var _radius2 = kicad_common_1.GetLineLength(end, start);
                 var startAngle = kicad_common_1.ArcTangente(end.y - start.y, end.x - start.x);
                 var endAngle = startAngle + seg.angle;
-                this.thickArc(start, -endAngle, -startAngle, _radius2, lineWidth, this.getPlotMode());
+                this.thickArc(start, endAngle, startAngle, _radius2, lineWidth, this.getPlotMode());
             } else if (seg.shape === kicad_pcb_1.Shape.CURVE) {
                 for (var i = 1, len = seg.bezierPoints.length; i < len; i++) {
                     this.thickSegment(seg.bezierPoints[i - 1], seg.bezierPoints[i], lineWidth, this.getPlotMode());

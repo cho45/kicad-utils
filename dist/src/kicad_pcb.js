@@ -290,12 +290,12 @@ class PCB {
         }
     }
     parseBoard() {
-        console.log('parseBoard');
+        // console.log('parseBoard');
         this.parseHeader();
         for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
             this.expecting(token, kicad_pcb_token_1.Token.LEFT);
             token = this.nextTok();
-            console.log('parseBoard', token);
+            // console.log('parseBoard', token);
             if (token.is(kicad_pcb_token_1.Token.general)) {
                 this.parseGeneralSection();
             }
@@ -355,7 +355,7 @@ class PCB {
         let token = this.nextTok();
         if (token.is(kicad_pcb_token_1.Token.version)) {
             const version = this.parseInt("version");
-            console.log('version', version);
+            // console.log('version', version);
             this.needRIGHT();
             // (host pcbnew 4.0.2-stable)
             this.needLEFT();
@@ -850,7 +850,7 @@ class PCB {
         this.needSYMBOLorNUMBER();
         pad.name = this.curText();
         let token = this.nextTok();
-        console.log('parsePad', token);
+        // console.log('parsePad', token);
         if (token.is(kicad_pcb_token_1.Token.thru_hole)) {
             pad.attribute = PadAttr.STANDARD;
         }
@@ -869,7 +869,7 @@ class PCB {
             this.expecting(token, kicad_pcb_token_1.Token.thru_hole, kicad_pcb_token_1.Token.smd, kicad_pcb_token_1.Token.connect, kicad_pcb_token_1.Token.np_thru_hole);
         }
         token = this.nextTok();
-        console.log('parsePad', token);
+        // console.log('parsePad', token);
         if (token.is(kicad_pcb_token_1.Token.circle)) {
             pad.shape = PadShape.CIRCLE;
         }
@@ -891,7 +891,7 @@ class PCB {
         for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
             this.expecting(token, kicad_pcb_token_1.Token.LEFT);
             token = this.nextTok();
-            console.log('parsePad', token);
+            // console.log('parsePad', token);
             if (token.is(kicad_pcb_token_1.Token.size)) {
                 let width = this.parseBoardUnits("width");
                 let height = this.parseBoardUnits("height");
@@ -1073,17 +1073,16 @@ class PCB {
     parseDimensionSection() {
         const dimension = new Dimension();
         dimension.value = this.parseBoardUnits('dimension value');
-        console.log('parseDimensionSection');
         this.needLEFT();
         let token = this.nextTok();
-        console.log('parseDimensionSection', token);
+        // console.log('parseDimensionSection', token);
         this.expecting(token, kicad_pcb_token_1.Token.width);
         dimension.lineWidth = this.parseBoardUnits("dimension width");
         this.needRIGHT();
         for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
             this.expecting(token, kicad_pcb_token_1.Token.LEFT);
             token = this.nextTok();
-            console.log('parseDimensionSection', token);
+            // console.log('parseDimensionSection', token);
             if (token.is(kicad_pcb_token_1.Token.layer)) {
                 dimension.layer = this.parseBoardItemLayer("dimension layer");
                 this.needRIGHT();
@@ -1166,7 +1165,7 @@ class PCB {
         return dimension;
     }
     parseModuleSection() {
-        console.log('parseModuleSection');
+        // console.log('parseModuleSection');
         const mod = new Module();
         this.needSYMBOLorNUMBER();
         const name = this.curText();
@@ -1175,7 +1174,7 @@ class PCB {
             if (token.is(kicad_pcb_token_1.Token.LEFT)) {
                 token = this.nextTok();
             }
-            console.log('parseModuleSection', token);
+            // console.log('parseModuleSection', token);
             if (token.is(kicad_pcb_token_1.Token.version)) {
                 const version = this.parseInt("version");
                 this.needRIGHT();
@@ -1359,7 +1358,7 @@ class PCB {
             if (token.is(kicad_pcb_token_1.Token.LEFT)) {
                 token = this.nextTok();
             }
-            console.log('parseViaSection', token);
+            // console.log('parseViaSection', token);
             if (token.is(kicad_pcb_token_1.Token.blind)) {
                 via.viaType = ViaType.BLIND_BURIED;
             }
@@ -1414,7 +1413,7 @@ class PCB {
             if (token.is(kicad_pcb_token_1.Token.LEFT)) {
                 token = this.nextTok();
             }
-            console.log('parseZoneSection', token);
+            // console.log('parseZoneSection', token);
             if (token.is(kicad_pcb_token_1.Token.net)) {
                 const net = this.parseInt("net");
                 zone.netCode = this.netCodes[net];

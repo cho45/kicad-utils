@@ -339,14 +339,14 @@ export class PCB {
 	}
 
 	parseBoard(): void {
-		console.log('parseBoard');
+		// console.log('parseBoard');
 		this.parseHeader();
 
 		for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
 			this.expecting(token, Token.LEFT);
 
 			token = this.nextTok();
-			console.log('parseBoard', token);
+			// console.log('parseBoard', token);
 
 			if (token.is(Token.general)) {
 				this.parseGeneralSection();
@@ -407,7 +407,7 @@ export class PCB {
 		let token = this.nextTok();
 		if (token.is(Token.version)) {
 			const version = this.parseInt("version");
-			console.log('version', version);
+			// console.log('version', version);
 			this.needRIGHT();
 
 			// (host pcbnew 4.0.2-stable)
@@ -936,7 +936,7 @@ export class PCB {
 		pad.name = this.curText();
 
 		let token = this.nextTok();
-		console.log('parsePad', token);
+		// console.log('parsePad', token);
 
 		if (token.is(Token.thru_hole)) {
 			pad.attribute = PadAttr.STANDARD;
@@ -956,7 +956,7 @@ export class PCB {
 		}
 
 		token = this.nextTok();
-		console.log('parsePad', token);
+		// console.log('parsePad', token);
 
 		if (token.is(Token.circle)) {
 			pad.shape = PadShape.CIRCLE;
@@ -980,7 +980,7 @@ export class PCB {
 			this.expecting(token, Token.LEFT);
 
 			token = this.nextTok();
-			console.log('parsePad', token);
+			// console.log('parsePad', token);
 
 			if (token.is(Token.size)) {
 				let width = this.parseBoardUnits("width");
@@ -1175,11 +1175,10 @@ export class PCB {
 	parseDimensionSection() {
 		const dimension = new Dimension();
 		dimension.value = this.parseBoardUnits('dimension value');
-		console.log('parseDimensionSection');
 
 		this.needLEFT();
 		let token = this.nextTok();
-		console.log('parseDimensionSection', token);
+		// console.log('parseDimensionSection', token);
 		this.expecting(token, Token.width);
 		dimension.lineWidth = this.parseBoardUnits("dimension width");
 		this.needRIGHT();
@@ -1187,7 +1186,7 @@ export class PCB {
 		for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
 			this.expecting(token, Token.LEFT);
 			token = this.nextTok();
-			console.log('parseDimensionSection', token);
+			// console.log('parseDimensionSection', token);
 			if (token.is(Token.layer)) {
 				dimension.layer = this.parseBoardItemLayer("dimension layer");
 				this.needRIGHT();
@@ -1281,7 +1280,7 @@ export class PCB {
 	}
 
 	parseModuleSection(): Module {
-		console.log('parseModuleSection');
+		// console.log('parseModuleSection');
 		const mod = new Module();
 
 		this.needSYMBOLorNUMBER();
@@ -1292,7 +1291,7 @@ export class PCB {
 			if (token.is(Token.LEFT)) {
 				token = this.nextTok();
 			}
-			console.log('parseModuleSection', token);
+			// console.log('parseModuleSection', token);
 			if (token.is(Token.version)) {
 				const version = this.parseInt("version");
 				this.needRIGHT();
@@ -1508,7 +1507,7 @@ export class PCB {
 			if (token.is(Token.LEFT)) {
 				token = this.nextTok();
 			}
-			console.log('parseViaSection', token);
+			// console.log('parseViaSection', token);
 
 			if (token.is(Token.blind)) {
 				via.viaType = ViaType.BLIND_BURIED;
@@ -1575,7 +1574,7 @@ export class PCB {
 			if (token.is(Token.LEFT)) {
 				token = this.nextTok();
 			}
-			console.log('parseZoneSection', token);
+			// console.log('parseZoneSection', token);
 
 			if (token.is(Token.net)) {
 				const net = this.parseInt("net");
