@@ -26669,9 +26669,24 @@ var PCBPlotter = function () {
             } else if (pad.shape === kicad_pcb_1.PadShape.OVAL) {
                 this.flashPadOval(pad.pos, pad.size, pad.orientation, fill);
             } else if (pad.shape === kicad_pcb_1.PadShape.TRAPEZOID) {
-                // TODO
+                var coords = [];
+                var sw = pad.size.width >> 1;
+                var sh = pad.size.height >> 1;
+                var dw = pad.delta.width >> 1;
+                var dh = pad.delta.height >> 1;
+                if (dw < 0 && dw <= -sh) dw = -sh + 1;
+                if (dw > 0 && dw >= sh) dw = sh - 1;
+                if (dh < 0 && dh <= -sw) dh = -sw + 1;
+                if (dh > 0 && dh >= sw) dh = sw - 1;
+                coords.push(new kicad_common_1.Point(-sw - dh, +sh + dw));
+                coords.push(new kicad_common_1.Point(-sw + dh, -sh - dw));
+                coords.push(new kicad_common_1.Point(+sw - dh, -sh + dw));
+                coords.push(new kicad_common_1.Point(+sw + dh, +sh - dw));
+                this.flashPadTrapezoid(pad.pos, coords, pad.orientation, fill);
             } else if (pad.shape === kicad_pcb_1.PadShape.ROUNDRECT) {
-                // TODO
+                var r = pad.size.width > pad.size.height ? pad.size.height : pad.size.width;
+                r = Math.floor(r * pad.roundRectRatio);
+                this.flashPadRoundRect(pad.pos, pad.size, r, fill);
             }
         }
     }, {

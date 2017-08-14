@@ -26669,9 +26669,24 @@ var PCBPlotter = function () {
             } else if (pad.shape === kicad_pcb_1.PadShape.OVAL) {
                 this.flashPadOval(pad.pos, pad.size, pad.orientation, fill);
             } else if (pad.shape === kicad_pcb_1.PadShape.TRAPEZOID) {
-                // TODO
+                var coords = [];
+                var sw = pad.size.width >> 1;
+                var sh = pad.size.height >> 1;
+                var dw = pad.delta.width >> 1;
+                var dh = pad.delta.height >> 1;
+                if (dw < 0 && dw <= -sh) dw = -sh + 1;
+                if (dw > 0 && dw >= sh) dw = sh - 1;
+                if (dh < 0 && dh <= -sw) dh = -sw + 1;
+                if (dh > 0 && dh >= sw) dh = sw - 1;
+                coords.push(new kicad_common_1.Point(-sw - dh, +sh + dw));
+                coords.push(new kicad_common_1.Point(-sw + dh, -sh - dw));
+                coords.push(new kicad_common_1.Point(+sw - dh, -sh + dw));
+                coords.push(new kicad_common_1.Point(+sw + dh, +sh - dw));
+                this.flashPadTrapezoid(pad.pos, coords, pad.orientation, fill);
             } else if (pad.shape === kicad_pcb_1.PadShape.ROUNDRECT) {
-                // TODO
+                var r = pad.size.width > pad.size.height ? pad.size.height : pad.size.width;
+                r = Math.floor(r * pad.roundRectRatio);
+                this.flashPadRoundRect(pad.pos, pad.size, r, fill);
             }
         }
     }, {
@@ -27510,29 +27525,116 @@ var app = new Vue({
 									_this.status = 'loading ' + pcbFile;
 									var pcb = Pcb.PCB.load(pcbFile.content);
 
-									var B_Cu = render(pcb, function (plotter, pcbPlotter) {
-										pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(L.B_Cu, L.B_Fab, L.B_CrtYd, L.B_Adhes, L.B_Paste, L.B_SilkS, L.Edge_Cuts));
-									});
-									var F_Cu = render(pcb, function (plotter, pcbPlotter) {
-										pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(L.F_Cu, L.F_Fab, L.F_CrtYd, L.F_Adhes, L.F_Paste, L.F_SilkS, L.Edge_Cuts));
-									});
-									var Dwgs_User = render(pcb, function (plotter, pcbPlotter) {
-										pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(L.Dwgs_User));
-									});
 									_this.results.push({
 										url: pcbFile.url,
 										mirror: false,
 										layers: [{
 											name: "F_Cu",
-											src: F_Cu,
+											src: render(pcb, function (plotter, pcbPlotter) {
+												pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(L.F_Cu));
+											}),
 											visible: true
 										}, {
 											name: "B_Cu",
-											src: B_Cu,
+											src: render(pcb, function (plotter, pcbPlotter) {
+												pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(L.B_Cu));
+											}),
+											visible: true
+										}, {
+											name: "F_Adhes",
+											src: render(pcb, function (plotter, pcbPlotter) {
+												pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(L.F_Adhes));
+											}),
+											visible: true
+										}, {
+											name: "B_Adhes",
+											src: render(pcb, function (plotter, pcbPlotter) {
+												pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(L.B_Adhes));
+											}),
+											visible: true
+										}, {
+											name: "F_Paste",
+											src: render(pcb, function (plotter, pcbPlotter) {
+												pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(L.F_Paste));
+											}),
+											visible: true
+										}, {
+											name: "B_Paste",
+											src: render(pcb, function (plotter, pcbPlotter) {
+												pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(L.B_Paste));
+											}),
+											visible: true
+										}, {
+											name: "F_SilkS",
+											src: render(pcb, function (plotter, pcbPlotter) {
+												pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(L.F_SilkS));
+											}),
+											visible: true
+										}, {
+											name: "B_SilkS",
+											src: render(pcb, function (plotter, pcbPlotter) {
+												pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(L.B_SilkS));
+											}),
+											visible: true
+										}, {
+											name: "F_Mask",
+											src: render(pcb, function (plotter, pcbPlotter) {
+												pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(L.F_Mask));
+											}),
+											visible: true
+										}, {
+											name: "B_Mask",
+											src: render(pcb, function (plotter, pcbPlotter) {
+												pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(L.B_Mask));
+											}),
 											visible: true
 										}, {
 											name: "Dwgs_User",
-											src: Dwgs_User,
+											src: render(pcb, function (plotter, pcbPlotter) {
+												pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(L.Dwgs_User));
+											}),
+											visible: true
+										}, {
+											name: "Eco1.User",
+											src: render(pcb, function (plotter, pcbPlotter) {
+												pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(L.Eco1_User));
+											}),
+											visible: true
+										}, {
+											name: "Eco2.User",
+											src: render(pcb, function (plotter, pcbPlotter) {
+												pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(L.Eco2_User));
+											}),
+											visible: true
+										}, {
+											name: "Edge_Cuts",
+											src: render(pcb, function (plotter, pcbPlotter) {
+												pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(L.Edge_Cuts));
+											}),
+											visible: true
+										}, {
+											name: "F_CrtYd",
+											src: render(pcb, function (plotter, pcbPlotter) {
+												pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(L.F_CrtYd));
+											}),
+											visible: true
+										}, {
+											name: "B_CrtYd",
+											src: render(pcb, function (plotter, pcbPlotter) {
+												pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(L.B_CrtYd));
+											}),
+											visible: true
+										}, {
+											name: "F_Fab",
+											src: render(pcb, function (plotter, pcbPlotter) {
+												pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(L.F_Fab));
+											}),
+											visible: true
+										}, {
+											name: "B_Fab",
+											src: render(pcb, function (plotter, pcbPlotter) {
+												pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(L.B_Fab));
+											}),
 											visible: true
 										}]
 									});

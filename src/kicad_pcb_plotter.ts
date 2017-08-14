@@ -706,10 +706,37 @@ export class PCBPlotter {
 			this.flashPadOval(pad.pos, pad.size, pad.orientation, fill);
 		} else
 		if (pad.shape === PadShape.TRAPEZOID) {
-			// TODO
+			const coords: Array<Point> = [];
+			let sw = pad.size.width >> 1;
+			let sh = pad.size.height >> 1;
+			let dw = pad.delta.width >> 1;
+			let dh = pad.delta.height >> 1;
+			if ( (dw < 0) && (dw <= -sh) ) dw = -sh + 1;
+			if ( (dw > 0) && (dw >= sh) ) dw = sh - 1;
+			if ( (dh < 0) && (dh <= -sw) ) dh = -sw + 1;
+			if ( (dh > 0) && (dh >= sw) ) dh = sw - 1;
+			coords.push(new Point(
+				-sw - dh,
+				+sh + dw
+			));
+			coords.push(new Point(
+				-sw + dh,
+				-sh - dw
+			));
+			coords.push(new Point(
+				+sw - dh,
+				-sh + dw
+			));
+			coords.push(new Point(
+				+sw + dh,
+				+sh - dw
+			));
+			this.flashPadTrapezoid(pad.pos, coords, pad.orientation, fill);
 		} else
 		if (pad.shape === PadShape.ROUNDRECT) {
-			// TODO
+			let r = pad.size.width > pad.size.height ? pad.size.height : pad.size.width;
+			r = Math.floor(r * pad.roundRectRatio);
+			this.flashPadRoundRect(pad.pos, pad.size, r, fill);
 		}
 	}
 
