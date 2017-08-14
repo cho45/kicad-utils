@@ -21,7 +21,6 @@ const app = new Vue({
 		].join("\n"),
 		status: "init",
 		lib: {},
-		components: [],
 		results: [],
 		errors: [],
 	},

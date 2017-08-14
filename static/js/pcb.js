@@ -78,11 +78,7 @@ const app = new Vue({
 			}
 
 			this.results = [];
-			for (let pcbFile of pcbFiles) {
-				this.status = 'loading ' + pcbFile;
-				const pcb = Pcb.PCB.load(pcbFile.content);
-
-				const PCB_LAYER_ID = Pcb.PCB_LAYER_ID;
+			const render = (pcb, cb) => {
 				const plotter = new SVGPlotter();
 				plotter.pageInfo = pcb.pageInfo;
 				plotter.startPlot();
@@ -91,24 +87,7 @@ const app = new Vue({
 				plotter.translate(0, 0);
 				plotter.setColor(Color.WHITE);
 				plotter.plotPageInfo(pcb.pageInfo);
-				pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(
-					PCB_LAYER_ID.B_Cu,
-					PCB_LAYER_ID.B_Fab,
-					PCB_LAYER_ID.B_CrtYd,
-					PCB_LAYER_ID.B_Adhes,
-					PCB_LAYER_ID.B_Paste,
-					PCB_LAYER_ID.B_SilkS,
-				));
-				pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(
-					PCB_LAYER_ID.F_Cu,
-					PCB_LAYER_ID.F_Fab,
-					PCB_LAYER_ID.F_CrtYd,
-					PCB_LAYER_ID.F_Adhes,
-					PCB_LAYER_ID.F_Paste,
-					PCB_LAYER_ID.F_SilkS,
-					PCB_LAYER_ID.Dwgs_User,
-					PCB_LAYER_ID.Edge_Cuts,
-				));
+				cb(plotter, pcbPlotter);
 				plotter.restore();
 				plotter.endPlot();
 				const svg = plotter.output;
@@ -123,9 +102,61 @@ const app = new Vue({
 				} else {
 					src = 'data:image/svg+xml,' + encodeURIComponent(svg);
 				}
+				return src;
+			};
+
+			const L = Pcb.PCB_LAYER_ID;
+			for (let pcbFile of pcbFiles) {
+				this.status = 'loading ' + pcbFile;
+				const pcb = Pcb.PCB.load(pcbFile.content);
+
+				const B_Cu = render(pcb, (plotter, pcbPlotter) => {
+					pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(
+						L.B_Cu,
+						L.B_Fab,
+						L.B_CrtYd,
+						L.B_Adhes,
+						L.B_Paste,
+						L.B_SilkS,
+						L.Edge_Cuts,
+					));
+				});
+				const F_Cu = render(pcb, (plotter, pcbPlotter) => {
+					pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(
+						L.F_Cu,
+						L.F_Fab,
+						L.F_CrtYd,
+						L.F_Adhes,
+						L.F_Paste,
+						L.F_SilkS,
+						L.Edge_Cuts,
+					));
+				});
+				const Dwgs_User = render(pcb, (plotter, pcbPlotter) => {
+					pcbPlotter.plotBoardLayers(pcb, new Pcb.LSET(
+						L.Dwgs_User,
+					));
+				});
 				this.results.push({
 					url: pcbFile.url,
-					src: src
+					mirror: false,
+					layers: [
+						{
+							name: "F_Cu",
+							src: F_Cu,
+							visible: true,
+						},
+						{
+							name: "B_Cu",
+							src: B_Cu,
+							visible: true,
+						},
+						{
+							name: "Dwgs_User",
+							src: Dwgs_User,
+							visible: true,
+						}
+					]
 				});
 			}
 			this.status = 'done';

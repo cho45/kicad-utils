@@ -13,8 +13,8 @@ const babelOptions = {
 module.exports = {
 	entry: {
 		library: ['url-search-params-polyfill', 'babel-polyfill', 'whatwg-fetch', './static/js/library.js'],
-		schematic: ['url-search-params-polyfill', 'babel-polyfill', 'whatwg-fetch', './static/js/schematic.js'],
-		pcb: ['url-search-params-polyfill', 'babel-polyfill', 'whatwg-fetch', './static/js/pcb.js'],
+		schematic: ['url-search-params-polyfill', 'babel-polyfill', 'whatwg-fetch', './static/js/common.js', './static/js/schematic.js'],
+		pcb: ['url-search-params-polyfill', 'babel-polyfill', 'whatwg-fetch', './static/js/common.js', './static/js/pcb.js'],
 	},
 
 	output: {

@@ -148,6 +148,87 @@ export class PCBPlotter {
 	}
 
 	flashPadRoundRect(pos: Point, size: Size, cornerRadius: number, orientation: number, fill: Fill) {
+		let lineWidth = DEFAULT_LINE_WIDTH;
+		if (fill === Fill.FILLED_SHAPE) {
+			lineWidth = 0;
+		} else {
+			size.width -= lineWidth;
+			size.height -= lineWidth;
+			cornerRadius -= lineWidth / 2;
+		}
+		const lineTop_left          = new Point(cornerRadius, 0);
+		const lineTop_right         = new Point(cornerRadius + size.width - cornerRadius, 0);
+		const lineBottom_left       = new Point(cornerRadius, size.height);
+		const lineBottom_right      = new Point(cornerRadius + size.width - cornerRadius, size.height);
+
+		const lineLeft_top          = new Point(0, cornerRadius);
+		const lineLeft_bottom       = new Point(0, cornerRadius + size.height - cornerRadius);
+		const lineRight_top         = new Point(size.width, cornerRadius);
+		const lineRight_bottom      = new Point(size.width, cornerRadius + size.height - cornerRadius);
+
+		const arcTopLeft_center     = new Point(cornerRadius, cornerRadius);
+		const arcBottomLeft_center  = new Point(cornerRadius, size.height - cornerRadius);
+		const arcTopRight_center    = new Point(size.width - cornerRadius, cornerRadius);
+		const arcBottomRight_center = new Point(size.width - cornerRadius, size.height - cornerRadius);
+
+		const points = [
+			lineTop_left         ,
+			lineTop_right        ,
+			lineBottom_left      ,
+			lineBottom_right     ,
+			lineLeft_top         ,
+			lineLeft_bottom      ,
+			lineRight_top        ,
+			lineRight_bottom     ,
+			arcTopLeft_center    ,
+			arcBottomLeft_center ,
+			arcTopRight_center   ,
+			arcBottomRight_center
+		];
+
+		for (let point of points) {
+			RotatePoint(point, orientation);
+			const p = Point.add(point, pos);
+			point.x = p.x;
+			point.y = p.y;
+		}
+
+		this.plotter.arc(arcTopLeft_center, orientation + 900, orientation + 1800, cornerRadius, fill, lineWidth);
+		this.plotter.arc(arcBottomLeft_center, orientation + 1800, orientation + 2700, cornerRadius, fill, lineWidth);
+		this.plotter.arc(arcTopRight_center, orientation + 0, orientation + 900, cornerRadius, fill, lineWidth);
+		this.plotter.arc(arcBottomRight_center, orientation + 2700, orientation + 3600, cornerRadius, fill, lineWidth);
+		this.plotter.polyline([ lineTop_left, lineTop_right, lineBottom_right, lineBottom_left, lineTop_left ], fill, lineWidth);
+		this.plotter.polyline([ lineLeft_top, lineRight_top, lineRight_bottom, lineLeft_bottom, lineLeft_top], fill, lineWidth);
+	}
+
+	flashPadTrapezoid(pos: Point, coords: Array<Point>, orientation: number, fill: Fill) {
+		let lineWidth = DEFAULT_LINE_WIDTH;
+		const corners: Array<Point> = [];
+
+		for (let point of coords) {
+			corners.push(Point.from(point));
+		}
+
+		if (fill === Fill.FILLED_SHAPE) {
+			lineWidth = 0;
+		} else {
+			corners[0].x += lineWidth;
+			corners[0].y -= lineWidth;
+			corners[1].x += lineWidth;
+			corners[1].y += lineWidth;
+			corners[2].x -= lineWidth;
+			corners[2].y += lineWidth;
+			corners[3].x -= lineWidth;
+			corners[3].y -= lineWidth;
+		}
+
+		for (var i = 0, len = corners.length; i < len; i++) {
+			RotatePoint(corners[i], orientation);
+			corners[i] = Point.add(corners[i], pos);
+		}
+
+		corners.push(corners[0]);
+		this.plotter.polyline(corners, fill, lineWidth);
 	}
 
 	flashPadOval(center: Point, size: Size, orientation: number, fill: Fill) {

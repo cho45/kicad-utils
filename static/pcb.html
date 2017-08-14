@@ -7,14 +7,17 @@
 		<title>KiCAD Schematic Viewer</title>
 
 		<style>
+			body {
+				padding: 10px;
+			}
+
 			.result {
 				width: 100%;
 				overflow: auto;
 			}
 
 			img {
-				width: 100vw;
-				min-width: 1280px;
+				width: 100%;
 				height: auto;
 			}
 
@@ -38,8 +41,32 @@
 				border: 1px solid #ccc;
 			}
 
-			.result img {
+			.layers-container {
+				overflow: hidden;
+				border: 1px solid #ccc;
+			}
+
+			.result .layers {
 				background: #000;
+				position: relative;
+				z-index: 1;
+			}
+
+			.result .layers .layer {
+				position: absolute;
+				mix-blend-mode: screen;
+				top: 0;
+				left: 0;
+				z-index: 10;
+			}
+
+			.result .layers .layer:first-child {
+				position: static;
+			}
+
+			.result.mirror img {
+				transform-origin: 50% 0;
+				transform: scale(-1, 1);
 			}
 		</style>
 	</head>
@@ -63,9 +90,22 @@
 			<div class="errors">
 				<p v-for="error in errors">{{ error }}</p>
 			</div>
-			<div class="result" v-for="result in results">
-				<h3>{{ basename(result.url.name) }}</h3>
-				<img v-bind:src="result.src">
+			<div class="result" v-for="result in results" :class="{ mirror: result.mirror }">
+				<h3>{{ basename(result.url.name) }}
+					<label>
+						<input type="checkbox" v-model="result.mirror">mirror
+					</label>
+				</h3>
+				<label v-for="layer in result.layers">
+					<input type="checkbox" v-model="layer.visible">{{ layer.name }}
+				</label>
+				<div class="layers-container">
+					<div class="layers" v-imgarea>
+						<div class="layer" v-for="layer in result.layers" :title="layer.name" :style="{ visibility: layer.visible ? 'visible' : 'hidden' }">
+							<img v-bind:src="layer.src">
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 		<script src="./js/pcb.bundle.js"></script>

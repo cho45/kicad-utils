@@ -7,14 +7,17 @@
 		<title>KiCAD Schematic Viewer</title>
 
 		<style>
+			body {
+				padding: 10px;
+			}
+
 			.result {
 				width: 100%;
 				overflow: auto;
 			}
 
 			img {
-				width: 100vw;
-				min-width: 1280px;
+				width: 100%;
 				height: auto;
 			}
 
@@ -35,6 +38,11 @@
 				color: #900;
 				padding: 5px;
 				background: #efefef;
+				border: 1px solid #ccc;
+			}
+
+			.img-container {
+				overflow: hidden;
 				border: 1px solid #ccc;
 			}
 		</style>
@@ -61,7 +69,11 @@
 			</div>
 			<div class="result" v-for="result in results">
 				<h3>{{ basename(result.url.name) }}</h3>
-				<img v-bind:src="result.src">
+				<div class="img-container">
+					<div v-imgarea>
+						<img v-bind:src="result.src">
+					</div>
+				</div>
 			</div>
 		</div>
 		<script src="./js/schematic.bundle.js"></script>
