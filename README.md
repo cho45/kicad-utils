@@ -1,13 +1,14 @@
 kicad-utils
 ========
 
-KiCAD library / schematic parser and plotter written in TypeScript (JavaScript)
+KiCAD library / schematic / pcb parser and plotter written in TypeScript (JavaScript)
 
 DEMO
 ====
 
 - <a href="https://cho45.stfuawsc.com/kicad-utils/static/library.html">Library Viewer</a>
 - <a href="https://cho45.stfuawsc.com/kicad-utils/static/schematic.html">Schematic Viewer</a>
+- <a href="https://cho45.stfuawsc.com/kicad-utils/static/pcb.html">PCB Viewer</a>
 
 .sch to .svg/.png in command-line
 =================================
