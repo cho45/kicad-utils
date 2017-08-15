@@ -19,7 +19,6 @@ Vue.directive('imgarea', {
 			const restWidth = maxWidth - width;
 			const restHeight = maxHeight - height;
 
-			console.log(width, height, restWidth, restHeight);
 			if (translateY > 0) {
 				translateY = 0;
 			} else
@@ -35,7 +34,7 @@ Vue.directive('imgarea', {
 			}
 
 			const transform = `translate(${translateX}px, ${translateY}px) scale(${scale}, ${scale})`;
-			console.log('updateTransform', transform);
+			// console.log('updateTransform', transform);
 			el.style.transform = transform;
 		};
 
@@ -96,6 +95,68 @@ Vue.directive('imgarea', {
 			requestAnimationFrame( () => {
 				updateTransform();
 			});
+		});
+
+		let touch = null;
+		el.addEventListener("touchstart", function (e) {
+			if (e.touches.length === 1 ||
+				e.touches.length === 2) {
+				e.preventDefault();
+				touch = e;
+				touch._state = {
+					tX: translateX,
+					tY: translateY,
+				};
+			}
+		});
+		el.addEventListener("touchmove", function (e) {
+			if (touch && e.touches.length === 1) {
+				e.preventDefault();
+				console.log('move');
+				const moveX = e.touches[0].clientX - touch.touches[0].clientX;
+				const moveY = e.touches[0].clientY - touch.touches[0].clientY;
+
+				requestAnimationFrame( () => {
+					translateX = touch._state.tX + moveX;
+					translateY = touch._state.tY + moveY;
+					updateTransform();
+				});
+			} else
+			if (touch && e.touches.length === 2) {
+				e.preventDefault();
+				console.log('scale');
+				const distance0 = Math.sqrt(
+					(touch.touches[0].pageX-touch.touches[1].pageX) * (touch.touches[0].pageX-touch.touches[1].pageX) +
+					(touch.touches[0].pageY-touch.touches[1].pageY) * (touch.touches[0].pageY-touch.touches[1].pageY)
+				);
+				const distance = Math.sqrt(
+					(e.touches[0].pageX-e.touches[1].pageX) * (e.touches[0].pageX-e.touches[1].pageX) +
+					(e.touches[0].pageY-e.touches[1].pageY) * (e.touches[0].pageY-e.touches[1].pageY)
+				);
+				let newScale = scale + (distance - distance0) / 200;
+				console.log('distance', distance, newScale, e.touches);
+				if (newScale < 1) newScale = 1;
+				if (newScale > 10) newScale = 10;
+
+				const centerX = (touch.touches[0].pageX + touch.touches[1].pageX) / 2;
+				const centerY = (touch.touches[0].pageY + touch.touches[1].pageY) / 2;
+				const offsetX = centerX - el.offsetLeft - translateX;
+				const offsetY = centerY - el.offsetTop - translateY;
+
+				const s = newScale / scale; // current scale to new scale
+				const pX = offsetX * -s + offsetX;
+				const pY = offsetY * -s + offsetY;
+				// console.log('offset', offsetX, offsetY, 'p', pX, pY, 'scale', newScale);
+				translateX += pX;
+				translateY += pY;
+				scale = newScale;
+				requestAnimationFrame( () => {
+					updateTransform();
+				});
+			}
+		});
+		el.addEventListener("touchend", function (e) {
+			touch = null;
 		});
 	},
 	inserted: function (el) {
