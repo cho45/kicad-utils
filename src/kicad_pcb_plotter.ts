@@ -736,7 +736,7 @@ export class PCBPlotter {
 		if (pad.shape === PadShape.ROUNDRECT) {
 			let r = pad.size.width > pad.size.height ? pad.size.height : pad.size.width;
 			r = Math.floor(r * pad.roundRectRatio);
-			this.flashPadRoundRect(pad.pos, pad.size, r, fill);
+			this.flashPadRoundRect(pad.pos, pad.size, r, pad.orientation, fill);
 		}
 	}
 

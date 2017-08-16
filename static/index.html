@@ -9,19 +9,25 @@
 	</head>
 	<body>
 		<ul>
+			<li><a href="./viewer.html">KiCAD Schematic/PCB Viewer</a></li>
 			<li><a href="./library.html">KiCAD Library Viewer</a></li>
-			<li><a href="./schematic.html">KiCAD Schematic Viewer</a></li>
-			<li><a href="./pcb.html">KiCAD PCB Viewer</a></li>
 
 		</ul>
 
 		<p>
 			bookmarklet:
-			<a href="" id="bookmarklet">Open with Schematic Viewer</a>
+			<a href="" id="bookmarklet">KiCAD Viewer</a>
+		</p>
+
+		<p>
+			for development:
+			<a href="./schematic.html">KiCAD Schematic Viewer</a>
+			<a href="./pcb.html">KiCAD PCB Viewer</a>
 		</p>
 
 		<script>
-			const script = `location="https://cho45.stfuawsc.com/kicad-utils/static/schematic.html?url="+encodeURIComponent(Array.from(document.querySelectorAll("a[href*='/blob/']")).map( (a) => a.href ).filter( (u) => u.match(/\\.(sch|lib)$/) ).join("\\n"))`;
+			const script = `location="https://cho45.stfuawsc.com/kicad-utils/static/viewer.html?url="+encodeURIComponent(Array.from(document.querySelectorAll("a[href*='/blob/']")).map( (a) => a.href ).filter( (u) => u.match(/\\.(sch|lib|kicad_pcb)$/) ).join("\\n"))`;
+			// const script = `location="http://127.0.0.1:5000/viewer.html?url="+encodeURIComponent(Array.from(document.querySelectorAll("a[href*='/blob/']")).map( (a) => a.href ).filter( (u) => u.match(/\\.(sch|lib|kicad_pcb)$/) ).join("\\n"))`;
 			const bookmarklet = 'javascript:' + encodeURIComponent(script);
 			document.getElementById('bookmarklet').href = bookmarklet;
 		</script>

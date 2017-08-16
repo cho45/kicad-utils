@@ -7,8 +7,7 @@ DEMO
 ====
 
 - <a href="https://cho45.stfuawsc.com/kicad-utils/static/library.html">Library Viewer</a>
-- <a href="https://cho45.stfuawsc.com/kicad-utils/static/schematic.html">Schematic Viewer</a>
-- <a href="https://cho45.stfuawsc.com/kicad-utils/static/pcb.html">PCB Viewer</a>
+- <a href="https://cho45.stfuawsc.com/kicad-utils/static/viewer.html">Schematic/PCB Viewer</a>
 
 .sch to .svg/.png in command-line
 =================================

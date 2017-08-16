@@ -4,7 +4,8 @@
   "description": "",
   "main": "dist/src/kicad-utils.js",
   "bin": {
-    "sch2svg": "dist/src/sch2svg.js"
+    "sch2svg": "dist/src/sch2svg.js",
+    "kicad-utils": "dist/src/kicad-utils_cui.js"
   },
   "dependencies": {
     "@types/minimist": "^1.2.0",

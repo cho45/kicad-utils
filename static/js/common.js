@@ -2,7 +2,6 @@ const Vue = require("vue");
 
 Vue.directive('imgarea', {
 	bind: function (el) {
-		console.log('bind', el);
 		el.style.display = "relative";
 		el.style.transformOrigin = "0 0";
 		el.style.cursor = 'all-scroll';
@@ -34,7 +33,6 @@ Vue.directive('imgarea', {
 			}
 
 			const transform = `translate(${translateX}px, ${translateY}px) scale(${scale}, ${scale})`;
-			// console.log('updateTransform', transform);
 			el.style.transform = transform;
 		};
 
@@ -42,7 +40,6 @@ Vue.directive('imgarea', {
 		el.addEventListener('mousedown', function (e) {
 			const offsetX = e.pageX - el.offsetLeft - translateX;
 			const offsetY = e.pageY - el.offsetTop - translateY;
-			console.log(offsetX, offsetY);
 
 			down = {
 				tX: translateX,
@@ -66,7 +63,6 @@ Vue.directive('imgarea', {
 		});
 		window.addEventListener('mouseup', function (e) {
 			if (!down) return;
-			console.log('up');
 			e.preventDefault();
 			const moveX = e.clientX - down.clientX;
 			const moveY = e.clientY - down.clientY;
@@ -88,7 +84,6 @@ Vue.directive('imgarea', {
 			const s = newScale / scale; // current scale to new scale
 			const pX = offsetX * -s + offsetX;
 			const pY = offsetY * -s + offsetY;
-			// console.log('offset', offsetX, offsetY, 'p', pX, pY, 'scale', newScale);
 			translateX += pX;
 			translateY += pY;
 			scale = newScale;
@@ -112,7 +107,6 @@ Vue.directive('imgarea', {
 		el.addEventListener("touchmove", function (e) {
 			if (touch && e.touches.length === 1) {
 				e.preventDefault();
-				console.log('move');
 				const moveX = e.touches[0].clientX - touch.touches[0].clientX;
 				const moveY = e.touches[0].clientY - touch.touches[0].clientY;
 
@@ -124,7 +118,6 @@ Vue.directive('imgarea', {
 			} else
 			if (touch && e.touches.length === 2) {
 				e.preventDefault();
-				console.log('scale');
 				const distance0 = Math.sqrt(
 					(touch.touches[0].pageX-touch.touches[1].pageX) * (touch.touches[0].pageX-touch.touches[1].pageX) +
 					(touch.touches[0].pageY-touch.touches[1].pageY) * (touch.touches[0].pageY-touch.touches[1].pageY)
@@ -134,7 +127,6 @@ Vue.directive('imgarea', {
 					(e.touches[0].pageY-e.touches[1].pageY) * (e.touches[0].pageY-e.touches[1].pageY)
 				);
 				let newScale = scale + (distance - distance0) / 200;
-				console.log('distance', distance, newScale, e.touches);
 				if (newScale < 1) newScale = 1;
 				if (newScale > 10) newScale = 10;
 
@@ -160,16 +152,85 @@ Vue.directive('imgarea', {
 		});
 	},
 	inserted: function (el) {
-		console.log('inserted', el);
 	},
 	update: function (el) {
-		console.log('update', el);
 	},
 	componentUpdated: function (el) {
-		console.log('componentUpdated', el);
 	},
 	unbind: function (el) {
-		console.log('unbind', el);
 	}
 });
+
+
+function MethodWorker (uri) {
+	this.worker = new Worker(uri);
+	this.id = 1;
+	this.reqs = {};
+	this.call = async function (name, args) {
+		const id = this.id++;
+		await this.init;
+		return await new Promise( (resolve, reject)  => {
+			this.reqs[id] = { resolve, reject };
+			this.worker.postMessage({
+				id: id,
+				args: Array.from(arguments),
+			});
+		});
+	};
+	this.init = new Promise( (initialized) => {
+		this.worker.onerror = (e) => {
+			throw e;
+		};
+		this.worker.onmessage = (e) => {
+			const id = e.data.id;
+			if (id < 0) {
+				if (id === MethodWorker.ID_INIT) {
+					console.log('worker is initialized');
+					initialized();
+				}
+				return;
+			}
+
+			if (!this.reqs[id]) {
+				console.log('unknown id', id);
+				return;
+			}
+
+			const result = e.data.result;
+			const error = e.data.error;
+			if (typeof error !== 'undefined') {
+				this.reqs[id].reject(error);
+			} else {
+				this.reqs[id].resolve(result);
+			}
+			delete this.reqs[id];
+		};
+	});
+}
+MethodWorker.ID_INIT = -1;
+MethodWorker.work = function (methods) {
+	onmessage = function (e) {
+		const id = e.data.id;
+		const name = e.data.args[0];
+		const args = e.data.args.slice(1);
+		try {
+			const res = methods[name].apply(null, args);
+			postMessage({
+				id: id,
+				result: res,
+			});
+		} catch (e) {
+			postMessage({
+				id: id,
+				error: String(e),
+			});
+		}
+	};
+
+	self.postMessage({
+		id: MethodWorker.ID_INIT,
+	});
+}
+self.MethodWorker = MethodWorker;
+
 

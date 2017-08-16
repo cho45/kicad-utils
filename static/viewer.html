@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+		<title>KiCAD Schematic/PCB Viewer</title>
+
+		<style>
+			body {
+				padding: 10px 5%;
+			}
+
+			.result {
+				width: 100%;
+				overflow: auto;
+			}
+
+			img {
+				width: 100%;
+				height: auto;
+				max-height: 100vh;
+			}
+
+			.form {
+				background: #efefef;
+				border: 1px solid #ccc;
+				padding: 10px;
+			}
+
+			.status {
+				font-size: 120%;
+				padding: 5px;
+				background: #efefef;
+				border: 1px solid #ccc;
+			}
+
+			.errors {
+				color: #900;
+				padding: 5px;
+				background: #efefef;
+				border: 1px solid #ccc;
+			}
+
+			.layers-container {
+				overflow: hidden;
+				border: 1px solid #ccc;
+			}
+
+			.result .layers {
+				background: #000;
+				position: relative;
+				z-index: 1;
+			}
+
+			.result .layers .layer {
+				position: absolute;
+				mix-blend-mode: screen;
+				top: 0;
+				left: 0;
+				z-index: 10;
+			}
+
+			.result .layers .layer:first-child {
+				position: static;
+			}
+
+			.result.mirror img {
+				transform-origin: 50% 0;
+				transform: scale(-1, 1);
+			}
+
+			.img-container {
+				overflow: hidden;
+				border: 1px solid #ccc;
+			}
+
+			textarea {
+				max-width: 100%;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app">
+			<h1>KiCAD Schematic/PCB Viewer</h1>
+			<div class="form">
+				<h2>Load from file:</h2>
+				<p>Select .kicad_pcb, .lib, .sch files</p>
+				<input type="file" v-on:change="fileSelected" ref="fileInput" multiple>
+
+				<h2>Load from URLs:</h2>
+				<p>Input space delimited URLs</p>
+				<p>Requesting url must be supports CORS header</p>
+				<form v-on:submit.prevent="onSubmit">
+					<textarea v-model="url" rows="10" cols="150"></textarea>
+					<button type="submit">Load from URLs</button>
+				</form>
+			</div>
+			<p class="status">{{ status }}</p>
+			<div class="errors" v-if="errors.length">
+				<p v-for="error in errors">{{ error }}</p>
+			</div>
+			<div class="result" v-for="result in schs">
+				<h3>{{ basename(result.url.name) }}</h3>
+				<div class="img-container">
+					<div v-imgarea>
+						<img v-bind:src="result.src">
+					</div>
+				</div>
+			</div>
+			<div class="result" v-for="result in pcbs" :class="{ mirror: result.mirror }">
+				<h3>{{ basename(result.url.name) }}
+					<label>
+						<input type="checkbox" v-model="result.mirror">mirror
+					</label>
+				</h3>
+				<label v-for="layer in result.layers">
+					<input type="checkbox" v-model="layer.visible">{{ layer.name }}
+				</label>
+				<div class="layers-container">
+					<div class="layers" v-imgarea>
+						<div class="layer" v-for="layer in result.layers" :title="layer.name" :style="{ visibility: layer.visible ? 'visible' : 'hidden' }">
+							<img v-bind:src="layer.src">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="./js/viewer.bundle.js"></script>
+		<hr />
+		<a href="https://github.com/cho45/kicad-js">source code</a>
+	</body>
+</html>
