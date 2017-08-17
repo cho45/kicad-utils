@@ -9,6 +9,8 @@ DEMO
 - <a href="https://cho45.stfuawsc.com/kicad-utils/static/library.html">Library Viewer</a>
 - <a href="https://cho45.stfuawsc.com/kicad-utils/static/viewer.html">Schematic/PCB Viewer</a>
 
+Setup bookmarklet for github: https://cho45.stfuawsc.com/kicad-utils/static/ .
+
 .sch to .svg/.png in command-line
 =================================
 
