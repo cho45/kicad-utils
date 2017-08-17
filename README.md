@@ -13,13 +13,13 @@ DEMO
 =================================
 
 ```
-npx -p kicad-utils sch2svg path/to/file.sch
+npx kicad-utils sch2svg path/to/file.sch
 ```
 
 or latest from github:
 
 ```
-npx -p github:cho45/kicad-utils sch2svg
+npx -p github:cho45/kicad-utils kicad-utils sch2svg
 ```
 
 Development
