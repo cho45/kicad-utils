@@ -6,6 +6,7 @@
 		"alwaysStrict": true,
 		"outDir": "./dist/",
 		"sourceMap": true,
+		"declaration": true,
 		"noImplicitAny": true,
 		"lib": ["dom", "ES2017"],
 		"moduleResolution": "node",

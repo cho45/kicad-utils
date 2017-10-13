@@ -42,5 +42,6 @@
   },
   "repository": "cho45/kicad-utils",
   "author": "cho45 <cho45@lowreal.net> (http://www.lowreal.net/)",
-  "license": "GPL-2.0"
+  "license": "GPL-2.0",
+  "types": "dist/src/kicad-utils.d.ts"
 }
