@@ -3,8 +3,11 @@
 import { Transform } from "kicad_common";
 import { CanvasPlotter, SVGPlotter } from "kicad_plotter";
 import { SchPlotter } from "kicad_sch_plotter";
-import { Library } from "kicad_lib";
-import { Schematic } from "kicad_sch";
+import { Lib } from "kicad_lib";
+import { Sch } from "kicad_sch";
+
+const Library = Lib.Library;
+const Schematic = Sch.Schematic;
 
 import * as fs from "fs";
 

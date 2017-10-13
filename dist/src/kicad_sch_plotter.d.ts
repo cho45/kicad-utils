@@ -1,6 +1,6 @@
 import { PinOrientation, Transform, Rect } from "./kicad_common";
-import { LibComponent, Library, DrawPin, DrawArc, DrawCircle, DrawPolyline, DrawSquare, DrawText } from "./kicad_lib";
-import { Schematic, Field, Text } from "./kicad_sch";
+import { Lib } from './kicad_lib';
+import { Sch } from "./kicad_sch";
 import { Plotter } from "./kicad_plotter";
 export declare class SchPlotter {
     plotter: Plotter;
@@ -9,20 +9,20 @@ export declare class SchPlotter {
     /**
      * kicad-js implements plot methods to plotter instead of each library items for simplify parsing dependencies.
      */
-    plotLibComponent(component: LibComponent, unit: number, convert: number, transform: Transform): void;
-    plotLibComponentField(component: LibComponent, unit: number, convert: number, transform: Transform): void;
-    plotDrawArc(draw: DrawArc, component: LibComponent, transform: Transform): void;
-    plotDrawCircle(draw: DrawCircle, component: LibComponent, transform: Transform): void;
-    plotDrawPolyline(draw: DrawPolyline, component: LibComponent, transform: Transform): void;
-    plotDrawSquare(draw: DrawSquare, component: LibComponent, transform: Transform): void;
-    plotDrawText(draw: DrawText, component: LibComponent, transform: Transform): void;
-    plotDrawPin(draw: DrawPin, component: LibComponent, transform: Transform): void;
-    plotDrawPinTexts(draw: DrawPin, component: LibComponent, transform: Transform): void;
-    plotDrawPinSymbol(draw: DrawPin, component: LibComponent, transform: Transform): void;
-    pinDrawOrientation(draw: DrawPin, transform: Transform): PinOrientation;
-    plotSchematic(sch: Schematic, libs: Array<Library>): void;
-    plotSchTextGlobalLabel(item: Text): void;
-    plotSchTextHierarchicalLabel(item: Text): void;
-    plotSchText(item: Text): void;
-    getTextBox(text: Field, size: number, lineWidth: number, invertY?: boolean): Rect;
+    plotLibComponent(component: Lib.LibComponent, unit: number, convert: number, transform: Transform): void;
+    plotLibComponentField(component: Lib.LibComponent, unit: number, convert: number, transform: Transform): void;
+    plotDrawArc(draw: Lib.DrawArc, component: Lib.LibComponent, transform: Transform): void;
+    plotDrawCircle(draw: Lib.DrawCircle, component: Lib.LibComponent, transform: Transform): void;
+    plotDrawPolyline(draw: Lib.DrawPolyline, component: Lib.LibComponent, transform: Transform): void;
+    plotDrawSquare(draw: Lib.DrawSquare, component: Lib.LibComponent, transform: Transform): void;
+    plotDrawText(draw: Lib.DrawText, component: Lib.LibComponent, transform: Transform): void;
+    plotDrawPin(draw: Lib.DrawPin, component: Lib.LibComponent, transform: Transform): void;
+    plotDrawPinTexts(draw: Lib.DrawPin, component: Lib.LibComponent, transform: Transform): void;
+    plotDrawPinSymbol(draw: Lib.DrawPin, component: Lib.LibComponent, transform: Transform): void;
+    pinDrawOrientation(draw: Lib.DrawPin, transform: Transform): PinOrientation;
+    plotSchematic(sch: Sch.Schematic, libs: Array<Lib.Library>): void;
+    plotSchTextGlobalLabel(item: Sch.Text): void;
+    plotSchTextHierarchicalLabel(item: Sch.Text): void;
+    plotSchText(item: Sch.Text): void;
+    getTextBox(text: Sch.Field, size: number, lineWidth: number, invertY?: boolean): Rect;
 }

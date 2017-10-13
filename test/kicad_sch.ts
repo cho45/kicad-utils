@@ -14,18 +14,7 @@ import {
 	Net,
 } from "../src/kicad_common";
 
-import {
-	Schematic,
-	SchComponent,
-	Sheet,
-	Text,
-	Bitmap,
-	Wire,
-	Connection,
-	NoConn,
-	Entry,
-	TextOrientationType,
-} from "../src/kicad_sch";
+import { Sch } from "../src/kicad_sch";
 
 function indent (literals: TemplateStringsArray, ...placeholders: Array<any>):string {
 	let result = "";
@@ -56,24 +45,24 @@ describe("", () => {
 describe("Schematic.load", () => {
 	it("has version check", () => {
 		assert.doesNotThrow( () => {
-			Schematic.load(indent `
+			Sch.Schematic.load(indent `
 				EESchema Schematic File Version 2
 			`);
 		});
 		assert.doesNotThrow( () => {
-			Schematic.load(indent `
+			Sch.Schematic.load(indent `
 				EESchema Schematic File Version 1
 			`);
 		});
 		assert.throws( () => {
-			Schematic.load(indent `
+			Sch.Schematic.load(indent `
 				EESchema Schematic File Version 3
 			`);
 		}, 'schematic format version is greater than supported version: 3 > 2');
 	});
 
 	it("can parse basic format", () => {
-		const sch = Schematic.load(indent `
+		const sch = Sch.Schematic.load(indent `
 			EESchema Schematic File Version 2
 			LIBS:power
 			LIBS:device
@@ -162,9 +151,9 @@ describe("Schematic.load", () => {
 		assert(sch.descr.width === 11693);
 		assert(sch.descr.height === 8268);
 
-		assert(sch.items[0] instanceof SchComponent);
+		assert(sch.items[0] instanceof Sch.SchComponent);
 		{
-			const item = sch.items[0] as SchComponent;
+			const item = sch.items[0] as Sch.SchComponent;
 			assert( item.fields[0].text === '#PWR05' );
 			assert( item.fields[0].visibility === false);
 			assert( item.fields[0].hjustify === TextHjustify.CENTER);
@@ -179,9 +168,9 @@ describe("Schematic.load", () => {
 			assert( item.fields[1].italic == true);
 			assert( item.fields[1].bold === true);
 		}
-		assert(sch.items[1] instanceof Sheet);
+		assert(sch.items[1] instanceof Sch.Sheet);
 		{
-			const item = sch.items[1] as Sheet;
+			const item = sch.items[1] as Sch.Sheet;
 			assert( item.sheetPins[0].text === "sheetppp" );
 			assert( item.sheetPins[0].shape === Net.INPUT);
 			assert( item.sheetPins[0].sheetSide === SheetSide.LEFT );
@@ -205,9 +194,9 @@ describe("Schematic.load", () => {
 			assert( item.sheetPins[1].vjustify === TextVjustify.CENTER);
 		}
 
-		assert(sch.items[2] instanceof Wire);
+		assert(sch.items[2] instanceof Sch.Wire);
 		{
-			const item = sch.items[2] as Wire;
+			const item = sch.items[2] as Sch.Wire;
 			assert( item.name1 === "Wire" );
 			assert( item.name2 === "Line" );
 			assert( item.start.x === 2901 );
@@ -216,9 +205,9 @@ describe("Schematic.load", () => {
 			assert( item.end.y === 2750 );
 		}
 
-		assert(sch.items[3] instanceof Wire);
+		assert(sch.items[3] instanceof Sch.Wire);
 		{
-			const item = sch.items[3] as Wire;
+			const item = sch.items[3] as Sch.Wire;
 			assert( item.name1 === "Bus" );
 			assert( item.name2 === "Bus" );
 			assert( item.start.x === 3501 );
@@ -227,30 +216,30 @@ describe("Schematic.load", () => {
 			assert( item.end.y === 3604 );
 		}
 
-		assert(sch.items[4] instanceof Connection);
+		assert(sch.items[4] instanceof Sch.Connection);
 		{
-			const item = sch.items[4] as Connection;
+			const item = sch.items[4] as Sch.Connection;
 			assert( item.name1 === "~");
 			assert( item.pos.x === 1150);
 			assert( item.pos.y === 2050);
 		}
 
-		assert(sch.items[5] instanceof NoConn);
+		assert(sch.items[5] instanceof Sch.NoConn);
 		{
-			const item = sch.items[5] as Connection;
+			const item = sch.items[5] as Sch.Connection;
 			assert( item.name1 === "~");
 			assert( item.pos.x === 2750);
 			assert( item.pos.y === 2200);
 		}
 
-		assert(sch.items[6] instanceof Text);
+		assert(sch.items[6] instanceof Sch.Text);
 		{
-			const item = sch.items[6] as Text;
+			const item = sch.items[6] as Sch.Text;
 			console.log(item);
 			assert( item.name1 === "Notes" );
 			assert( item.pos.x === 2300 );
 			assert( item.pos.y === 3200 );
-			assert( item.orientationType === TextOrientationType.HORIZ_LEFT );
+			assert( item.orientationType === Sch.TextOrientationType.HORIZ_LEFT );
 			assert( item.orientation === TextAngle.HORIZ );
 			assert( item.hjustify === TextHjustify.LEFT );
 			assert( item.vjustify === TextVjustify.BOTTOM );
@@ -261,9 +250,9 @@ describe("Schematic.load", () => {
 			assert( item.shape === Net.INPUT );
 		}
 
-		assert(sch.items[7] instanceof Entry);
+		assert(sch.items[7] instanceof Sch.Entry);
 		{
-			const item = sch.items[7] as Entry;
+			const item = sch.items[7] as Sch.Entry;
 			assert( item.name1 === "Wire" );
 			assert( item.name2 === "Line" );
 			assert( item.pos.x === 2901 );
@@ -271,9 +260,9 @@ describe("Schematic.load", () => {
 			assert( item.size.width === 99 );
 			assert( item.size.height === 100 );
 		}
-		assert(sch.items[8] instanceof Entry);
+		assert(sch.items[8] instanceof Sch.Entry);
 		{
-			const item = sch.items[8] as Entry;
+			const item = sch.items[8] as Sch.Entry;
 			assert( item.name1 === "Bus" );
 			assert( item.name2 === "Bus" );
 			assert( item.pos.x === 3501 );
@@ -282,9 +271,9 @@ describe("Schematic.load", () => {
 			assert( item.size.height === 102 );
 		}
 
-		assert(sch.items[9] instanceof Bitmap);
+		assert(sch.items[9] instanceof Sch.Bitmap);
 		{
-			const item = sch.items[9] as Bitmap;
+			const item = sch.items[9] as Sch.Bitmap;
 			assert(item.data.slice(-1)[0] === 0xff);
 			assert(item.isValidPNG);
 			assert.doesNotThrow( () => {

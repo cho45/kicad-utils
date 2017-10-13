@@ -66,34 +66,34 @@ const SCH_COLORS = {
 };
 const TEMPLATE_SHAPES = {
     [kicad_common_1.Net.INPUT]: {
-        [kicad_sch_1.TextOrientationType.HORIZ_LEFT]: [6, 0, 0, -1, -1, -2, -1, -2, 1, -1, 1, 0, 0],
-        [kicad_sch_1.TextOrientationType.UP]: [6, 0, 0, 1, -1, 1, -2, -1, -2, -1, -1, 0, 0],
-        [kicad_sch_1.TextOrientationType.HORIZ_RIGHT]: [6, 0, 0, 1, 1, 2, 1, 2, -1, 1, -1, 0, 0],
-        [kicad_sch_1.TextOrientationType.BOTTOM]: [6, 0, 0, 1, 1, 1, 2, -1, 2, -1, 1, 0, 0],
+        [kicad_sch_1.Sch.TextOrientationType.HORIZ_LEFT]: [6, 0, 0, -1, -1, -2, -1, -2, 1, -1, 1, 0, 0],
+        [kicad_sch_1.Sch.TextOrientationType.UP]: [6, 0, 0, 1, -1, 1, -2, -1, -2, -1, -1, 0, 0],
+        [kicad_sch_1.Sch.TextOrientationType.HORIZ_RIGHT]: [6, 0, 0, 1, 1, 2, 1, 2, -1, 1, -1, 0, 0],
+        [kicad_sch_1.Sch.TextOrientationType.BOTTOM]: [6, 0, 0, 1, 1, 1, 2, -1, 2, -1, 1, 0, 0],
     },
     [kicad_common_1.Net.OUTPUT]: {
-        [kicad_sch_1.TextOrientationType.HORIZ_LEFT]: [6, -2, 0, -1, 1, 0, 1, 0, -1, -1, -1, -2, 0],
-        [kicad_sch_1.TextOrientationType.HORIZ_RIGHT]: [6, 2, 0, 1, -1, 0, -1, 0, 1, 1, 1, 2, 0],
-        [kicad_sch_1.TextOrientationType.UP]: [6, 0, -2, 1, -1, 1, 0, -1, 0, -1, -1, 0, -2],
-        [kicad_sch_1.TextOrientationType.BOTTOM]: [6, 0, 2, 1, 1, 1, 0, -1, 0, -1, 1, 0, 2],
+        [kicad_sch_1.Sch.TextOrientationType.HORIZ_LEFT]: [6, -2, 0, -1, 1, 0, 1, 0, -1, -1, -1, -2, 0],
+        [kicad_sch_1.Sch.TextOrientationType.HORIZ_RIGHT]: [6, 2, 0, 1, -1, 0, -1, 0, 1, 1, 1, 2, 0],
+        [kicad_sch_1.Sch.TextOrientationType.UP]: [6, 0, -2, 1, -1, 1, 0, -1, 0, -1, -1, 0, -2],
+        [kicad_sch_1.Sch.TextOrientationType.BOTTOM]: [6, 0, 2, 1, 1, 1, 0, -1, 0, -1, 1, 0, 2],
     },
     [kicad_common_1.Net.UNSPECIFIED]: {
-        [kicad_sch_1.TextOrientationType.HORIZ_LEFT]: [5, 0, -1, -2, -1, -2, 1, 0, 1, 0, -1],
-        [kicad_sch_1.TextOrientationType.HORIZ_RIGHT]: [5, 0, -1, 2, -1, 2, 1, 0, 1, 0, -1],
-        [kicad_sch_1.TextOrientationType.UP]: [5, 1, 0, 1, -2, -1, -2, -1, 0, 1, 0],
-        [kicad_sch_1.TextOrientationType.BOTTOM]: [5, 1, 0, 1, 2, -1, 2, -1, 0, 1, 0],
+        [kicad_sch_1.Sch.TextOrientationType.HORIZ_LEFT]: [5, 0, -1, -2, -1, -2, 1, 0, 1, 0, -1],
+        [kicad_sch_1.Sch.TextOrientationType.HORIZ_RIGHT]: [5, 0, -1, 2, -1, 2, 1, 0, 1, 0, -1],
+        [kicad_sch_1.Sch.TextOrientationType.UP]: [5, 1, 0, 1, -2, -1, -2, -1, 0, 1, 0],
+        [kicad_sch_1.Sch.TextOrientationType.BOTTOM]: [5, 1, 0, 1, 2, -1, 2, -1, 0, 1, 0],
     },
     [kicad_common_1.Net.BIDI]: {
-        [kicad_sch_1.TextOrientationType.HORIZ_LEFT]: [5, 0, 0, -1, -1, -2, 0, -1, 1, 0, 0],
-        [kicad_sch_1.TextOrientationType.HORIZ_RIGHT]: [5, 0, 0, 1, -1, 2, 0, 1, 1, 0, 0],
-        [kicad_sch_1.TextOrientationType.UP]: [5, 0, 0, -1, -1, 0, -2, 1, -1, 0, 0],
-        [kicad_sch_1.TextOrientationType.BOTTOM]: [5, 0, 0, -1, 1, 0, 2, 1, 1, 0, 0],
+        [kicad_sch_1.Sch.TextOrientationType.HORIZ_LEFT]: [5, 0, 0, -1, -1, -2, 0, -1, 1, 0, 0],
+        [kicad_sch_1.Sch.TextOrientationType.HORIZ_RIGHT]: [5, 0, 0, 1, -1, 2, 0, 1, 1, 0, 0],
+        [kicad_sch_1.Sch.TextOrientationType.UP]: [5, 0, 0, -1, -1, 0, -2, 1, -1, 0, 0],
+        [kicad_sch_1.Sch.TextOrientationType.BOTTOM]: [5, 0, 0, -1, 1, 0, 2, 1, 1, 0, 0],
     },
     [kicad_common_1.Net.TRISTATE]: {
-        [kicad_sch_1.TextOrientationType.HORIZ_LEFT]: [5, 0, 0, -1, -1, -2, 0, -1, 1, 0, 0],
-        [kicad_sch_1.TextOrientationType.HORIZ_RIGHT]: [5, 0, 0, 1, -1, 2, 0, 1, 1, 0, 0],
-        [kicad_sch_1.TextOrientationType.UP]: [5, 0, 0, -1, -1, 0, -2, 1, -1, 0, 0],
-        [kicad_sch_1.TextOrientationType.BOTTOM]: [5, 0, 0, -1, 1, 0, 2, 1, 1, 0, 0],
+        [kicad_sch_1.Sch.TextOrientationType.HORIZ_LEFT]: [5, 0, 0, -1, -1, -2, 0, -1, 1, 0, 0],
+        [kicad_sch_1.Sch.TextOrientationType.HORIZ_RIGHT]: [5, 0, 0, 1, -1, 2, 0, 1, 1, 0, 0],
+        [kicad_sch_1.Sch.TextOrientationType.UP]: [5, 0, 0, -1, -1, 0, -2, 1, -1, 0, 0],
+        [kicad_sch_1.Sch.TextOrientationType.BOTTOM]: [5, 0, 0, -1, 1, 0, 2, 1, 1, 0, 0],
     }
 };
 class SchPlotter {
@@ -114,22 +114,22 @@ class SchPlotter {
             if (draw.convert !== 0 && convert !== draw.convert) {
                 continue;
             }
-            if (draw instanceof kicad_lib_1.DrawArc) {
+            if (draw instanceof kicad_lib_1.Lib.DrawArc) {
                 this.plotDrawArc(draw, component, transform);
             }
-            else if (draw instanceof kicad_lib_1.DrawCircle) {
+            else if (draw instanceof kicad_lib_1.Lib.DrawCircle) {
                 this.plotDrawCircle(draw, component, transform);
             }
-            else if (draw instanceof kicad_lib_1.DrawPolyline) {
+            else if (draw instanceof kicad_lib_1.Lib.DrawPolyline) {
                 this.plotDrawPolyline(draw, component, transform);
             }
-            else if (draw instanceof kicad_lib_1.DrawSquare) {
+            else if (draw instanceof kicad_lib_1.Lib.DrawSquare) {
                 this.plotDrawSquare(draw, component, transform);
             }
-            else if (draw instanceof kicad_lib_1.DrawText) {
+            else if (draw instanceof kicad_lib_1.Lib.DrawText) {
                 this.plotDrawText(draw, component, transform);
             }
-            else if (draw instanceof kicad_lib_1.DrawPin) {
+            else if (draw instanceof kicad_lib_1.Lib.DrawPin) {
                 this.plotDrawPin(draw, component, transform);
             }
             else {
@@ -349,7 +349,7 @@ class SchPlotter {
     plotSchematic(sch, libs) {
         this.plotter.plotPageInfo(sch.descr.pageInfo);
         for (let item of sch.items) {
-            if (item instanceof kicad_sch_1.SchComponent) {
+            if (item instanceof kicad_sch_1.Sch.SchComponent) {
                 let component;
                 for (let lib of libs) {
                     if (!lib)
@@ -392,7 +392,7 @@ class SchPlotter {
                     this.plotter.text(textpos, SCH_COLORS.LAYER_REFERENCEPART, field.text, orientation, size, kicad_common_1.TextHjustify.CENTER, kicad_common_1.TextVjustify.CENTER, DEFAULT_LINE_WIDTH, field.italic, field.bold);
                 }
             }
-            else if (item instanceof kicad_sch_1.Sheet) {
+            else if (item instanceof kicad_sch_1.Sch.Sheet) {
                 this.plotter.setColor(SCH_COLORS.LAYER_SHEET);
                 this.plotter.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
                 this.plotter.fill = kicad_common_1.Fill.NO_FILL;
@@ -431,13 +431,13 @@ class SchPlotter {
                     pin.pos.y = pos.y;
                 }
             }
-            else if (item instanceof kicad_sch_1.Bitmap) {
+            else if (item instanceof kicad_sch_1.Sch.Bitmap) {
                 item.parseIHDR();
                 const PPI = 300;
                 const PIXEL_SCALE = 1000 / PPI;
                 this.plotter.image({ x: item.pos.x, y: item.pos.y }, item.scale * PIXEL_SCALE, item.size.width, item.size.height, item.data);
             }
-            else if (item instanceof kicad_sch_1.Text) {
+            else if (item instanceof kicad_sch_1.Sch.Text) {
                 if (item.name1 === 'GLabel') {
                     this.plotSchTextGlobalLabel(item);
                 }
@@ -448,17 +448,17 @@ class SchPlotter {
                     this.plotSchText(item);
                 }
             }
-            else if (item instanceof kicad_sch_1.Entry) {
+            else if (item instanceof kicad_sch_1.Sch.Entry) {
                 this.plotter.setColor(item.isBus ? SCH_COLORS.LAYER_BUS : SCH_COLORS.LAYER_WIRE);
                 this.plotter.setCurrentLineWidth(item.isBus ? DEFAULT_LINE_WIDTH_BUS : DEFAULT_LINE_WIDTH);
                 this.plotter.moveTo(item.pos.x, item.pos.y);
                 this.plotter.finishTo(item.pos.x + item.size.width, item.pos.y + item.size.height);
             }
-            else if (item instanceof kicad_sch_1.Connection) {
+            else if (item instanceof kicad_sch_1.Sch.Connection) {
                 this.plotter.setColor(SCH_COLORS.LAYER_JUNCTION);
                 this.plotter.circle({ x: item.pos.x, y: item.pos.y }, 40, kicad_common_1.Fill.FILLED_SHAPE, DEFAULT_LINE_WIDTH);
             }
-            else if (item instanceof kicad_sch_1.NoConn) {
+            else if (item instanceof kicad_sch_1.Sch.NoConn) {
                 this.plotter.fill = kicad_common_1.Fill.NO_FILL;
                 const DRAWNOCONNECT_SIZE = 48;
                 const delta = DRAWNOCONNECT_SIZE / 2;
@@ -469,7 +469,7 @@ class SchPlotter {
                 this.plotter.moveTo(item.pos.x + delta, item.pos.y - delta);
                 this.plotter.finishTo(item.pos.x - delta, item.pos.y + delta);
             }
-            else if (item instanceof kicad_sch_1.Wire) {
+            else if (item instanceof kicad_sch_1.Sch.Wire) {
                 this.plotter.setColor(item.isBus ? SCH_COLORS.LAYER_BUS : SCH_COLORS.LAYER_WIRE);
                 this.plotter.setCurrentLineWidth(item.isBus ? DEFAULT_LINE_WIDTH_BUS : DEFAULT_LINE_WIDTH);
                 this.plotter.fill = kicad_common_1.Fill.NO_FILL;
@@ -517,16 +517,16 @@ class SchPlotter {
                 points[3].x -= halfSize;
             }
             let angle = 0;
-            if (item.orientationType === kicad_sch_1.TextOrientationType.HORIZ_LEFT) {
+            if (item.orientationType === kicad_sch_1.Sch.TextOrientationType.HORIZ_LEFT) {
                 angle = 0;
             }
-            else if (item.orientationType === kicad_sch_1.TextOrientationType.UP) {
+            else if (item.orientationType === kicad_sch_1.Sch.TextOrientationType.UP) {
                 angle = -900;
             }
-            else if (item.orientationType === kicad_sch_1.TextOrientationType.HORIZ_RIGHT) {
+            else if (item.orientationType === kicad_sch_1.Sch.TextOrientationType.HORIZ_RIGHT) {
                 angle = 1800;
             }
-            else if (item.orientationType === kicad_sch_1.TextOrientationType.BOTTOM) {
+            else if (item.orientationType === kicad_sch_1.Sch.TextOrientationType.BOTTOM) {
                 angle = 900;
             }
             for (let p of points) {

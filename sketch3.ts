@@ -7,14 +7,13 @@ import {
 	PageInfo,
 } from "./src/kicad_common";
 
-import {
-	PCB,
-	Board,
-	Module,
-	PadShape,
-	LSET,
-	PCB_LAYER_ID,
-} from "./src/kicad_pcb";
+import { Pcb } from "./src/kicad_pcb";
+const PCB = Pcb.PCB;
+const Board = Pcb.Board;
+const Module = Pcb.Module;
+const PadShape = Pcb.PadShape;
+const LSET = Pcb.LSET;
+const PCB_LAYER_ID = Pcb.PCB_LAYER_ID;
 
 import {
 	PCBPlotter,
@@ -41,7 +40,7 @@ const content = fs.readFileSync('../ledlight/ledlight.kicad_pcb', 'utf-8');
 const genSVG = true;
 const genCanvas = false;
 
-function render(plotter: Plotter, item: Board) {
+function render(plotter: Plotter, item: Pcb.Board) {
 		const pcbPlotter = new PCBPlotter(plotter);
 //		pcbPlotter.layerMask =  new LSET(...item.visibleLayers);
 //		pcbPlotter.plotStandardLayer(item);

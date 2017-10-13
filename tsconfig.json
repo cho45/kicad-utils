@@ -8,7 +8,7 @@
 		"sourceMap": true,
 		"declaration": true,
 		"noImplicitAny": true,
-		"lib": ["dom", "ES2017"],
+		"lib": ["dom", "es2017"],
 		"moduleResolution": "node",
 		"module": "commonjs",
 		"target": "esnext",

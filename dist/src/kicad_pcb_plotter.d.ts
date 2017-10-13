@@ -3,11 +3,11 @@
  * IMPL is NOT COMPLETED!!
  */
 import { Point, Fill, Size, Color } from "./kicad_common";
-import { Module, Pad, Board, EdgeModule, LSET, PadDrillShape, Text, Dimension, DrawSegment, PCB_LAYER_ID, TextModule, Zone } from "./kicad_pcb";
+import { Pcb } from './kicad_pcb';
 import { Plotter } from "./kicad_plotter";
 export declare class PCBPlotter {
     plotter: Plotter;
-    layerMask: LSET;
+    layerMask: Pcb.LSET;
     plotOpt: PCBPlotOptions;
     constructor(plotter: Plotter);
     flashPadCircle(pos: Point, dia: number, fill: Fill): void;
@@ -21,26 +21,26 @@ export declare class PCBPlotter {
     thickArc(center: Point, startAngle: number, endAngle: number, radius: number, lineWidth: number, fill: Fill): void;
     thickRect(p1: Point, p2: Point, lineWidth: number, fill: Fill): void;
     thickCircle(pos: Point, diameter: number, lineWidth: number, fill: Fill): void;
-    plotModule(mod: Module): void;
-    plotTextModule(mod: Module, text: TextModule, color: Color): void;
-    plotAllTextModule(mod: Module): void;
-    plotEdgeModule(edge: EdgeModule, mod: Module): void;
-    plotBoard(board: Board): void;
-    plotBoardLayer(board: Board, layer: number): void;
-    plotStandardLayer(board: Board): void;
-    plotSilkScreen(board: Board): void;
-    plotLayerOutline(board: Board): void;
-    plotSolderMaskLayer(board: Board, minThickness: number): void;
-    plotBoardLayers(board: Board, layerMask: LSET): void;
-    plotOneBoardLayer(board: Board, layerId: PCB_LAYER_ID): void;
-    plotFilledAreas(board: Board, zone: Zone): void;
-    plotPad(board: Board, pad: Pad, color: Color, fill: Fill): void;
-    plotDrillMarks(board: Board): void;
-    plotOneDrillMark(shape: PadDrillShape, pos: Point, drillSize: Size, padSize: Size, orientation: number, smallDrill: number): void;
-    plotBoardGraphicItems(board: Board): void;
-    plotBoardText(board: Board, text: Text): void;
-    plotDrawSegment(board: Board, seg: DrawSegment): void;
-    plotDimension(board: Board, dim: Dimension): void;
+    plotModule(mod: Pcb.Module): void;
+    plotTextModule(mod: Pcb.Module, text: Pcb.TextModule, color: Color): void;
+    plotAllTextModule(mod: Pcb.Module): void;
+    plotEdgeModule(edge: Pcb.EdgeModule, mod: Pcb.Module): void;
+    plotBoard(board: Pcb.Board): void;
+    plotBoardLayer(board: Pcb.Board, layer: number): void;
+    plotStandardLayer(board: Pcb.Board): void;
+    plotSilkScreen(board: Pcb.Board): void;
+    plotLayerOutline(board: Pcb.Board): void;
+    plotSolderMaskLayer(board: Pcb.Board, minThickness: number): void;
+    plotBoardLayers(board: Pcb.Board, layerMask: Pcb.LSET): void;
+    plotOneBoardLayer(board: Pcb.Board, layerId: Pcb.PCB_LAYER_ID): void;
+    plotFilledAreas(board: Pcb.Board, zone: Pcb.Zone): void;
+    plotPad(board: Pcb.Board, pad: Pcb.Pad, color: Color, fill: Fill): void;
+    plotDrillMarks(board: Pcb.Board): void;
+    plotOneDrillMark(shape: Pcb.PadDrillShape, pos: Point, drillSize: Size, padSize: Size, orientation: number, smallDrill: number): void;
+    plotBoardGraphicItems(board: Pcb.Board): void;
+    plotBoardText(board: Pcb.Board, text: Pcb.Text): void;
+    plotDrawSegment(board: Pcb.Board, seg: Pcb.DrawSegment): void;
+    plotDimension(board: Pcb.Board, dim: Pcb.Dimension): void;
     getColor(layer: number): Color;
     getPlotMode(): Fill;
 }
