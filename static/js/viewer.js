@@ -55,7 +55,7 @@ const app = new Vue({
 		},
 
 		onSubmit: function () {
-			const urls = this.url.replace(/^\s+|\s+$/g, '').split(/\s+/).map( (u) => ({ name: u, url: u.replace(/github\.com\/(.+)\/blob\/(.+)/, 'raw.githubusercontent.com/$1/$2') }));
+			const urls = this.url.replace(/^\s+|\s+$/g, '').split(/\s+/).map( (u) => ({ name: u, url: u }));
 			console.log(urls);
 			if (!urls.length) {
 				this.status = "url is required";
@@ -70,8 +70,18 @@ const app = new Vue({
 		loadFiles: async function (urls) {
 			console.log('loadFiles', urls);
 			urls = urls.filter( (url) => /[.](kicad_pcb|lib|sch)$/i.test(url.name) );
+			urls.add = function (url) {
+				this.push({ name: url, url: url });
+			};
+			urls.add('https://github.com/KiCad/kicad-library/blob/master/library/power.lib')
+			urls.add('https://github.com/KiCad/kicad-library/blob/master/library/device.lib')
+			urls.add('https://github.com/KiCad/kicad-library/blob/master/library/transistors.lib')
+			urls.add('https://github.com/KiCad/kicad-library/blob/master/library/conn.lib')
+			urls.add('https://github.com/KiCad/kicad-library/blob/master/library/linear.lib')
+			urls.add('https://github.com/KiCad/kicad-library/blob/master/library/regul.lib')
 
-			const res = await Promise.all(urls.map( (url) => fetch(url.url)));
+			this.status = "fetching URIs";
+			const res = await Promise.all(urls.map( (url) => fetch(url.url.replace(/github\.com\/(.+)\/blob\/(.+)/, 'raw.githubusercontent.com/$1/$2'))));
 			const text = await Promise.all(res.map( (r) => r.text()));
 			const files = text.map( (t, i) => ({ url: urls[i], content: t }) );
 
@@ -105,7 +115,7 @@ const app = new Vue({
 				});
 			}
 
-
+			this.status = 'loading libs';
 			await worker.call('loadLibs', libFiles.map((file) => file.content));
 
 			this.schs = [];

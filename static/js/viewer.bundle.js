@@ -27512,7 +27512,7 @@ var app = new Vue({
 
 		onSubmit: function onSubmit() {
 			var urls = this.url.replace(/^\s+|\s+$/g, '').split(/\s+/).map(function (u) {
-				return { name: u, url: u.replace(/github\.com\/(.+)\/blob\/(.+)/, 'raw.githubusercontent.com/$1/$2') };
+				return { name: u, url: u };
 			});
 			console.log(urls);
 			if (!urls.length) {
@@ -27538,20 +27538,30 @@ var app = new Vue({
 									return (/[.](kicad_pcb|lib|sch)$/i.test(url.name)
 									);
 								});
+								urls.add = function (url) {
+									this.push({ name: url, url: url });
+								};
+								urls.add('https://github.com/KiCad/kicad-library/blob/master/library/power.lib');
+								urls.add('https://github.com/KiCad/kicad-library/blob/master/library/device.lib');
+								urls.add('https://github.com/KiCad/kicad-library/blob/master/library/transistors.lib');
+								urls.add('https://github.com/KiCad/kicad-library/blob/master/library/conn.lib');
+								urls.add('https://github.com/KiCad/kicad-library/blob/master/library/linear.lib');
+								urls.add('https://github.com/KiCad/kicad-library/blob/master/library/regul.lib');
 
-								_context.next = 4;
+								this.status = "fetching URIs";
+								_context.next = 12;
 								return Promise.all(urls.map(function (url) {
-									return fetch(url.url);
+									return fetch(url.url.replace(/github\.com\/(.+)\/blob\/(.+)/, 'raw.githubusercontent.com/$1/$2'));
 								}));
 
-							case 4:
+							case 12:
 								res = _context.sent;
-								_context.next = 7;
+								_context.next = 15;
 								return Promise.all(res.map(function (r) {
 									return r.text();
 								}));
 
-							case 7:
+							case 15:
 								text = _context.sent;
 								files = text.map(function (t, i) {
 									return { url: urls[i], content: t };
@@ -27562,7 +27572,7 @@ var app = new Vue({
 								_iteratorNormalCompletion = true;
 								_didIteratorError = false;
 								_iteratorError = undefined;
-								_context.prev = 15;
+								_context.prev = 23;
 
 								for (_iterator = files[Symbol.iterator](); !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 									file = _step.value;
@@ -27576,62 +27586,62 @@ var app = new Vue({
 									}
 								}
 
-								_context.next = 23;
+								_context.next = 31;
 								break;
 
-							case 19:
-								_context.prev = 19;
-								_context.t0 = _context["catch"](15);
+							case 27:
+								_context.prev = 27;
+								_context.t0 = _context["catch"](23);
 								_didIteratorError = true;
 								_iteratorError = _context.t0;
 
-							case 23:
-								_context.prev = 23;
-								_context.prev = 24;
+							case 31:
+								_context.prev = 31;
+								_context.prev = 32;
 
 								if (!_iteratorNormalCompletion && _iterator.return) {
 									_iterator.return();
 								}
 
-							case 26:
-								_context.prev = 26;
+							case 34:
+								_context.prev = 34;
 
 								if (!_didIteratorError) {
-									_context.next = 29;
+									_context.next = 37;
 									break;
 								}
 
 								throw _iteratorError;
 
-							case 29:
-								return _context.finish(26);
+							case 37:
+								return _context.finish(34);
 
-							case 30:
-								return _context.finish(23);
+							case 38:
+								return _context.finish(31);
 
-							case 31:
+							case 39:
 								this.pcbs = [];
 								this.schs = [];
 
 								_iteratorNormalCompletion2 = true;
 								_didIteratorError2 = false;
 								_iteratorError2 = undefined;
-								_context.prev = 36;
+								_context.prev = 44;
 								_iterator2 = pcbFiles[Symbol.iterator]();
 
-							case 38:
+							case 46:
 								if (_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done) {
-									_context.next = 49;
+									_context.next = 57;
 									break;
 								}
 
 								pcbFile = _step2.value;
 
 								this.status = 'loading ' + pcbFile.url.name;
-								_context.next = 43;
+								_context.next = 51;
 								return worker.call('renderPCB', pcbFile.content);
 
-							case 43:
+							case 51:
 								_res = _context.sent;
 
 								this.errors.concat(_res.errors);
@@ -27642,63 +27652,65 @@ var app = new Vue({
 									layers: _res.layers
 								});
 
-							case 46:
+							case 54:
 								_iteratorNormalCompletion2 = true;
-								_context.next = 38;
+								_context.next = 46;
 								break;
 
-							case 49:
-								_context.next = 55;
+							case 57:
+								_context.next = 63;
 								break;
 
-							case 51:
-								_context.prev = 51;
-								_context.t1 = _context["catch"](36);
+							case 59:
+								_context.prev = 59;
+								_context.t1 = _context["catch"](44);
 								_didIteratorError2 = true;
 								_iteratorError2 = _context.t1;
 
-							case 55:
-								_context.prev = 55;
-								_context.prev = 56;
+							case 63:
+								_context.prev = 63;
+								_context.prev = 64;
 
 								if (!_iteratorNormalCompletion2 && _iterator2.return) {
 									_iterator2.return();
 								}
 
-							case 58:
-								_context.prev = 58;
+							case 66:
+								_context.prev = 66;
 
 								if (!_didIteratorError2) {
-									_context.next = 61;
+									_context.next = 69;
 									break;
 								}
 
 								throw _iteratorError2;
 
-							case 61:
-								return _context.finish(58);
+							case 69:
+								return _context.finish(66);
 
-							case 62:
-								return _context.finish(55);
+							case 70:
+								return _context.finish(63);
 
-							case 63:
-								_context.next = 65;
+							case 71:
+
+								this.status = 'loading libs';
+								_context.next = 74;
 								return worker.call('loadLibs', libFiles.map(function (file) {
 									return file.content;
 								}));
 
-							case 65:
+							case 74:
 
 								this.schs = [];
 								_iteratorNormalCompletion3 = true;
 								_didIteratorError3 = false;
 								_iteratorError3 = undefined;
-								_context.prev = 69;
+								_context.prev = 78;
 								_iterator3 = schFiles[Symbol.iterator]();
 
-							case 71:
+							case 80:
 								if (_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done) {
-									_context.next = 81;
+									_context.next = 90;
 									break;
 								}
 
@@ -27706,10 +27718,10 @@ var app = new Vue({
 
 								this.status = 'loading ' + schFile.url.name;
 
-								_context.next = 76;
+								_context.next = 85;
 								return worker.call('renderSch', schFile.content);
 
-							case 76:
+							case 85:
 								_res2 = _context.sent;
 
 
@@ -27718,59 +27730,59 @@ var app = new Vue({
 									src: _res2.src
 								});
 
-							case 78:
+							case 87:
 								_iteratorNormalCompletion3 = true;
-								_context.next = 71;
+								_context.next = 80;
 								break;
 
-							case 81:
-								_context.next = 87;
+							case 90:
+								_context.next = 96;
 								break;
 
-							case 83:
-								_context.prev = 83;
-								_context.t2 = _context["catch"](69);
+							case 92:
+								_context.prev = 92;
+								_context.t2 = _context["catch"](78);
 								_didIteratorError3 = true;
 								_iteratorError3 = _context.t2;
 
-							case 87:
-								_context.prev = 87;
-								_context.prev = 88;
+							case 96:
+								_context.prev = 96;
+								_context.prev = 97;
 
 								if (!_iteratorNormalCompletion3 && _iterator3.return) {
 									_iterator3.return();
 								}
 
-							case 90:
-								_context.prev = 90;
+							case 99:
+								_context.prev = 99;
 
 								if (!_didIteratorError3) {
-									_context.next = 93;
+									_context.next = 102;
 									break;
 								}
 
 								throw _iteratorError3;
 
-							case 93:
-								return _context.finish(90);
+							case 102:
+								return _context.finish(99);
 
-							case 94:
-								return _context.finish(87);
+							case 103:
+								return _context.finish(96);
 
-							case 95:
-								_context.next = 97;
+							case 104:
+								_context.next = 106;
 								return worker.call('unloadLibs');
 
-							case 97:
+							case 106:
 
 								this.status = 'done';
 
-							case 98:
+							case 107:
 							case "end":
 								return _context.stop();
 						}
 					}
-				}, _callee, this, [[15, 19, 23, 31], [24,, 26, 30], [36, 51, 55, 63], [56,, 58, 62], [69, 83, 87, 95], [88,, 90, 94]]);
+				}, _callee, this, [[23, 27, 31, 39], [32,, 34, 38], [44, 59, 63, 71], [64,, 66, 70], [78, 92, 96, 104], [97,, 99, 103]]);
 			}));
 
 			function loadFiles(_x) {
