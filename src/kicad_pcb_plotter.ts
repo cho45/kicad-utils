@@ -46,7 +46,7 @@ import {
 	Color,
 	Clamp,
 } from "./kicad_common";
-
+/*
 import {
 	Module,
 	Pad,
@@ -63,7 +63,9 @@ import {
 	TextModule,
 	Zone,
 	IsCopperLayer,
-} from "./kicad_pcb";
+} from "./kicad_pcb";*/
+
+import {Pcb} from './kicad_pcb';
 
 import {
 	Plotter,
@@ -97,11 +99,11 @@ const DEFAULT_LAYER_COLORS = [
 // pcbnew/plot_board_layers.cpp
 // pcbnew/plot_brditems_plotter.cpp 
 export class PCBPlotter {
-	layerMask: LSET;
+	layerMask: Pcb.LSET;
 	plotOpt: PCBPlotOptions;
 
 	constructor(public plotter: Plotter) {
-		this.layerMask = new LSET(PCB_LAYER_ID.F_Cu, PCB_LAYER_ID.B_Cu);
+		this.layerMask = new Pcb.LSET(Pcb.PCB_LAYER_ID.F_Cu, Pcb.PCB_LAYER_ID.B_Cu);
 		this.plotOpt   = new PCBPlotOptions();
 	}
 
@@ -393,31 +395,31 @@ export class PCBPlotter {
 	}
 
 
-	plotModule(mod: Module) {
+	plotModule(mod: Pcb.Module) {
 		for (let edge of mod.graphics) {
-			if (edge instanceof EdgeModule) {
+			if (edge instanceof Pcb.EdgeModule) {
 				this.plotEdgeModule(edge, mod);
 			}
 		}
 
 		for (let pad of mod.pads) {
-			if (pad.shape === PadShape.CIRCLE) {
+			if (pad.shape === Pcb.PadShape.CIRCLE) {
 				this.flashPadCircle(pad.pos, pad.size.width, Fill.NO_FILL);
 			} else
-			if (pad.shape === PadShape.RECT) {
+			if (pad.shape === Pcb.PadShape.RECT) {
 				this.flashPadRect(pad.pos, pad.size, pad.orientation, Fill.NO_FILL);
 			} else
-			if (pad.shape === PadShape.OVAL) {
+			if (pad.shape === Pcb.PadShape.OVAL) {
 				this.flashPadOval(pad.pos, pad.size, pad.orientation, Fill.NO_FILL);
 			} else
-			if (pad.shape === PadShape.TRAPEZOID) {
+			if (pad.shape === Pcb.PadShape.TRAPEZOID) {
 			} else
-			if (pad.shape === PadShape.ROUNDRECT) {
+			if (pad.shape === Pcb.PadShape.ROUNDRECT) {
 			}
 		}
 	}
 
-	plotTextModule(mod: Module, text: TextModule, color: Color) {
+	plotTextModule(mod: Pcb.Module, text: Pcb.TextModule, color: Color) {
 
 		let pos = Point.from(text.pos);
 		if (mod) {
@@ -442,7 +444,7 @@ export class PCBPlotter {
 		);
 	}
 
-	plotAllTextModule(mod: Module) {
+	plotAllTextModule(mod: Pcb.Module) {
 		if (this.layerMask.has(mod.reference.layer)) {
 			this.plotTextModule(mod, mod.reference, this.getColor(mod.reference.layer));
 		}
@@ -451,14 +453,14 @@ export class PCBPlotter {
 		}
 		for (let text of mod.graphics) {
 			if (!this.layerMask.has(text.layer)) continue;
-			if (text instanceof TextModule) {
+			if (text instanceof Pcb.TextModule) {
 				if (!text.visibility) continue;
 				this.plotTextModule(mod, text, this.getColor(text.layer));
 			}
 		}
 	}
 
-	plotEdgeModule(edge: EdgeModule, mod: Module) {
+	plotEdgeModule(edge: Pcb.EdgeModule, mod: Pcb.Module) {
 		// console.log('plotEdgeModule', edge);
 		this.plotter.setColor(this.getColor(edge.layer));
 
@@ -474,20 +476,20 @@ export class PCBPlotter {
 			end = Point.add(end, mod.pos);
 		}
 
-		if (shape === Shape.SEGMENT) {
+		if (shape === Pcb.Shape.SEGMENT) {
 			this.thickSegment(pos, end, lineWidth, this.getPlotMode());
 		} else
-		if (shape === Shape.ARC) {
+		if (shape === Pcb.Shape.ARC) {
 			const radius = GetLineLength(pos, end);
 			const startAngle  = ArcTangente( end.y - pos.y, end.x - pos.x );
 			const endAngle = startAngle + edge.angle;
 			this.thickArc( pos, endAngle, startAngle, radius, lineWidth, this.getPlotMode());
 		} else
-		if (shape === Shape.CIRCLE) {
+		if (shape === Pcb.Shape.CIRCLE) {
 			const radius = GetLineLength(pos, end);
 			this.thickCircle(pos, radius * 2, lineWidth, this.getPlotMode());
 		} else
-		if (shape === Shape.POLYGON) {
+		if (shape === Pcb.Shape.POLYGON) {
 			const points = edge.polyPoints;
 			if (points.length <= 1) return;
 
@@ -506,20 +508,20 @@ export class PCBPlotter {
 		}
 	}
 
-	plotBoard(board: Board) {
+	plotBoard(board: Pcb.Board) {
 		// console.log('plotBoard', board);
 	}
 
-	plotBoardLayer(board: Board, layer: number) {
+	plotBoardLayer(board: Pcb.Board, layer: number) {
 		this.plotter.setColor(this.getColor(layer));
 	}
 
-	plotStandardLayer(board: Board) {
+	plotStandardLayer(board: Pcb.Board) {
 		console.log('plotStandardLayer');
 
 		for (let mod of board.modules) {
 			for (let pad of mod.pads) {
-				if (!LSET.intersect(this.layerMask, pad.layers).length) continue;
+				if (!Pcb.LSET.intersect(this.layerMask, pad.layers).length) continue;
 
 				const margin = new Size(0, 0);
 				/*
@@ -534,10 +536,10 @@ export class PCBPlotter {
 				*/
 
 				let color = Color.BLACK;
-				if (pad.layers.has(PCB_LAYER_ID.B_Cu)) {
+				if (pad.layers.has(Pcb.PCB_LAYER_ID.B_Cu)) {
 					color = Color.GREEN;
 				}
-				if (pad.layers.has(PCB_LAYER_ID.F_Cu)) {
+				if (pad.layers.has(Pcb.PCB_LAYER_ID.F_Cu)) {
 					color = color.mix(Color.RED);
 				}
 
@@ -571,7 +573,7 @@ export class PCBPlotter {
 			for (let edge of mod.graphics) {
 				if (!this.layerMask.has(edge.layer)) continue;
 
-				if (edge instanceof EdgeModule) {
+				if (edge instanceof Pcb.EdgeModule) {
 					this.plotEdgeModule(edge, mod);
 				}
 			}
@@ -580,7 +582,7 @@ export class PCBPlotter {
 		this.plotDrillMarks(board);
 	}
 
-	plotSilkScreen(board: Board) {
+	plotSilkScreen(board: Pcb.Board) {
 		this.plotBoardGraphicItems(board);
 
 		for (let mod of board.modules) {
@@ -588,29 +590,29 @@ export class PCBPlotter {
 		}
 	}
 
-	plotLayerOutline(board: Board) {
+	plotLayerOutline(board: Pcb.Board) {
 	}
 
-	plotSolderMaskLayer(board: Board, minThickness: number) {
+	plotSolderMaskLayer(board: Pcb.Board, minThickness: number) {
 	}
 
-	plotBoardLayers(board: Board, layerMask: LSET) {
+	plotBoardLayers(board: Pcb.Board, layerMask: Pcb.LSET) {
 		this.layerMask = layerMask;
 		this.plotStandardLayer(board);
 		this.plotSilkScreen(board);
 	}
 
-	plotOneBoardLayer(board: Board, layerId: PCB_LAYER_ID) {
-		const layerMask = new LSET(layerId);
+	plotOneBoardLayer(board: Pcb.Board, layerId: Pcb.PCB_LAYER_ID) {
+		const layerMask = new Pcb.LSET(layerId);
 		this.layerMask = layerMask;
 
-		if (IsCopperLayer(layerId)) {
+		if (Pcb.IsCopperLayer(layerId)) {
 			this.plotOpt.skipNPTH_Pads = true;
 			this.plotStandardLayer(board);
 		} else {
 			switch (layerId) {
-				case PCB_LAYER_ID.B_Mask:
-				case PCB_LAYER_ID.F_Mask:
+				case Pcb.PCB_LAYER_ID.B_Mask:
+				case Pcb.PCB_LAYER_ID.F_Mask:
 					this.plotOpt.skipNPTH_Pads = false;
 					this.plotOpt.drillMarks = DrillMarksType.NO_DRILL_SHAPE;
 					if (board.boardDesignSetting.solderMaskMinWidth === 0) {
@@ -619,30 +621,30 @@ export class PCBPlotter {
 						this.plotSolderMaskLayer(board, board.boardDesignSetting.solderMaskMinWidth);
 					}
 					break;
-
-				case PCB_LAYER_ID.B_Adhes:
-				case PCB_LAYER_ID.F_Adhes:
-				case PCB_LAYER_ID.B_Paste:
-				case PCB_LAYER_ID.F_Paste:
+					
+				case Pcb.PCB_LAYER_ID.B_Adhes:
+				case Pcb.PCB_LAYER_ID.F_Adhes:
+				case Pcb.PCB_LAYER_ID.B_Paste:
+				case Pcb.PCB_LAYER_ID.F_Paste:
 					this.plotOpt.skipNPTH_Pads = false;
 					this.plotOpt.drillMarks = DrillMarksType.NO_DRILL_SHAPE;
 					this.plotStandardLayer(board);
 					break;
 
-				case PCB_LAYER_ID.F_SilkS:
-				case PCB_LAYER_ID.B_SilkS:
+				case Pcb.PCB_LAYER_ID.F_SilkS:
+				case Pcb.PCB_LAYER_ID.B_SilkS:
 					this.plotSilkScreen(board);
 					break;
-				case PCB_LAYER_ID.Dwgs_User:
-				case PCB_LAYER_ID.Cmts_User:
-				case PCB_LAYER_ID.Eco1_User:
-				case PCB_LAYER_ID.Eco2_User:
-				case PCB_LAYER_ID.Edge_Cuts:
-				case PCB_LAYER_ID.Margin:
-				case PCB_LAYER_ID.F_CrtYd:
-				case PCB_LAYER_ID.B_CrtYd:
-				case PCB_LAYER_ID.F_Fab:
-				case PCB_LAYER_ID.B_Fab:
+				case Pcb.PCB_LAYER_ID.Dwgs_User:
+				case Pcb.PCB_LAYER_ID.Cmts_User:
+				case Pcb.PCB_LAYER_ID.Eco1_User:
+				case Pcb.PCB_LAYER_ID.Eco2_User:
+				case Pcb.PCB_LAYER_ID.Edge_Cuts:
+				case Pcb.PCB_LAYER_ID.Margin:
+				case Pcb.PCB_LAYER_ID.F_CrtYd:
+				case Pcb.PCB_LAYER_ID.B_CrtYd:
+				case Pcb.PCB_LAYER_ID.F_Fab:
+				case Pcb.PCB_LAYER_ID.B_Fab:
 					this.plotOpt.skipNPTH_Pads = false;
 					this.plotOpt.drillMarks = DrillMarksType.NO_DRILL_SHAPE;
 					this.plotSilkScreen(board);
@@ -656,7 +658,7 @@ export class PCBPlotter {
 		}
 	}
 
-	plotFilledAreas(board: Board, zone: Zone) {
+	plotFilledAreas(board: Pcb.Board, zone: Pcb.Zone) {
 		const polyList = zone.filledPolygons;
 		if (!polyList.length) return;
 
@@ -693,19 +695,19 @@ export class PCBPlotter {
 		}
 	}
 
-	plotPad(board: Board, pad: Pad, color: Color, fill: Fill) {
+	plotPad(board: Pcb.Board, pad: Pcb.Pad, color: Color, fill: Fill) {
 		// console.log('plotPad', pad, color, fill);
 		this.plotter.setColor(color);
-		if (pad.shape === PadShape.CIRCLE) {
+		if (pad.shape === Pcb.PadShape.CIRCLE) {
 			this.flashPadCircle(pad.pos, pad.size.width, fill);
 		} else
-		if (pad.shape === PadShape.RECT) {
+		if (pad.shape === Pcb.PadShape.RECT) {
 			this.flashPadRect(pad.pos, pad.size, pad.orientation, fill);
 		} else
-		if (pad.shape === PadShape.OVAL) {
+		if (pad.shape === Pcb.PadShape.OVAL) {
 			this.flashPadOval(pad.pos, pad.size, pad.orientation, fill);
 		} else
-		if (pad.shape === PadShape.TRAPEZOID) {
+		if (pad.shape === Pcb.PadShape.TRAPEZOID) {
 			const coords: Array<Point> = [];
 			let sw = pad.size.width >> 1;
 			let sh = pad.size.height >> 1;
@@ -733,7 +735,7 @@ export class PCBPlotter {
 			));
 			this.flashPadTrapezoid(pad.pos, coords, pad.orientation, fill);
 		} else
-		if (pad.shape === PadShape.ROUNDRECT) {
+		if (pad.shape === Pcb.PadShape.ROUNDRECT) {
 			let r = pad.size.width > pad.size.height ? pad.size.height : pad.size.width;
 			r = Math.floor(r * pad.roundRectRatio);
 			this.flashPadRoundRect(pad.pos, pad.size, r, pad.orientation, fill);
@@ -741,13 +743,13 @@ export class PCBPlotter {
 	}
 
 
-	plotDrillMarks(board: Board) {
+	plotDrillMarks(board: Pcb.Board) {
 		if (this.getPlotMode() === Fill.FILLED_SHAPE) {
 			this.plotter.setColor(Color.WHITE);
 		}
 
 		for (let via of board.vias) {
-			this.plotOneDrillMark(PadDrillShape.CIRCLE, via.start, new Size(via.drill, 0), new Size(via.width, 0), 0, 0);
+			this.plotOneDrillMark(Pcb.PadDrillShape.CIRCLE, via.start, new Size(via.drill, 0), new Size(via.width, 0), 0, 0);
 		}
 
 		for (let mod of board.modules) {
@@ -758,21 +760,21 @@ export class PCBPlotter {
 		}
 	}
 
-	plotOneDrillMark(shape: PadDrillShape, pos: Point, drillSize: Size, padSize: Size, orientation: number, smallDrill: number) {
+	plotOneDrillMark(shape: Pcb.PadDrillShape, pos: Point, drillSize: Size, padSize: Size, orientation: number, smallDrill: number) {
 		drillSize = Size.from(drillSize);
-		if (smallDrill && shape === PadDrillShape.CIRCLE) {
+		if (smallDrill && shape === Pcb.PadDrillShape.CIRCLE) {
 			drillSize.width = Math.min(smallDrill, drillSize.width);
 		}
 		drillSize.width  = Clamp(1, drillSize.width, padSize.width - 1);
 		drillSize.height = Clamp(1, drillSize.height, padSize.height - 1);
-		if (shape === PadDrillShape.OBLONG) {
+		if (shape === Pcb.PadDrillShape.OBLONG) {
 			this.flashPadOval(pos, drillSize, orientation, this.getPlotMode());
 		} else {
 			this.flashPadCircle(pos, drillSize.width, this.getPlotMode());
 		}
 	}
 
-	plotBoardGraphicItems(board: Board) {
+	plotBoardGraphicItems(board: Pcb.Board) {
 		for (let seg of board.drawSegments) {
 			this.plotDrawSegment(board, seg);
 		}
@@ -790,14 +792,14 @@ export class PCBPlotter {
 		}
 	}
 
-	plotBoardText(board: Board, text: Text) {
+	plotBoardText(board: Pcb.Board, text: Pcb.Text) {
 		if (!this.layerMask.has(text.layer)) return;
 		const color = this.getColor(text.layer);
 		const t = text.text.replace(/\\n/g, "\n");
 		this.plotter.text(text.pos, color, t, text.angle, text.size, text.hjustify, text.vjustify, text.lineWidth, text.bold, text.italic);
 	}
 
-	plotDrawSegment(board: Board, seg: DrawSegment) {
+	plotDrawSegment(board: Pcb.Board, seg: Pcb.DrawSegment) {
 		const start = Point.from(seg.start);
 		const end   = Point.from(seg.end);
 		const lineWidth = seg.lineWidth;
@@ -805,17 +807,17 @@ export class PCBPlotter {
 		this.plotter.setColor(this.getColor(seg.layer));
 		this.plotter.setCurrentLineWidth(lineWidth);
 
-		if (seg.shape === Shape.CIRCLE) {
+		if (seg.shape === Pcb.Shape.CIRCLE) {
 			const radius = GetLineLength(end, start);
 			this.thickCircle(start, radius * 2, lineWidth, this.getPlotMode());
 		} else
-		if (seg.shape === Shape.ARC) {
+		if (seg.shape === Pcb.Shape.ARC) {
 			const radius = GetLineLength(end, start);
 			const startAngle = ArcTangente(end.y - start.y, end.x - start.x);
 			const endAngle   = startAngle + seg.angle;
 			this.thickArc(start, endAngle, startAngle, radius, lineWidth, this.getPlotMode());
 		} else
-		if (seg.shape === Shape.CURVE) {
+		if (seg.shape === Pcb.Shape.CURVE) {
 			for (var i = 1, len = seg.bezierPoints.length; i < len; i++) {
 				this.thickSegment(seg.bezierPoints[i-1], seg.bezierPoints[i], lineWidth, this.getPlotMode());
 			}
@@ -824,9 +826,9 @@ export class PCBPlotter {
 		}
 	}
 
-	plotDimension(board: Board, dim: Dimension) {
+	plotDimension(board: Pcb.Board, dim: Pcb.Dimension) {
 		if (!this.layerMask.has(dim.layer)) return;
-		const draw = new DrawSegment();
+		const draw = new Pcb.DrawSegment();
 
 		draw.lineWidth = dim.lineWidth;
 		draw.layer = dim.layer;

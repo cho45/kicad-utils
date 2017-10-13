@@ -5,6 +5,8 @@ const kicad_plotter_1 = require("kicad_plotter");
 const kicad_sch_plotter_1 = require("kicad_sch_plotter");
 const kicad_lib_1 = require("kicad_lib");
 const kicad_sch_1 = require("kicad_sch");
+const Library = kicad_lib_1.Lib.Library;
+const Schematic = kicad_sch_1.Sch.Schematic;
 const fs = require("fs");
 function ensure(arg) {
     if (!arg)
@@ -16,8 +18,8 @@ function ensure(arg) {
     //	const sch = Schematic.load(fs.readFileSync('../keyboard-schematic/Root.sch', 'utf-8'));
     //	const lib = Library.load(fs.readFileSync('../keyboard-schematic/KeyModule-L-cache.lib', 'utf-8'));
     //	const sch = Schematic.load(fs.readFileSync('../keyboard-schematic/KeyModule-L.sch', 'utf-8'));
-    const lib = kicad_lib_1.Library.load(fs.readFileSync('../keyboard-schematic/Root-cache.lib', 'utf-8'));
-    const sch = kicad_sch_1.Schematic.load(fs.readFileSync('../keyboard-schematic/_keymodule_l.sch', 'utf-8'));
+    const lib = Library.load(fs.readFileSync('../keyboard-schematic/Root-cache.lib', 'utf-8'));
+    const sch = Schematic.load(fs.readFileSync('../keyboard-schematic/_keymodule_l.sch', 'utf-8'));
     //	const lib = Library.load(fs.readFileSync('../schematic-test/schematic-test-cache.lib', 'utf-8'));
     //	const sch = Schematic.load(fs.readFileSync('../schematic-test/file59827D42.sch', 'utf-8'));
     //	const sch = Schematic.load(fs.readFileSync('../schematic-test/schematic-test.sch', 'utf-8'));

@@ -3,6 +3,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const kicad_common_1 = require("./src/kicad_common");
 const kicad_pcb_1 = require("./src/kicad_pcb");
+const PCB = kicad_pcb_1.Pcb.PCB;
+const Board = kicad_pcb_1.Pcb.Board;
+const Module = kicad_pcb_1.Pcb.Module;
+const PadShape = kicad_pcb_1.Pcb.PadShape;
+const LSET = kicad_pcb_1.Pcb.LSET;
+const PCB_LAYER_ID = kicad_pcb_1.Pcb.PCB_LAYER_ID;
 const kicad_pcb_plotter_1 = require("./src/kicad_pcb_plotter");
 const kicad_plotter_1 = require("./src/kicad_plotter");
 // console.log(Foo["xxx" as Foo]);
@@ -23,18 +29,18 @@ function render(plotter, item) {
     plotter.save();
     plotter.translate(0, 0);
     plotter.plotPageInfo(item.pageInfo);
-    pcbPlotter.plotBoardLayers(item, new kicad_pcb_1.LSET(kicad_pcb_1.PCB_LAYER_ID.F_Cu, kicad_pcb_1.PCB_LAYER_ID.F_Fab, kicad_pcb_1.PCB_LAYER_ID.F_CrtYd, kicad_pcb_1.PCB_LAYER_ID.F_Adhes, kicad_pcb_1.PCB_LAYER_ID.F_Paste, kicad_pcb_1.PCB_LAYER_ID.F_SilkS, kicad_pcb_1.PCB_LAYER_ID.Dwgs_User, kicad_pcb_1.PCB_LAYER_ID.Edge_Cuts));
+    pcbPlotter.plotBoardLayers(item, new LSET(PCB_LAYER_ID.F_Cu, PCB_LAYER_ID.F_Fab, PCB_LAYER_ID.F_CrtYd, PCB_LAYER_ID.F_Adhes, PCB_LAYER_ID.F_Paste, PCB_LAYER_ID.F_SilkS, PCB_LAYER_ID.Dwgs_User, PCB_LAYER_ID.Edge_Cuts));
     plotter.restore();
     plotter.save();
     plotter.translate(0, item.pageInfo.height * 2);
     plotter.scale(1, -1);
     plotter.plotPageInfo(item.pageInfo);
-    pcbPlotter.plotBoardLayers(item, new kicad_pcb_1.LSET(kicad_pcb_1.PCB_LAYER_ID.B_Cu, kicad_pcb_1.PCB_LAYER_ID.B_Fab, kicad_pcb_1.PCB_LAYER_ID.B_CrtYd, kicad_pcb_1.PCB_LAYER_ID.B_Adhes, kicad_pcb_1.PCB_LAYER_ID.B_Paste, kicad_pcb_1.PCB_LAYER_ID.B_SilkS, kicad_pcb_1.PCB_LAYER_ID.Dwgs_User, kicad_pcb_1.PCB_LAYER_ID.Edge_Cuts));
+    pcbPlotter.plotBoardLayers(item, new LSET(PCB_LAYER_ID.B_Cu, PCB_LAYER_ID.B_Fab, PCB_LAYER_ID.B_CrtYd, PCB_LAYER_ID.B_Adhes, PCB_LAYER_ID.B_Paste, PCB_LAYER_ID.B_SilkS, PCB_LAYER_ID.Dwgs_User, PCB_LAYER_ID.Edge_Cuts));
     plotter.restore();
 }
 if (genSVG) {
-    const item = kicad_pcb_1.PCB.load(content);
-    if (item instanceof kicad_pcb_1.Board) {
+    const item = PCB.load(content);
+    if (item instanceof Board) {
         const plotter = new kicad_plotter_1.SVGPlotter();
         plotter.scale(0.5, 0.5);
         plotter.startPlot();
@@ -44,12 +50,12 @@ if (genSVG) {
         plotter.endPlot();
         fs.writeFileSync("text.svg", plotter.output);
     }
-    else if (item instanceof kicad_pcb_1.Module) {
+    else if (item instanceof Module) {
     }
 }
 if (genCanvas) {
-    const item = kicad_pcb_1.PCB.load(content);
-    if (item instanceof kicad_pcb_1.Board) {
+    const item = PCB.load(content);
+    if (item instanceof Board) {
         const scale = 0.5;
         const width = item.pageInfo.width * scale;
         const height = item.pageInfo.height * scale * 2;
@@ -70,7 +76,7 @@ if (genCanvas) {
             console.log('saved png');
         });
     }
-    else if (item instanceof kicad_pcb_1.Module) {
+    else if (item instanceof Module) {
     }
 }
 //# sourceMappingURL=sketch3.js.map
