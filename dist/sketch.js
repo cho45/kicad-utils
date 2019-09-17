@@ -11,7 +11,7 @@ function ensure(arg) {
         throw "arg is falsy";
     return arg;
 }
-{
+{ // do sch
     //	const lib = Library.load(fs.readFileSync('../keyboard-schematic/Root-cache.lib', 'utf-8'));
     //	const sch = Schematic.load(fs.readFileSync('../keyboard-schematic/Root.sch', 'utf-8'));
     //	const lib = Library.load(fs.readFileSync('../keyboard-schematic/KeyModule-L-cache.lib', 'utf-8'));

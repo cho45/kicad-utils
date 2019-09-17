@@ -1,16 +1,21 @@
 
 const path = require('path');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
-const saveLicense = require('uglify-save-license');
+//const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+//const saveLicense = require('uglify-save-license');
 
 
 const babelOptions = {
-	"presets": [ [ "env", {
-		browsers: ["last 2 versions"] 
+	"presets": [ [ "@babel/preset-env", {
+		modules: false,
+		targets: {
+			browsers: ["last 2 versions"] 
+		}
 	} ] ]
 };
 
 module.exports = {
+	mode: 'development',
+
 	entry: {
 		library: ['url-search-params-polyfill', 'babel-polyfill', 'whatwg-fetch', './static/js/library.js'],
 		schematic: ['url-search-params-polyfill', 'babel-polyfill', 'whatwg-fetch', './static/js/common.js', './static/js/schematic.js'],
@@ -52,18 +57,6 @@ module.exports = {
 				]
 			},
 			{
-				test: /\.ts?$/,
-				use: [
-					{
-						loader: 'babel-loader',
-						options: babelOptions,
-					},
-					{
-						loader: 'ts-loader'
-					}
-				]
-			},
-			{
 				test: /\.js?$/,
 				exclude: /node_modules/, 
 				use: [
@@ -72,7 +65,22 @@ module.exports = {
 						options: babelOptions,
 					}
 				]
-			}
+			},
+			{
+				test: /\.ts?$/,
+				use: [
+					/*
+					{
+						loader: 'babel-loader',
+						options: babelOptions,
+					},
+					*/
+					{
+						loader: 'ts-loader'
+					}
+				],
+				exclude: /node_modules/
+			},
 		]
 	},
 

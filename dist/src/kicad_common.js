@@ -101,13 +101,13 @@ function RotatePoint(p, angle) {
     if (angle === 0) {
         return p;
     }
-    if (angle === 900) {
+    if (angle === 900) { /* sin = 1, cos = 0 */
         [p.x, p.y] = [p.y, -p.x];
     }
-    else if (angle == 1800) {
+    else if (angle == 1800) { /* sin = 0, cos = -1 */
         [p.x, p.y] = [-p.x, -p.y];
     }
-    else if (angle == 2700) {
+    else if (angle == 2700) { /* sin = -1, cos = 0 */
         [p.x, p.y] = [-p.y, p.x];
     }
     else {
@@ -237,7 +237,8 @@ class Transform {
         angle2 = NORMALIZE_ANGLE_POS(angle2);
         if (angle2 < angle1)
             angle2 += 3600;
-        if (angle2 - angle1 > 1800) {
+        if (angle2 - angle1 > 1800) // Need to swap the two angles
+         {
             angle = (angle1);
             angle1 = (angle2);
             angle2 = angle;

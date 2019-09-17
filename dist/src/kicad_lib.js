@@ -198,22 +198,22 @@ class Draw {
             if (line === 'ENDDRAW')
                 break;
             const tokens = line.split(/ +/);
-            if (tokens[0] === 'A') {
+            if (tokens[0] === 'A') { // ARC
                 this.objects.push(new DrawArc(tokens.slice(1)));
             }
-            else if (tokens[0] === 'C') {
+            else if (tokens[0] === 'C') { // CIRCLE
                 this.objects.push(new DrawCircle(tokens.slice(1)));
             }
-            else if (tokens[0] === 'P') {
+            else if (tokens[0] === 'P') { // POLYLINE
                 this.objects.push(new DrawPolyline(tokens.slice(1)));
             }
-            else if (tokens[0] === 'S') {
+            else if (tokens[0] === 'S') { // SQUEARE
                 this.objects.push(new DrawSquare(tokens.slice(1)));
             }
-            else if (tokens[0] === 'T') {
+            else if (tokens[0] === 'T') { // TEXT
                 this.objects.push(new DrawText(tokens.slice(1)));
             }
-            else if (tokens[0] === 'X') {
+            else if (tokens[0] === 'X') { // PIN
                 this.objects.push(new DrawPin(tokens.slice(1)));
             }
             else {
@@ -288,13 +288,13 @@ class DrawArc extends DrawObject {
         /* Arc end angle wrapped passed 360. */
         if (startAngle > endAngle)
             endAngle += 3600;
-        if (startAngle <= 900 && endAngle >= 900)
+        if (startAngle <= 900 && endAngle >= 900) /* 90 deg */
             maxY = centerPos.y + this.radius;
-        if (startAngle <= 1800 && endAngle >= 1800)
+        if (startAngle <= 1800 && endAngle >= 1800) /* 180 deg */
             minX = centerPos.x - this.radius;
-        if (startAngle <= 2700 && endAngle >= 2700)
+        if (startAngle <= 2700 && endAngle >= 2700) /* 270 deg */
             minY = centerPos.y - this.radius;
-        if (startAngle <= 3600 && endAngle >= 3600)
+        if (startAngle <= 3600 && endAngle >= 3600) /* 0 deg   */
             maxX = centerPos.x + this.radius;
         ret.pos1.x = minX;
         ret.pos1.y = minY;
