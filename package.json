@@ -27,7 +27,7 @@
     "canvas": "^2.6.0",
     "espower-typescript": "^9.0.2",
     "foreman": "^3.0.1",
-    "mocha": "^6.2.0",
+    "mocha": "^10.2.0",
     "power-assert": "^1.4.4",
     "source-map": "^0.7.3",
     "ts-loader": "^6.1.0",
